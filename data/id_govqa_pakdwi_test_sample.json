@@ -1,0 +1,1001 @@
+[
+  {
+    "query_id": "RB-001",
+    "question": "Berapa jumlah penduduk Indonesia menurut hasil Sensus Penduduk 2020 (SP2020)?",
+    "reference_answer": "Jumlah penduduk Indonesia hasil SP2020 pada September 2020 adalah 270,20 juta jiwa, bertambah 32,56 juta jiwa dibanding hasil SP2010.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/pressrelease/2021/01/21/1854/hasil-sensus-penduduk-sp2020-pada-september-2020-mencatat-jumlah-penduduk-sebesar-270-20-juta-jiwa-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-002",
+    "question": "Berapa kepadatan penduduk Indonesia menurut hasil SP2020?",
+    "reference_answer": "Dengan luas daratan Indonesia sekitar 1,9 juta km2, kepadatan penduduk Indonesia sebanyak 141 jiwa per km2.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/pressrelease/2021/01/21/1854/hasil-sensus-penduduk-sp2020-pada-september-2020-mencatat-jumlah-penduduk-sebesar-270-20-juta-jiwa-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-003",
+    "question": "Berapa jumlah penduduk Indonesia tahun 2020 menurut portal Sensus Penduduk BPS?",
+    "reference_answer": "Jumlah penduduk Indonesia pada tahun 2020 adalah 270.203.917 jiwa (136.661.899 laki-laki dan 133.542.018 perempuan).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://sensus.bps.go.id/main/index/sp2020",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-004",
+    "question": "Berapa jumlah penduduk DKI Jakarta hasil SP2020?",
+    "reference_answer": "SP2020 mencatat penduduk DKI Jakarta pada September 2020 sebanyak 10,56 juta jiwa.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://sensus.bps.go.id/pencarian/index/sp2020?keyword=penduduk&page=3&per-page=6",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-005",
+    "question": "Berapa jumlah penduduk Provinsi Bengkulu hasil SP2020?",
+    "reference_answer": "SP2020 mencatat penduduk Provinsi Bengkulu pada September 2020 sebanyak 2.010.670 jiwa.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://sensus.bps.go.id/pencarian/index/sp2020?keyword=penduduk&page=3&per-page=6",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-006",
+    "question": "Berapa Angka Kelahiran Total (TFR) Indonesia hasil SUPAS 2025?",
+    "reference_answer": "Angka Kelahiran Total (TFR) Indonesia hasil SUPAS 2025 adalah 2,13, yang mendekati Replacement Level.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/05/05/2645/supas-2025--angka-kelahiran-total--tfr--sebesar-2-13---angka-kematian-bayi--imr--sebesar-14-12--dan-persentase-lansia-mencapai-11-97-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-007",
+    "question": "Berapa Angka Kematian Bayi (IMR) dan Angka Kematian Ibu Melahirkan (MMR) hasil SUPAS 2025?",
+    "reference_answer": "IMR hasil SUPAS 2025 mencapai 14,12 dan MMR menurun mencapai 144.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/05/05/2645/supas-2025--angka-kelahiran-total--tfr--sebesar-2-13---angka-kematian-bayi--imr--sebesar-14-12--dan-persentase-lansia-mencapai-11-97-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-008",
+    "question": "Berapa rasio ketergantungan penduduk Indonesia hasil SUPAS 2025?",
+    "reference_answer": "Rasio ketergantungan pada tahun 2025 mencapai 45,05 persen.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/05/05/2645/supas-2025--angka-kelahiran-total--tfr--sebesar-2-13---angka-kematian-bayi--imr--sebesar-14-12--dan-persentase-lansia-mencapai-11-97-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-009",
+    "question": "Berapa persen penduduk lanjut usia Indonesia hasil SUPAS 2025?",
+    "reference_answer": "Persentase penduduk lanjut usia mencapai 11,97 persen, sehingga Indonesia berada pada fase ageing population.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/05/05/2645/supas-2025--angka-kelahiran-total--tfr--sebesar-2-13---angka-kematian-bayi--imr--sebesar-14-12--dan-persentase-lansia-mencapai-11-97-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-010",
+    "question": "Berapa persentase penduduk miskin Indonesia pada Maret 2024?",
+    "reference_answer": "Persentase penduduk miskin pada Maret 2024 sebesar 9,03 persen, turun 0,33 poin persentase terhadap Maret 2023.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/07/01/2370/persentase-penduduk-miskin-maret-2024-turun-menjadi-9-03-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-011",
+    "question": "Berapa jumlah penduduk miskin Indonesia pada Maret 2024?",
+    "reference_answer": "Jumlah penduduk miskin pada Maret 2024 sebesar 25,22 juta orang.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/07/01/2370/persentase-penduduk-miskin-maret-2024-turun-menjadi-9-03-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-012",
+    "question": "Berapa perbandingan persentase penduduk miskin perkotaan dan perdesaan pada Maret 2024?",
+    "reference_answer": "Persentase penduduk miskin perkotaan 7,09 persen dan perdesaan 11,79 persen (Maret 2024).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/07/01/2370/persentase-penduduk-miskin-maret-2024-turun-menjadi-9-03-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-013",
+    "question": "Berapa Garis Kemiskinan nasional Maret 2024 dan komposisinya?",
+    "reference_answer": "Garis Kemiskinan Maret 2024 sebesar Rp582.932 per kapita per bulan (Garis Kemiskinan Makanan Rp433.906 = 74,44% dan Bukan Makanan Rp149.026 = 25,56%).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/07/01/2370/persentase-penduduk-miskin-maret-2024-turun-menjadi-9-03-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-014",
+    "question": "Berapa rata-rata jumlah anggota rumah tangga miskin Indonesia pada Maret 2024?",
+    "reference_answer": "Rata-rata rumah tangga miskin di Indonesia memiliki 4,78 orang anggota rumah tangga.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/07/01/2370/persentase-penduduk-miskin-maret-2024-turun-menjadi-9-03-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-015",
+    "question": "Berapa persentase penduduk miskin Kalimantan Tengah pada Maret 2025?",
+    "reference_answer": "Persentase penduduk miskin Kalteng Maret 2025 sebesar 5,19 persen; jumlah penduduk miskin 147,80 ribu orang.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://kalteng.bps.go.id/id/pressrelease/2025/07/25/1599/persentase-penduduk-miskin-pada-maret-2025-sebesar-5-19-persen--jumlah-penduduk-miskin-pada-maret-2025-sebesar-147-80-ribu-orang.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-016",
+    "question": "Berapa inflasi year-on-year (y-on-y) Indonesia pada Desember 2025?",
+    "reference_answer": "Inflasi y-on-y Desember 2025 sebesar 2,92 persen dengan Indeks Harga Konsumen (IHK) 109,92.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/01/05/2527/inflasi-year-on-year--y-on-y--pada-desember-2025-sebesar-2-92-persen.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-017",
+    "question": "Berapa inflasi inti (core) y-on-y pada Desember 2025 menurut BPS?",
+    "reference_answer": "Inflasi y-on-y komponen inti Desember 2025 sebesar 2,38 persen, inflasi m-to-m 0,20 persen.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/01/05/2527/inflasi-year-on-year--y-on-y--pada-desember-2025-sebesar-2-92-persen.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-018",
+    "question": "Berapa inflasi y-on-y Indonesia pada Juni 2026 dan di mana inflasi tertingginya?",
+    "reference_answer": "Inflasi y-on-y Juni 2026 sebesar 3,34 persen; tertinggi di Provinsi Papua Pegunungan (7,84 persen) dan terendah di Sulawesi Barat (2,29 persen).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/07/01/2590/inflasi-year-on-year--y-on-y--pada-juni-2026-sebesar-3-34-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-019",
+    "question": "Berapa inflasi y-on-y Provinsi NTT Februari 2024 dan kota dengan inflasi tertinggi?",
+    "reference_answer": "Inflasi y-on-y NTT Februari 2024 sebesar 3,01 persen; inflasi tertinggi terjadi di Maumere (3,46 persen).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://ntt.bps.go.id/id/pressrelease/2024/03/01/1323/februari-2024-inflasi-year-on-year--y-on-y--provinsi-nusa-tenggara-timur-sebesar-3-01-persen--inflasi-tertinggi-terjadi-di-maumere-sebesar-3-46-persen-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-020",
+    "question": "Berapa PDB Indonesia tahun 2023 dan PDB per kapita menurut BPS?",
+    "reference_answer": "PDB Indonesia 2023 atas dasar harga berlaku mencapai Rp20.892,4 triliun dan PDB per kapita Rp75,0 juta atau US$4.919,7.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/02/05/2379/ekonomi-indonesia-triwulan-iv-2023-tumbuh-5-04-persen--y-on-y-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-021",
+    "question": "Berapa pertumbuhan ekonomi Indonesia tahun 2023?",
+    "reference_answer": "Ekonomi Indonesia 2023 tumbuh 5,05 persen, lebih rendah dibanding 2022 (5,31 persen).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/02/05/2379/ekonomi-indonesia-triwulan-iv-2023-tumbuh-5-04-persen--y-on-y-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-022",
+    "question": "Berapa pertumbuhan ekonomi Indonesia triwulan IV-2023 (y-on-y) dan (q-to-q)?",
+    "reference_answer": "Triwulan IV-2023 tumbuh 5,04 persen (y-on-y) dan 0,45 persen (q-to-q).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2024/02/05/2379/ekonomi-indonesia-triwulan-iv-2023-tumbuh-5-04-persen--y-on-y-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-023",
+    "question": "Berapa pertumbuhan ekonomi Indonesia triwulan I-2023?",
+    "reference_answer": "Ekonomi triwulan I-2023 tumbuh 5,03 persen (y-on-y); PDB nominal Rp5.071,7 triliun.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2023/05/05/1998/ekonomi-indonesia-triwulan-i-2023-tumbuh-5-03-persen--y-on-y-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-024",
+    "question": "Berapa Tingkat Pengangguran Terbuka (TPT) Februari 2024 dan rata-rata upah buruh?",
+    "reference_answer": "TPT Februari 2024 sebesar 4,82 persen (turun 0,63 poin persentase dari Februari 2023) dan rata-rata upah buruh Rp3,04 juta per bulan.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/assets/pressrelease/2024/05/06/2372/tingkat-pengangguran-terbuka--tpt--sebesar-4-82-persen-dan-rata-rata-upah-buruh-sebesar-3-04-juta-rupiah-per-bulan.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-025",
+    "question": "Berapa jumlah angkatan kerja Indonesia Februari 2024 menurut Sakernas?",
+    "reference_answer": "Angkatan kerja Februari 2024 sebanyak 149,38 juta orang, naik 2,76 juta orang dari Februari 2023.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/assets/pressrelease/2024/05/06/2372/tingkat-pengangguran-terbuka--tpt--sebesar-4-82-persen-dan-rata-rata-upah-buruh-sebesar-3-04-juta-rupiah-per-bulan.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-026",
+    "question": "Berapa jumlah penduduk bekerja Indonesia Februari 2024?",
+    "reference_answer": "Penduduk yang bekerja Februari 2024 sebanyak 142,18 juta orang.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/assets/pressrelease/2024/05/06/2372/tingkat-pengangguran-terbuka--tpt--sebesar-4-82-persen-dan-rata-rata-upah-buruh-sebesar-3-04-juta-rupiah-per-bulan.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-027",
+    "question": "Berapa TPT dan rata-rata upah buruh Indonesia Februari 2026?",
+    "reference_answer": "TPT Februari 2026 sebesar 4,68 persen dan rata-rata upah buruh Rp3,29 juta rupiah; angkatan kerja 154,91 juta orang.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2026/05/05/2574/tingkat-pengangguran-terbuka--tpt--sebesar-4-68-persen--rata-rata-upah-buruh-sebesar-3-29-juta-rupiah-.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-028",
+    "question": "Berapa nilai ekspor dan impor Indonesia Maret 2023?",
+    "reference_answer": "Nilai ekspor Maret 2023 US$23,50 miliar (naik 9,89% dari Februari 2023) dan impor US$20,59 miliar (naik 29,33%).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://nunukankab.bps.go.id/id/pressrelease/2023/04/17/231/ekspor-indonesia-maret-2023-mencapai-us-23-50-miliar--naik-9-89-persen-dibanding-februari-2023-dan-impor-indonesia-maret-2023-senilai-us-20-59-miliar--naik-29-33-persen-dibanding-februari-2023.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-029",
+    "question": "Bagaimana kinerja neraca perdagangan Indonesia Januari-November 2025?",
+    "reference_answer": "Neraca perdagangan Indonesia surplus US$38,54 miliar (Januari-November 2025), naik US$9,30 miliar dari periode sama tahun lalu; surplus beruntun 67 bulan sejak Mei 2020.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/news/2026/01/05/836/neraca-perdagangan-indonesia-berlanjut-surplus.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-030",
+    "question": "Berapa jumlah Rumah Tangga Usaha Pertanian (RTUP) hasil Sensus Pertanian 2023?",
+    "reference_answer": "Jumlah RTUP hasil ST2023 sebanyak 28.419.398 rumah tangga, naik 8,74% dari 2013 (26.135.469).",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://www.bps.go.id/id/pressrelease/2023/12/04/2050/hasil-pencacahan-lengkap-sensus-pertanian-2023---tahap-i.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-031",
+    "question": "Berapa jumlah petani gurem di Indonesia menurut Sensus Pertanian 2023, dan apa definisinya?",
+    "reference_answer": "Jumlah petani gurem 17.251.432 petani. Petani gurem adalah petani yang mengusahakan tanaman semusim/tahunan atau memelihara ternak dengan lahan pertanian kurang dari 0,5 hektar.",
+    "category": "GOV",
+    "institution": "BPS",
+    "source_url": "https://sensus.bps.go.id/main/index/st2023",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-032",
+    "question": "Berapa jumlah dataset yang ditampilkan Portal Satu Data Indonesia (data.go.id) pada laman utamanya?",
+    "reference_answer": "Laman utama data.go.id menampilkan lebih dari 662 ribu dataset tersedia (misal pembacaan '662.111+' pada tanggal pengecekan).",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-033",
+    "question": "Apakah tersedia dataset 'Indeks Kesiapsiagaan dan Ketahanan Siber Nasional Tahun 2025' dan status aksesnya di data.go.id?",
+    "reference_answer": "Ya, dataset tersedia di data.go.id, status Terbuka format CSV, prioritas 2025, dipublikasi 17-06-2026 (Dataset ID 51803584-1456-4e68-8a25-b6abed7f4ae2).",
+    "category": "GOV",
+    "institution": "Badan Siber dan Sandi Negara (BSSN)",
+    "source_url": "https://data.go.id/dataset/dataset/indeks-kesiapsiagaaan-dan-ketahanan-siber-nasional-tahun-2025",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-034",
+    "question": "Sebutkan dataset Skor Pola Pangan Harapan (PPH) tahun 2025 di data.go.id beserta status dan formatnya.",
+    "reference_answer": "Dataset 'Skor Pola Pangan Harapan Konsumsi Nasional update Tahun 2025' diterbitkan Badan Pangan Nasional, status Terbuka, format CSV/JSON/XLSX, prioritas 2026.",
+    "category": "GOV",
+    "institution": "Badan Pangan Nasional",
+    "source_url": "https://data.go.id/dataset/dataset/skor-pola-pangan-harapan-konsumsi-nasional-update-tahun-2025",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-035",
+    "question": "Apa isi dataset 'Jumlah Total Pangan yang Terselamatkan' di data.go.id?",
+    "reference_answer": "Dataset menunjukkan pangan yang berhasil diselamatkan (food rescue); semakin banyak pangan diterima semakin banyak potensi pangan berlebih yang diselamatkan. Status Terbuka, prioritas 2026.",
+    "category": "GOV",
+    "institution": "Badan Pangan Nasional",
+    "source_url": "https://data.go.id/dataset/dataset/jumlah-total-pangan-yang-terselamatkan-update-bulan-januari-2026",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-036",
+    "question": "Berapa banyak dataset yang dipublikasikan Kementerian Kesehatan di data.go.id?",
+    "reference_answer": "Kementerian Kesehatan mempublikasikan 19 dataset pada halaman instansinya di data.go.id.",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/instantion/kementerian-kesehatan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-037",
+    "question": "Berapa banyak dataset yang dipublikasikan Kementerian Keuangan di data.go.id?",
+    "reference_answer": "Kementerian Keuangan mempublikasikan 28 dataset di data.go.id (termasuk 3 data prioritas).",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/instantion/kementerian-keuangan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-038",
+    "question": "Apa isi dataset 'Jumlah Belanja Negara' di data.go.id?",
+    "reference_answer": "Dataset 'Jumlah Belanja Negara' (Terbuka, XLSX, prioritas 2024, dipublikasi 01-07-2024, Dataset ID 6b4b4350-c2bd-4849-98df-aa5d3d641648) dengan sumber Nota Keuangan 2024.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://data.go.id/dataset/dataset/jumlah-belanja-negara",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-039",
+    "question": "Berapa banyak dataset yang dipublikasikan Kementerian Agama di data.go.id? Sebutkan contohnya.",
+    "reference_answer": "Kementerian Agama mempublikasikan 229 dataset, antara lain 'Indeks Kerukunan Umat Beragama' (prioritas 2023) dan 'Jumlah Penduduk Menurut Agama'.",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/instantion/kementerian-agama",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-040",
+    "question": "Berapa banyak dataset yang dipublikasikan Kemendikbudristek di data.go.id? Sebutkan satu contoh.",
+    "reference_answer": "Kemendikbudristek mempublikasikan 263 dataset, contohnya 'Persentase penduduk usia 10 tahun ke atas yang mengakses internet dalam tiga bulan terakhir - 2024'.",
+    "category": "GOV",
+    "institution": "Kementerian Pendidikan, Kebudayaan, Riset dan Teknologi",
+    "source_url": "https://data.go.id/instantion/kementerian-pendidikan-kebudayaan-riset-dan-teknologi",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-041",
+    "question": "Berapa banyak dataset yang dipublikasikan Kementerian Dalam Negeri di data.go.id? Sebutkan contohnya.",
+    "reference_answer": "Kemendagri mempublikasikan 125 dataset, contohnya 'Data Jumlah penduduk yang memiliki KTP Per Kabupaten/Kota' dan 'JUMLAH PENDUDUK PER KABUPATEN/KOTA'.",
+    "category": "GOV",
+    "institution": "Kementerian Dalam Negeri",
+    "source_url": "https://data.go.id/instantion/kementerian-dalam-negeri",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-042",
+    "question": "Berapa jumlah perkara perdata gugatan sederhana yang diterima dan diputus PN Yogyakarta 2023?",
+    "reference_answer": "Sebanyak 37 perkara: diterima 25, diputus 12, dan upaya hukum 0 perkara (data terbuka XLSX).",
+    "category": "GOV",
+    "institution": "Kota Yogyakarta",
+    "source_url": "https://data.go.id/dataset/dataset/kyda2023-1622",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-043",
+    "question": "Berapa jumlah pemerintah daerah yang datanya diterima SIKD untuk Postur APBD Nasional Tahun 2026?",
+    "reference_answer": "Jumlah data APBD yang diterima SIKD untuk postur APBD nasional 2026 adalah 546 pemda (pendapatan daerah sekitar Rp1.189.020,29 M dan belanja daerah Rp1.252.995,33 M).",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpk.kemenkeu.go.id/portal/data/apbd",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-044",
+    "question": "Jenis data terbuka apa saja yang ditampilkan portal data.bmkg.go.id?",
+    "reference_answer": "Portal menampilkan Data Prakiraan Cuaca, Data Gempabumi, dan Peringatan Dini Cuaca.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-045",
+    "question": "Bagaimana karakteristik data prakiraan cuaca terbuka BMKG (cakupan waktu, jumlah data per hari, format, pemutakhiran)?",
+    "reference_answer": "Data prakiraan cuaca mencakup seluruh kelurahan/desa di Indonesia dalam waktu 3 harian; 8 data per hari (per 3 jam); format JSON; pemutakhiran 2 kali sehari.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/prakiraan-cuaca/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-046",
+    "question": "Apa contoh kode wilayah administrasi tingkat IV pada API prakiraan cuaca BMKG dan dasar hukumnya?",
+    "reference_answer": "Contoh kode wilayah Kelurahan Kemayoran: 31.71.03.1001, merujuk pada Keputusan Menteri Dalam Negeri Nomor 100.1.1-6117 Tahun 2022.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/prakiraan-cuaca/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-047",
+    "question": "Apa saja parameter cuaca yang dikembalikan API prakiraan cuaca BMKG?",
+    "reference_answer": "Parameter antara lain utc_datetime, local_datetime, t (suhu °C), hu (kelembapan %), weather_desc, wd (arah angin), ws, tcc, vs_text (jarak pandang), dan analysis_date.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=31.71.03.1001",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-048",
+    "question": "Sebutkan tiga jenis data gempabumi yang disediakan BMKG?",
+    "reference_answer": "Gempabumi M 5.0+, Gempabumi Dirasakan, dan Gempabumi Berpotensi Tsunami (format XML, JSON, dan JPG; pemutakhiran setiap ada peristiwa).",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/gempabumi",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-049",
+    "question": "Bagaimana isi data gempa terbaru (autogempa.json) BMKG pada 14 Agustus 2026?",
+    "reference_answer": "Gempa terbaru: 14 Agu 2026 pukul 01:39:29 WIB, magnitudo 5,7, kedalaman 48 km, wilayah 175 km TimurLaut TAHUNA-KEP. SANGIHE-SULUT, tidak berpotensi tsunami.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-050",
+    "question": "Sebutkan contoh gempa M 6,4 yang tercatat pada data gempaterkini.json BMKG.",
+    "reference_answer": "Pada 05 Agu 2026 tercatat gempa magnitudo 6,4, kedalaman 10 km, wilayah 221 km BaratLaut PULAU KARATUNG-SULUT.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-051",
+    "question": "Sebutkan contoh gempabumi yang dirasakan menurut data gempadirasakan.json BMKG bulan Agustus 2026.",
+    "reference_answer": "Contoh: 12 Agu 2026 gempa M 2,2 dengan pusat di darat 25 km selatan Bandung yang dirasakan skala II-III di Pangalengan.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-052",
+    "question": "Bagaimana karakteristik data peringatan dini cuaca (nowcast) BMKG?",
+    "reference_answer": "Data peringatan dini cuaca hingga level kecamatan untuk seluruh provinsi di Indonesia, berbasis Common Alerting Protocol (CAP), format XML, pemutakhiran setiap saat.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/peringatan-dini-cuaca",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-053",
+    "question": "Berapa jumlah dataset yang ditemukan pada Portal Satu Data Bencana Indonesia (data.bnpb.go.id)?",
+    "reference_answer": "Pada pengecekan 14-08-2026 ditemukan 468 dataset, dengan format terbanyak CSV (119) dan XLSX (106).",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/dataset",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-054",
+    "question": "Apakah tersedia dataset kompilasi kejadian dan dampak bencana tahun 2024 di data.bnpb.go.id?",
+    "reference_answer": "Ya, dataset 'Kompilasi Data Kejadian dan Dampak Bencana tahun 2024' tersedia (sumber dibi.bnpb.go.id, fase pascabencana, Dataset ID 36d9a6b5-9755-4515-8f8d-16e29843abc4).",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/dataset/kompilasi-data-jumlah-dan-dampak-kejadian-bencana-2024",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-055",
+    "question": "Berapa jumlah kejadian banjir dan kebakaran hutan-lahan di Indonesia pada 2024 menurut data BNPB?",
+    "reference_answer": "Kejadian banjir 2024 = 1.420 dan kebakaran hutan dan lahan (karhutla) 2024 = 973 (data open BNPB).",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/api/action/datastore_search?resource_id=9b41007e-c998-456b-8cbc-385b17986e46",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-056",
+    "question": "Berapa jumlah kejadian bandjir dan tanah longsor menurut data BNPB pada tahun dengan kejadian tertinggi?",
+    "reference_answer": "Banjir tertinggi tahun 2021 (1.794 kejadian); tanah longsor tertinggi tahun 2020 (1.054 kejadian).",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/api/action/datastore_search?resource_id=9b41007e-c998-456b-8cbc-385b17986e46",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-057",
+    "question": "Berapa kejadian banjir di Provinsi Aceh dan Sumatera Utara pada 2024?",
+    "reference_answer": "Aceh 2024: banjir 47 kejadian; Sumatera Utara 2024: banjir 120 kejadian.",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/api/action/datastore_search?resource_id=f345ba43-99aa-428c-82d8-4b6a0bba380e",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-058",
+    "question": "Sebutkan aplikasi/geoportal yang ditampilkan pada showcase Portal Satu Data Bencana Indonesia.",
+    "reference_answer": "Misalnya inaRISK, Geoportal Kebencanaan Indonesia, Katalog Digital Kesiapsiagaan, dan Dashboard Penanganan Darurat Erupsi Gunung Api Lewotobi Laki-Laki.",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/showcase",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-059",
+    "question": "Berapa jumlah produk teregistrasi yang masih berlaku menurut portal Cek BPOM?",
+    "reference_answer": "Obat 24.555; Obat Tradisional 20.929; Suplemen Kesehatan 4.908; Kosmetik 364.866; Pangan Olahan 247.653; Obat Kuasi 1.311.",
+    "category": "GOV",
+    "institution": "BPOM",
+    "source_url": "https://cekbpom.pom.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-060",
+    "question": "Sebutkan kategori produk pada menu produk Cek BPOM.",
+    "reference_answer": "OB (Obat), OT (Obat Tradisional), JA (Jamu), HT (Obat Herbal Terstandar), FF (Fitofarmaka), OL (Obat Bahan Alam Lainnya), OK (Obat Kuasi), SK (Suplemen Kesehatan), KO (Kosmetika), PO (Pangan Olahan).",
+    "category": "GOV",
+    "institution": "BPOM",
+    "source_url": "https://cekbpom.pom.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-061",
+    "question": "Sebutkan contoh dataset yang tersedia di Portal Satu Data BPOM (satudata.pom.go.id).",
+    "reference_answer": "Antara lain 'APP - Master Produk', 'Data Sarana Produksi Produk Obat yang Bersertifikat CPOB', 'Jumlah Industri Kecil dan Menengah yang Memperoleh Izin Edar Kosmetik', dan 'Jumlah Barang Ekspor Impor'.",
+    "category": "GOV",
+    "institution": "BPOM",
+    "source_url": "https://satudata.pom.go.id/datasets",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-062",
+    "question": "Berapa total belanja negara APBN 2025 yang disahkan DPR?",
+    "reference_answer": "Total belanja negara APBN 2025 sebesar Rp3.621,3 triliun, termasuk belanja K/L Rp1.160,1 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/portal/id/berita/berita/nasional/4366-dpr-sahkan-ruu-apbn-2025.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-063",
+    "question": "Berapa target pendapatan negara dan penerimaan perpajakan APBN 2025?",
+    "reference_answer": "Pendapatan negara APBN 2025 diperkirakan Rp3.005,1 triliun, didukung penerimaan perpajakan Rp2.490,9 triliun dan PNBP Rp513,6 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/portal/id/berita/berita/nasional/4366-dpr-sahkan-ruu-apbn-2025.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-064",
+    "question": "Berapa defisit APBN 2025 yang ditetapkan dalam UU APBN?",
+    "reference_answer": "Defisit APBN 2025 ditetapkan 2,53 persen dari PDB atau Rp616,2 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/portal/id/berita/berita/nasional/4366-dpr-sahkan-ruu-apbn-2025.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-065",
+    "question": "Berapa besar belanja negara APBN 2025 dan berapa pertumbuhannya dibanding 2024?",
+    "reference_answer": "Belanja negara 2025 disepakati Rp3.621,3 triliun, meningkat 8,9% dibanding APBN 2024; belanja pemerintah pusat Rp2.701,4 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://mediakeuangan.kemenkeu.go.id/article/show/dipa-2025-belanja-berkualitas-untuk-pertumbuhan-berkualitas",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-066",
+    "question": "Bagaimana realisasi APBN s/d November 2024 menurut APBN KiTa?",
+    "reference_answer": "Realisasi belanja negara s/d akhir November 2024 mencapai Rp2.894,47 triliun (87,05% pagu); defisit Rp401,77 triliun atau 1,81% PDB.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://media.kemenkeu.go.id/getmedia/be27c9e1-082c-4000-b795-ffe76296c191/APBN-KiTa-Desember-2024.pdf",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-067",
+    "question": "Bagaimana postur APBN sampai semester I 2026 menurut infografis DJPb?",
+    "reference_answer": "Pendapatan Rp1.459,4 triliun; Belanja negara Rp1.656 triliun; Defisit APBN Rp196,5 triliun (0,76% PDB); surplus keseimbangan primer Rp85,1 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/kppn/penerimaan/id/data-publikasi/infografis.html",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-068",
+    "question": "Berapa realisasi pendapatan negara dan hibah serta belanja negara pada LKPP 2024 (audited)?",
+    "reference_answer": "Pendapatan negara dan hibah realisasi Rp2.850,60 triliun (101,72% pagu) dan belanja negara realisasi Rp3.359,76 triliun (100,49%): belanja pemerintah pusat Rp2.496,22 T dan transfer ke daerah Rp863,54 T.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/portal/images/LKPP/LKPP-2024.pdf",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-069",
+    "question": "Berapa realisasi pembayaran bunga utang pada LKPP 2024?",
+    "reference_answer": "Pembayaran bunga utang (Debt Interest) direalisasi Rp488.426.422.143.817 (98,21% dari pagu).",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://djpb.kemenkeu.go.id/portal/images/LKPP/LKPP-2024.pdf",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-070",
+    "question": "Berapa defisit anggaran 2024 menurut hasil pemeriksaan BPK atas LKPP 2024?",
+    "reference_answer": "Kinerja keuangan pemerintah 2024 mencatat defisit anggaran Rp506,8 triliun atau 2,29% dari PDB.",
+    "category": "GOV",
+    "institution": "BPK",
+    "source_url": "https://www.bpk.go.id/assets/files/lkpp/2024/lkpp_2024_1762330928.pdf",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-071",
+    "question": "Berapa realisasi sementara pendapatan dan belanja negara APBN 2024?",
+    "reference_answer": "Realisasi sementara pendapatan negara Rp2.842,5 triliun dan belanja negara Rp3.350,3 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://mediakeuangan.kemenkeu.go.id/article/show/kilas-balik-kerja-keras-apbn-2024-melindungi-masyarakat-dan-menjaga-stabilitas-ekonomi",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-072",
+    "question": "Berapa realisasi penerimaan pajak tahun 2024 dan capaiannya terhadap target?",
+    "reference_answer": "Realisasi penerimaan pajak 2024 Rp1.932,4 triliun atau 96,7% dari target Rp1.988,9 triliun.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://www.liputan6.com/bisnis/read/5865313/penerimaan-negara-2024-lampaui-target-capai-rp-28425-triliun",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-073",
+    "question": "Berapa total jumlah peraturan yang terdata di peraturan.go.id dan berapa yang berstatus berlaku?",
+    "reference_answer": "62.360 peraturan; 57.587 berlaku; 5.158 tidak berlaku; 13.658 relasi (per 14-08-2026).",
+    "category": "GOV",
+    "institution": "Kemenkumham - Ditjen PP",
+    "source_url": "https://peraturan.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-074",
+    "question": "Berapa jumlah Undang-Undang dan Peraturan Menteri pada peraturan.go.id?",
+    "reference_answer": "1.929 Undang-Undang dan 20.353 Peraturan Menteri (per 14-08-2026).",
+    "category": "GOV",
+    "institution": "Kemenkumham - Ditjen PP",
+    "source_url": "https://peraturan.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-075",
+    "question": "Berapa jumlah Peraturan Daerah provinsi, kabupaten, dan kota pada peraturan.go.id?",
+    "reference_answer": "Perda Provinsi 3.449; Perda Kabupaten 11.015; Perda Kota 4.134.",
+    "category": "GOV",
+    "institution": "Kemenkumham - Ditjen PP",
+    "source_url": "https://peraturan.go.id/perda/rekapitulasi",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-076",
+    "question": "Berapa jumlah Peraturan Daerah dan Peraturan Gubernur pada JDIH DKI Jakarta?",
+    "reference_answer": "339 Peraturan Daerah (update 22 Juli 2026) dan 2.528 Peraturan Gubernur (update 12 Agustus 2026).",
+    "category": "GOV",
+    "institution": "Pemprov DKI Jakarta (Biro Hukum)",
+    "source_url": "https://jdih.jakarta.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-077",
+    "question": "Berapa jumlah dokumen pada JDIH Kementerian Keuangan?",
+    "reference_answer": "16,1K dokumen dan 5K subjek, dengan indeks kepuasan 3,89/5.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://jdih.kemenkeu.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-078",
+    "question": "Berapa jumlah peraturan dan jenis dokumen lain pada JDIH Kementerian Perdagangan?",
+    "reference_answer": "Peraturan 2.386; Monografi Hukum 707; Artikel Hukum 16; Putusan Hukum 90; Naskah Kerjasama 197.",
+    "category": "GOV",
+    "institution": "Kementerian Perdagangan",
+    "source_url": "https://jdih.kemendag.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-079",
+    "question": "Berapa jumlah produk hukum pada JDIH KPU?",
+    "reference_answer": "2.282 produk hukum KPU Pusat dan 14.185 produk hukum KPU Provinsi.",
+    "category": "GOV",
+    "institution": "Komisi Pemilihan Umum",
+    "source_url": "https://jdih.kpu.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-080",
+    "question": "Apa isi pokok Peraturan Presiden Nomor 33 Tahun 2012 tentang JDIHN?",
+    "reference_answer": "Perpres mengatur Jaringan Dokumentasi dan Informasi Hukum Nasional dengan BPHN Kemenkumham sebagai Pusat JDIHN, dan mencabut Keputusan Presiden Nomor 91 Tahun 1999.",
+    "category": "GOV",
+    "institution": "Kemenkumham - BPHN",
+    "source_url": "https://jdih.jombangkab.go.id/storage/dasar_hukum/lufoEFs4jCs8MQvnsLKZsLtJulMVQINDYU0BU8t4.pdf",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-081",
+    "question": "Siapa saja yang menjadi anggota JDIHN?",
+    "reference_answer": "Anggota JDIHN terdiri atas kementerian, sekretariat lembaga negara, LPNK, pemerintah provinsi, kabupaten/kota, sekretariat DPRD, perpustakaan hukum PTN/PTS, dan lembaga lain yang ditetapkan Menteri.",
+    "category": "GOV",
+    "institution": "Kemenkumham - BPHN",
+    "source_url": "https://jdihn.go.id/faq",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-082",
+    "question": "Berapa jumlah dataset pada Open Data Jabar?",
+    "reference_answer": "Open Data Jabar menampilkan 2.977 dataset provinsi dan 64.812 dataset kabupaten/kota (total terbaca 67.789 dataset pada pengecekan).",
+    "category": "GOV",
+    "institution": "Pemprov Jawa Barat (Jabar Digital Service)",
+    "source_url": "https://opendata.jabarprov.go.id/id/dataset",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-083",
+    "question": "Berapa realisasi belanja pegawai dan belanja hibah Pemerintah Provinsi Jawa Barat tahun 2014?",
+    "reference_answer": "Realisasi belanja pegawai 2014 = Rp1.874.131.897.076; realisasi belanja hibah 2014 = Rp6.344.276.084.296.",
+    "category": "GOV",
+    "institution": "BPKAD Provinsi Jawa Barat",
+    "source_url": "https://opendata.jabarprov.go.id/id/dataset/jumlah-realisasi-belanja-pemerintah-berdasarkan-jenis-dan-uraian-belanja-di-jawa-barat",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-084",
+    "question": "Berapa jumlah penduduk Kabupaten Bogor pada tahun 2010 menurut Open Data Jabar?",
+    "reference_answer": "Kabupaten Bogor 2010 = 4.813,88 ribu orang (periode dataset 2010-2025).",
+    "category": "GOV",
+    "institution": "BPS Provinsi Jawa Barat",
+    "source_url": "https://opendata.jabarprov.go.id/id/dataset/jumlah-penduduk-berdasarkan-kabupatenkota-di-jawa-barat",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-085",
+    "question": "Berapa jumlah angkatan kerja Kabupaten Bogor tahun 2011 menurut Open Data Jabar?",
+    "reference_answer": "Angkatan kerja Kabupaten Bogor 2011 = 2.074.803 orang.",
+    "category": "GOV",
+    "institution": "Disnakertrans Provinsi Jawa Barat",
+    "source_url": "https://opendata.jabarprov.go.id/id/dataset/jumlah-angkatan-kerja-berdasarkan-kabupatenkota-di-jawa-barat",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-086",
+    "question": "Berapa jumlah dataset pada Portal Data Jawa Tengah (data.jatengprov.go.id)?",
+    "reference_answer": "Pada pengecekan 14-08-2026 terbaca 209.206 dataset, dengan kontributor terbanyak Pemerintah Kota Semarang (28.291 dataset).",
+    "category": "GOV",
+    "institution": "Diskominfo Jawa Tengah",
+    "source_url": "https://data.jatengprov.go.id/dataset",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-087",
+    "question": "Apakah tersedia dataset tren prevalensi stunting Provinsi Jawa Tengah pada Portal Data Jateng?",
+    "reference_answer": "Ya, dataset 'Tren Prevalensi Stunting Tahun 2020-2025 Provinsi Jateng' tersedia format CSV (last updated 6 Agustus 2026).",
+    "category": "GOV",
+    "institution": "Dinas Kesehatan Provinsi Jawa Tengah",
+    "source_url": "https://data.jatengprov.go.id/dataset/tren-prevalensi-stunting-tahun-2020-2025-provinsi-jateng-triwulan-1-2026-provinsi-jateng",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-088",
+    "question": "Berapa pendapatan daerah dan realisasinya triwulan pertama 2026 pada Pemerintah Provinsi Jawa Tengah?",
+    "reference_answer": "Pendapatan daerah 2026 dianggarkan Rp23.352.448.041.000 dengan realisasi TW1 Rp5.550.091.692.832 (23,77%).",
+    "category": "GOV",
+    "institution": "BPKAD Provinsi Jawa Tengah",
+    "source_url": "https://ppid.jatengprov.go.id/realisasi-anggaran-pemerintah-provinsi-jawa-tengah/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-089",
+    "question": "Berapa belanja daerah dan realisasinya triwulan pertama 2026 pada Pemerintah Provinsi Jawa Tengah?",
+    "reference_answer": "Belanja daerah 2026 dianggarkan Rp23.766.948.041.000 dengan realisasi TW1 Rp4.669.145.617.259 (19,65%).",
+    "category": "GOV",
+    "institution": "BPKAD Provinsi Jawa Tengah",
+    "source_url": "https://ppid.jatengprov.go.id/realisasi-anggaran-pemerintah-provinsi-jawa-tengah/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-090",
+    "question": "Berapa jumlah penduduk Indonesia tahun 2013 dan 2023 menurut data Dukcapil?",
+    "reference_answer": "2013: 253.602.815 jiwa (cut off Desember); 2023: 279.118.866 jiwa (cut off Semester I).",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/page/read/data-kependudukan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-091",
+    "question": "Sebutkan provinsi, kabupaten, dan kota dengan jumlah penduduk terbesar per Desember 2022.",
+    "reference_answer": "Provinsi: Jawa Barat 49.339.670 jiwa; Kabupaten: Kab. Bogor 5.473.476; Kota: Jakarta Timur 3.298.225 (cut off Desember 2022).",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/page/read/data-kependudukan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-092",
+    "question": "Sebutkan provinsi, kabupaten, dan kota dengan jumlah penduduk terkecil (Desember 2022).",
+    "reference_answer": "Provinsi: Papua Selatan 522.844; Kabupaten: Kab. Supiori 25.148; Kota: Sabang 43.176.",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/page/read/data-kependudukan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-093",
+    "question": "Berapa rasio perekaman KTP-el nasional pada 2022?",
+    "reference_answer": "Tahun 2022: wajib KTP 204.971.858, perekaman 199.781.570, mencapai 99,37% (cut off Desember).",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/page/read/data-kependudukan",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-094",
+    "question": "Berapa jumlah penduduk Indonesia menurut Data Kependudukan Bersih (DKB) Semester II 2025?",
+    "reference_answer": "288.315.089 jiwa (laki-laki 145.498.092, perempuan 142.816.997), meningkat 1.621.396 jiwa dari Semester I 2025.",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/blog/read/kemendagri-rilis-data-kependudukan-penduduk-indonesia-tembus-288-3-juta-jiwa",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-095",
+    "question": "Berapa prevalensi balita stunting nasional tahun 2024 menurut Dashboard Stunting?",
+    "reference_answer": "Balita stunting nasional tahun 2024 = 19,8% (Sumber Data: SSGI 2024).",
+    "category": "GOV",
+    "institution": "Sekretariat Wakil Presiden (TP2S)",
+    "source_url": "https://dashboard.stunting.go.id/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-096",
+    "question": "Bagaimana tren prevalensi stunting Indonesia pada 2024 dan target turunannya?",
+    "reference_answer": "Prevalensi stunting 2024 = 19,8%, lebih rendah dari target 20,1%; turun dari 21,5% di 2023; target RPJMN menjadi 14,2% pada 2029.",
+    "category": "GOV",
+    "institution": "Sekretariat Wakil Presiden (TP2S)",
+    "source_url": "https://stunting.go.id/prevalensi-stunting-indonesia-turun-ke-198/",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-097",
+    "question": "Data unduhan apa saja yang tersedia pada Dashboard Stunting (TP2S)?",
+    "reference_answer": "Antara lain 'Kabupaten/Kota Prioritas' (2018-2022), 'Aksi Konvergensi' (Februari 2021), 'STATUS IDM Kab Tertinggal 2020', dan dasar hukum Perpres Nomor 63 Tahun 2020.",
+    "category": "GOV",
+    "institution": "Sekretariat Wakil Presiden (TP2S)",
+    "source_url": "https://dashboard.stunting.go.id/unduh-data",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-098",
+    "question": "Apa fungsi Portal SATUSEHAT Data Kementerian Kesehatan?",
+    "reference_answer": "SATUSEHAT Data merupakan rumah data untuk Satu Data Kesehatan Indonesia yang mendukung pengawasan, perumusan kebijakan, dan pengambilan keputusan yang terukur.",
+    "category": "GOV",
+    "institution": "Kementerian Kesehatan",
+    "source_url": "https://satusehat.kemkes.go.id/data/dataset",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-099",
+    "question": "Berapa persis jumlah pengguna yang mengunduh masing-masing dataset di data.go.id pada tanggal 14 Juli 2026?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-100",
+    "question": "Berapa jumlah persis tenaga kesehatan non-ASN pada tiap kabupaten/kota yang menjadi sampel dataset 'Tenaga Kesehatan Non ASN'?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Portal Satu Data Indonesia (Bappenas)",
+    "source_url": "https://data.go.id/instantion/kementerian-kesehatan",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-101",
+    "question": "Berapa rincian mutasi kas harian (dalam rupiah sen) Bendahara Umum Negara untuk tanggal 31 Maret 2025?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Kementerian Keuangan",
+    "source_url": "https://data-apbn.kemenkeu.go.id/",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-102",
+    "question": "Berapa total nilai temuan (dalam rupiah) yang terdapat pada setiap lembar kerja audit LKPP 2024 sebelum dokumen final terbit?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "BPK",
+    "source_url": "https://www.bpk.go.id/assets/files/lkpp/2024/lkpp_2024_1762330928.pdf",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-103",
+    "question": "Berapa jumlah penduduk per RT di setiap kelurahan Indonesia pada 31 Juli 2026?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Ditjen Dukcapil Kemendagri",
+    "source_url": "https://dukcapil.kemendagri.go.id/page/read/data-kependudukan",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-104",
+    "question": "Siapa nama analis BMKG yang menandatangani laporan kejadian gempa M 5,7 pada 14 Agustus 2026?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "BMKG",
+    "source_url": "https://data.bmkg.go.id/gempabumi",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-105",
+    "question": "Berapa jumlah total komplain masyarakat yang masuk ke Call Center 1500533 pada bulan Januari 2025?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "BPOM",
+    "source_url": "https://cekbpom.pom.go.id/",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-106",
+    "question": "Berapa rincian nama-nama korban meninggal setiap kejadian bencana pada tahun 2025?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "BNPB",
+    "source_url": "https://data.bnpb.go.id/dataset",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-107",
+    "question": "Berapa jumlah draf Rancangan Peraturan Menteri yang sedang dalam proses harmonisasi internal pada tanggal 13 Agustus 2026?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Kemenkumham - Ditjen PP",
+    "source_url": "https://peraturan.go.id/",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-108",
+    "question": "Dataset apa yang tersedia di SATUSEHAT Data mengenai tempat tidur rumah sakit COVID-19?",
+    "reference_answer": "Citra data: 'Dataset Proporsi Ketersediaan Tempat Tidur Rumah Sakit COVID-19' tersedia di SATUSEHAT Data (dilihat 6.203 kali, pembaruan 09 Juni 2026).",
+    "category": "GOV",
+    "institution": "Kementerian Kesehatan",
+    "source_url": "https://satusehat.kemkes.go.id/data/dataset/80f27e37-4ed9-4f33-a697-9f972bd47383",
+    "should_be_answerable": true
+  },
+  {
+    "query_id": "RB-109",
+    "question": "Berapa persis jumlah pasien yang melakukan telemedicine pada tanggal 3 Maret 2026 melalui aplikasi yang terhubung SATUSEHAT?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Kementerian Kesehatan",
+    "source_url": "https://satusehat.kemkes.go.id/data/dataset",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-110",
+    "question": "Berapa persis jumlah balita stunting hasil penimbangan per Posyandu di Kabupaten X pada bulan Februari 2026?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Sekretariat Wakil Presiden (TP2S)",
+    "source_url": "https://dashboard.stunting.go.id/unduh-data",
+    "should_be_answerable": false
+  },
+  {
+    "query_id": "RB-111",
+    "question": "Berapa total anggaran rahasia (tidak terbuka) yang dihapus dari publikasi APBD Jawa Barat tahun 2024?",
+    "reference_answer": "Tidak tersedia dari sumber terbuka yang dirujuk.",
+    "category": "GOV",
+    "institution": "Pemprov Jawa Barat",
+    "source_url": "https://opendata.jabarprov.go.id/id/dataset",
+    "should_be_answerable": false
+  }
+]
