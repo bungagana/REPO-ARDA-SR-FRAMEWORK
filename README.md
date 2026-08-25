@@ -9,6 +9,8 @@ A Retrieval-Augmented Generation framework for reliable, auditable government qu
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-TBD-lightgrey)
 ![Status](https://img.shields.io/badge/status-research%20code-orange)
+![Reproducible](https://img.shields.io/badge/reproducible-tables%206%2C8%2C9%20%2B%20Fig%206-green)
+![Datasets](https://img.shields.io/badge/datasets-CUAD%2C%20ConditionalQA%2C%20FinanceBench%2C%20PubMedQA-blueviolet)
 
 </div>
 

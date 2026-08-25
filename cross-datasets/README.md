@@ -11,12 +11,20 @@ The build scripts live in the framework at
 
 ## Datasets
 
-| Dataset | Domain | Size (used) | Official source | Build script |
-|---|---|---|---|---|
-| **CUAD** (Contract Understanding Atticus Dataset) | Legal contracts (SQuAD-style clause QA) | 180 queries | [`theatticusproject/cuad-qa` on Hugging Face](https://huggingface.co/datasets/theatticusproject/cuad-qa) | `supplementary/cross_domain/cuad/01_build_cuad_kb.py` |
-| **ConditionalQA** | Government / public policy (gov.uk) | 180 queries | [`haitian-sun/ConditionalQA` on GitHub](https://github.com/haitian-sun/ConditionalQA) | `supplementary/cross_domain/conditionalqa/01_build_conditionalqa_kb.py` |
-| **FinanceBench** | Financial audits (SEC filings) | 180 queries | [`PatronusAI/financebench` on Hugging Face](https://huggingface.co/datasets/PatronusAI/financebench) | `supplementary/cross_domain/financebench/01_build_financebench_kb.py` |
-| **PubMedQA** (PQA-L) | Biomedical / health | 180 queries | [`qiaojin/PubMedQA` on Hugging Face](https://huggingface.co/datasets/qiaojin/PubMedQA) | `supplementary/cross_domain/pubmedqa/01_build_pubmedqa_kb.py` |
+| Dataset | Domain | Size (used) | Official source | Citation (in the manuscript) | Build script |
+|---|---|---|---|---|---|
+| **CUAD** (Contract Understanding Atticus Dataset) | Legal contracts (SQuAD-style clause QA) | 180 queries | [`theatticusproject/cuad-qa` on Hugging Face](https://huggingface.co/datasets/theatticusproject/cuad-qa) | Hendrycks, Burns, Chen & Ball (2021) | `supplementary/cross_domain/cuad/01_build_cuad_kb.py` |
+| **ConditionalQA** | Government / public policy (gov.uk) | 180 queries | [`haitian-sun/ConditionalQA` on GitHub](https://github.com/haitian-sun/ConditionalQA) | Sun, Cohen & (co-authors) | `supplementary/cross_domain/conditionalqa/01_build_conditionalqa_kb.py` |
+| **FinanceBench** | Financial audits (SEC filings) | 180 queries | [`PatronusAI/financebench` on Hugging Face](https://huggingface.co/datasets/PatronusAI/financebench) | Islam, Kannappan, Kiela, Qian, Scherner & (co-authors) | `supplementary/cross_domain/financebench/01_build_financebench_kb.py` |
+| **PubMedQA** (PQA-L) | Biomedical / health | 200 queries | [`qiaojin/PubMedQA` on Hugging Face](https://huggingface.co/datasets/qiaojin/PubMedQA) | Jin et al. (2019) | `supplementary/cross_domain/pubmedqa/01_build_pubmedqa_kb.py` |
+| **ID-GovQA** (pakdwi) | Indonesian government policy | 111 queries | Collected from **public Indonesian open-data portals**; bundled in [`data/id_govqa_pakdwi_test_sample.json`](../data/id_govqa_pakdwi_test_sample.json) | Authors' own (described in the manuscript) | `supplementary/cross_domain/pakdwi/01_build_pakdwi_kb.py` |
+
+> **Citation note.** CUAD, ConditionalQA, FinanceBench and PubMedQA are **public
+> benchmark datasets** and are cited in the manuscript. **ID-GovQA** is a dataset of
+> real-world Indonesian government queries assembled by the authors from **public
+> open-data portals**; it is not a third-party benchmark but is shared with this
+> repository (`data/id_govqa_pakdwi_test_sample.json`, 111 queries, 12 unanswerable) so
+> the cross-domain result can be reproduced.
 
 ### Download links (direct)
 
