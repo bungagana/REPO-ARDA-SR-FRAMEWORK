@@ -110,6 +110,7 @@ and model names — are centralized in [`config.py`](config.py).
 The following contributors have contributed to the development, evaluation, and research associated with ARDA-SR:
 
 - **Wawan Firgiawan**
+- **Shoffi Izza Sabila**
 
 
 ## Citation
