@@ -332,7 +332,6 @@ The following contributors have contributed to the development, evaluation, and 
 - **Dr. Shoffi Izza Sabila** — Department of Medical Technology, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
 - **Dr. Bilqis Amaliah** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
 
-
 ## Citation
 
 If you use this code or dataset, please cite the accompanying paper:
