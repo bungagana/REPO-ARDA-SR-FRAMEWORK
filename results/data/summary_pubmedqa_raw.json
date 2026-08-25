@@ -1,0 +1,41 @@
+{
+  "standard_rag": {
+    "hit_at_5": 0.995,
+    "ctx_rel": 0.809,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.31,
+    "far": 0.0,
+    "latency_s": 1.306,
+    "n_queries": 200,
+    "rel": 0.673,
+    "faith": 0.94,
+    "cov": 0.498
+  },
+  "selfrag": {
+    "hit_at_5": 1.0,
+    "ctx_rel": 0.819,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.0,
+    "far": 0.0,
+    "latency_s": 2.922,
+    "n_queries": 200,
+    "rel": 0.896,
+    "faith": 0.947,
+    "cov": 0.762
+  },
+  "arda_sr": {
+    "hit_at_5": 1.0,
+    "ctx_rel": 0.818,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.005,
+    "far": 0.0,
+    "latency_s": 6.588,
+    "n_queries": 200,
+    "rel": 0.894,
+    "faith": 0.846,
+    "cov": 0.706
+  }
+}
