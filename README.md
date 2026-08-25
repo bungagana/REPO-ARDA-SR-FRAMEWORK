@@ -250,6 +250,16 @@ latency is small, and it buys a Pareto-optimal point (best quality, lowest refus
 latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
 scenario path — the cost is configurable, not fixed.
 
+**Limitation & future work.** The higher latency is a recognised limitation for
+latency-sensitive applications (see the manuscript's Limitations). Two concrete future
+directions are planned to reduce it while keeping the quality gains (see
+[`results/LATENCY_FUTURE_WORK.md`](results/LATENCY_FUTURE_WORK.md)):
+
+- **early-exit routing** — route simple queries out before the expensive scenario/
+  dual-draft stages;
+- **parallel execution** of the two drafts in the dual-draft stage instead of
+  sequentially.
+
 ## Real-World Deployment
 
 A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
