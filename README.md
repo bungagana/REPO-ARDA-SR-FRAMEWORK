@@ -41,11 +41,12 @@ annotation records used to validate it, so results can be independently reproduc
 | [`data/`](data) | The QA benchmark — 1,000 main-domain QA pairs + 111 real-world Indonesian government QA pairs (ID-GovQA) |
 | [`annotations/`](annotations) | Item-level validation of the benchmark by three independent annotators |
 | [`supplementary/`](supplementary) | Cross-domain zero-shot transfer + an unanswerable-query diagnostic |
+| [`results/`](results) | Reproducible comparison tables (Table 6, 8, 9), Figure 6, raw per-query experiment outputs, and the `reproduce_tables.py` script |
+| [`cross-datasets/`](cross-datasets) | Public cross-domain datasets (CUAD / ConditionalQA / FinanceBench / PubMedQA) — download links, schema, and per-dataset reproduction steps |
 | [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening in government question answering (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
 | `config.py` | All method parameters in one place |
 
-**Not included:** the source document corpus, model-generated answers/results from the
-reported experiments, and API keys.
+**Not included:** the source document corpus, the model weights, and API keys.
 
 ## Quick start
 

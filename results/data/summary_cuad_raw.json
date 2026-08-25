@@ -1,0 +1,15 @@
+{
+  "arda_sr": {
+    "hit_at_5": 1.0,
+    "ctx_rel": 0.41,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.0,
+    "far": 1.0,
+    "latency_s": 8.284,
+    "n_queries": 180,
+    "rel": 0.7744,
+    "faith": 0.8078,
+    "cov": 0.6978
+  }
+}

@@ -1,0 +1,6 @@
+backbone_file,model,n_answerable,n_unanswerable,frr,n_correctly_refused,arr_unanswerable,far_unanswerable,hit_at_5,latency_mean_s
+arda_sr_gemma2_9b_pakdwi_summary.json,gemma2:9b,99,12,0.0606,9,0.75,0.25,1.0,6.355
+arda_sr_llama3.1_8b_pakdwi_summary.json,llama3.1:8b,99,12,0.2222,9,0.75,0.25,1.0,6.536
+arda_sr_mixtral_8x7b_pakdwi_summary.json,mixtral:8x7b,99,12,0.0404,5,0.4167,0.5833,1.0,13.675
+arda_sr_qwen2.5_14b_pakdwi_summary.json,qwen2.5:14b,99,12,0.0505,8,0.6667,0.3333,1.0,6.25
+arda_sr_qwen2.5_7b_pakdwi_summary.json,qwen2.5:7b,99,12,0.2626,12,1.0,0.0,1.0,6.41

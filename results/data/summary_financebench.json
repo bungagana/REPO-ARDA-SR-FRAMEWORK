@@ -1,0 +1,47 @@
+{
+  "arda_sr": {
+    "rel": 0.644,
+    "faith": 0.6227,
+    "cov": 0.52,
+    "ctx_rel": 0.5067,
+    "hit_at_5": null,
+    "latency_s": 7.701,
+    "n_queries": 150,
+    "frr": 0.2733333333333333,
+    "far": null,
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "frr_before_fix": 0.013333333333333334,
+    "far_before_fix": null
+  },
+  "selfrag": {
+    "rel": 0.688,
+    "faith": 0.8107,
+    "cov": 0.6147,
+    "ctx_rel": 0.5223,
+    "hit_at_5": null,
+    "latency_s": 3.594,
+    "n_queries": 150,
+    "frr": 0.44,
+    "far": null,
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "frr_before_fix": 0.09333333333333334,
+    "far_before_fix": null
+  },
+  "standard_rag": {
+    "rel": 0.4373,
+    "faith": 0.8707,
+    "cov": 0.3787,
+    "ctx_rel": 0.508,
+    "hit_at_5": null,
+    "latency_s": 1.287,
+    "n_queries": 150,
+    "frr": 0.6466666666666666,
+    "far": null,
+    "n_answerable": 150,
+    "n_unanswerable": 0,
+    "frr_before_fix": 0.6466666666666666,
+    "far_before_fix": null
+  }
+}

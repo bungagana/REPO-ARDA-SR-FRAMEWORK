@@ -1,0 +1,41 @@
+{
+  "standard_rag": {
+    "hit_at_5": 0.8108,
+    "ctx_rel": 0.7009,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.303,
+    "far": 0.0,
+    "latency_s": 1.229,
+    "n_queries": 111,
+    "rel": 0.773,
+    "faith": 0.9928,
+    "cov": 0.6721
+  },
+  "selfrag": {
+    "hit_at_5": 0.8981,
+    "ctx_rel": 0.8,
+    "tool_acc": 0.0,
+    "sr_comp": 0.0,
+    "frr": 0.1818,
+    "far": 0.0,
+    "latency_s": 2.991,
+    "n_queries": 111,
+    "rel": 0.8721,
+    "faith": 0.9694,
+    "cov": 0.836
+  },
+  "arda_sr": {
+    "hit_at_5": 0.8739,
+    "ctx_rel": 0.7459,
+    "tool_acc": 0.2252,
+    "sr_comp": 0.0,
+    "frr": 0.0404,
+    "far": 0.0,
+    "latency_s": 9.259,
+    "n_queries": 111,
+    "rel": 0.9577,
+    "faith": 0.9829,
+    "cov": 0.9351
+  }
+}
