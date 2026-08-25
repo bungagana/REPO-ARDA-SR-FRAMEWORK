@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets / keys
+.env
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Large data artifacts (data is shared on request / password-protected)
+*.zip
+!Real-World Deployment/data/*.zip
