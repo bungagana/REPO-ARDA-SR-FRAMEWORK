@@ -226,6 +226,32 @@ highest Relevance at a moderate cost, whereas cheaper methods (LLM-Only, Standar
 trade away accuracy and costlier ones (ReAct, IRCoT) add little relevance for their
 latency.*
 
+### Latency is adaptive, not uniform
+
+ARDA-SR's mean latency (6.40 s) is an **average over a heterogeneous query mix**, not a
+fixed per-query cost. The Adaptive Query Router (AQR) routes each query to the cheapest
+processing mode that can answer it, so **simple queries complete much faster** and only
+the most complex ones trigger the full multi-step pipeline:
+
+| AQR mode | Meaning | n | Mean latency (s) |
+|---|---|---|---|
+| **m1** | Direct / parametric — no retrieval | 208 | **5.25** |
+| **m2** | Straightforward factual retrieval | 367 | 6.18 |
+| **m3** | Ambiguous → dual-draft arbitration | 211 | 6.05 |
+| **m4** | Policy-scenario → scenario reasoning (SR) | 214 | **8.24** |
+
+Overall: 48% of queries complete in under 6 s and 74% under 7 s; the scenario-reasoning
+path (m4, / policy-scenario category ≈ 8.7 s) is the only slow one, and it is reserved
+for the most demanding queries.
+
+**Why this is not a concern.** First, 6.40 s is **comparable to other reasoning-based
+baselines** (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s) — ARDA-SR is not uniquely
+slow. Second, the cost purchases the **best answer quality** (Relevance 0.871) and the
+**lowest false-refusal rate** (FRR 0.040) among all methods, i.e. a Pareto-optimal
+trade-off. Third, for latency-sensitive deployments the AQR threshold can be tightened
+so most queries take the fast m1/m2 path, trading a little accuracy for responsiveness —
+a configurable knob, not a limitation.
+
 ## Real-World Deployment
 
 A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
