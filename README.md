@@ -92,35 +92,62 @@ Each script consumes the previous script's output.
 > `data/id_govqa_pakdwi_test_sample.json` already contain the QA pairs used in the paper —
 > skip straight to step 4 against your own knowledge base.
 
-## Real-World Deployment
+## Datasets
 
-A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
-inpatient-claim screening in government question answering** on the Senopati AI platform
-([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)).
+The framework is evaluated on a main-domain dataset (1000 government QA pairs) plus
+**four public cross-domain benchmarks** and a **real-world Indonesian government set**.
+The cross-domain datasets are all directly downloadable from their official public
+sources (repository [`cross-datasets/`](cross-datasets));
+full schema + per-dataset reproduction steps are in
+[`cross-datasets/README.md`](cross-datasets/README.md).
 
-See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
+| Dataset | Domain | Size | Official source / link | Citation (in manuscript) |
+|---|---|---|---|---|
+| Main domain (TransHub) | Indonesian transmigration policy | 1,000 QA | authors' own (in [`data/`](data)) | — |
+| **CUAD** | Legal contracts | 180 | [theatticusproject/cuad-qa (HF)](https://huggingface.co/datasets/theatticusproject/cuad-qa) | Hendrycks, Burns, Chen & Ball (2021) |
+| **ConditionalQA** | Government / public policy | 180 | [haitian-sun/ConditionalQA (GitHub)](https://github.com/haitian-sun/ConditionalQA) | Sun, Cohen & Salakhutdinov (2022) |
+| **FinanceBench** | Financial audits | 180 | [PatronusAI/financebench (HF)](https://huggingface.co/datasets/PatronusAI/financebench) | Islam et al. |
+| **PubMedQA** | Biomedical / health | 200 | [qiaojin/PubMedQA (HF)](https://huggingface.co/datasets/qiaojin/PubMedQA) | Jin, Dhingra, Liu, Cohen & Lu (2019) |
+| **ID-GovQA** | Indonesian government policy | 111 | authors' own, from **public open-data portals** ([`data/id_govqa_pakdwi_test_sample.json`](data/id_govqa_pakdwi_test_sample.json)) | authors |
 
-- deployment notes and the main result table (ARDA-SR vs Standard RAG vs Self-RAG);
-- the deployment figure;
-- a **password-protected** dataset archive of the de-identified evaluation tables.
-  The archive can be downloaded from this repository, but the password is **not** stored
-  here — it is provided by the authors on request (email the corresponding author).
+### How to reproduce the data (run the pipeline)
 
-No personal data is released; the institution and platform are anonymised in the text,
-and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
+```bash
+# 1. Build each KB from its public source (e.g. PubMedQA)
+cd supplementary/cross_domain/pubmedqa
+python 01_build_pubmedqa_kb.py        # downloads the dataset + builds the KB
+
+# 2. Run the comparison (Standard RAG / Self-RAG / ARDA-SR)
+python 02_run_pubmedqa_test.py
+
+# The same two-step flow applies to cuad/, conditionalqa/, financebench/, and the
+# main-domain pipeline/ (see pipeline/01_build_kb.py … 03_run_experiment.py)
+```
+
+Per-dataset download links: CUAD `/datasets/theatticusproject/cuad-qa` ·
+ConditionalQA `github.com/haitian-sun/ConditionalQA` ·
+FinanceBench `/datasets/PatronusAI/financebench` ·
+PubMedQA `/datasets/qiaojin/PubMedQA`.
 
 ## Reproducible results
 
 The comparison tables below are regenerated deterministically from the raw experiment
 outputs in [`results/data/`](results/data) by
-[`results/scripts/reproduce_tables.py`](results/scripts/reproduce_tables.py) — no API
-calls. Full tables (CSV) are in [`results/tables/`](results/tables):
+[`results/scripts/reproduce_tables.py`](results/scripts/reproduce_tables.py) — **no API
+calls**. Full tables (CSV) are in [`results/tables/`](results/tables):
 [`table6.csv`](results/tables/table6.csv) ·
 [`table8.csv`](results/tables/table8.csv) ·
-[`table9.csv`](results/tables/table9.csv); and the trade-off figure in
+[`table9.csv`](results/tables/table9.csv); the trade-off figure in
 [`results/figures/Figure6_relevance_vs_cost.png`](results/figures/Figure6_relevance_vs_cost.png).
 
-**Table 6 — main-domain comparison (1,000 queries, ↑ higher is better, ↓ lower is better)**
+Run it yourself:
+
+```bash
+cd results
+python scripts/reproduce_tables.py    # regenerates table6/8/9.csv + Figure 6
+```
+
+### Table 6 — main-domain comparison (1,000 queries)
 
 | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
 |---|---|---|---|---|---|
@@ -136,7 +163,12 @@ calls. Full tables (CSV) are in [`results/tables/`](results/tables):
 | IRCoT | 0.763 | 0.781 | 0.714 | 0.147 | 6.34 |
 | **ARDA-SR** | **0.871** | **0.855** | **0.845** | **0.040** | 6.40 |
 
-**Table 9 — cross-domain (Rel ↑ / Faith ↑ / Cov ↑ / FRR ↓ / Lat s)**
+*ARDA-SR improves Relevance (+0.083 over the strongest baseline Self-RAG), Faithfulness
+(+0.042), Coverage (+0.099) and cuts the False-Refusal Rate from 0.115 to 0.040, with a
+modest latency increase (6.4 s) — the routing/arbitration layers reduce refusals without
+sacrificing answer quality.*
+
+### Table 9 — cross-domain generalization
 
 | Domain | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
 |---|---|---|---|---|---|---|
@@ -155,6 +187,35 @@ calls. Full tables (CSV) are in [`results/tables/`](results/tables):
 | ID-GovQA | Standard RAG | 0.773 | 0.993 | 0.672 | 0.303 | 1.23 |
 | ID-GovQA | Self-RAG | 0.872 | 0.969 | 0.836 | 0.192 | 2.99 |
 | ID-GovQA | **ARDA-SR** | **0.958** | 0.983 | **0.935** | 0.040 | 9.26 |
+
+*Across four out-of-domain benchmarks and the real-world ID-GovQA set, ARDA-SR is best
+on Relevance / Coverage and lowest on False-Refusal Rate in most domains. Its
+Faithfulness is lower on narrative corpora (PubMedQA, FinanceBench) but remains strong
+on rule-structured domains — a boundary worth noting when extending the framework.*
+
+### Table 8 — cross-backbone robustness
+
+Backbone robustness (ARDA-SR on the ID-GovQA set) is in
+[`results/tables/table8.csv`](results/tables/table8.csv), reproduced alongside Table 6
+and 9 by the same script.
+
+## Real-World Deployment
+
+A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
+inpatient-claim screening in government question answering** on the Senopati AI platform
+([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)) —
+placed after the experimental results, as in the manuscript.
+
+See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
+
+- deployment notes and the main result table (ARDA-SR vs Standard RAG vs Self-RAG);
+- the deployment figure;
+- a **password-protected** dataset archive of the de-identified evaluation tables.
+  The archive can be downloaded from this repository, but the password is **not** stored
+  here — it is provided by the authors on request (email the corresponding author).
+
+No personal data is released; the institution and platform are anonymised in the text,
+and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
 
 ## Supplementary experiments
 
