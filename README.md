@@ -109,6 +109,53 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 No personal data is released; the institution and platform are anonymised in the text,
 and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
 
+## Reproducible results
+
+The comparison tables below are regenerated deterministically from the raw experiment
+outputs in [`results/data/`](results/data) by
+[`results/scripts/reproduce_tables.py`](results/scripts/reproduce_tables.py) — no API
+calls. Full tables (CSV) are in [`results/tables/`](results/tables):
+[`table6.csv`](results/tables/table6.csv) ·
+[`table8.csv`](results/tables/table8.csv) ·
+[`table9.csv`](results/tables/table9.csv); and the trade-off figure in
+[`results/figures/Figure6_relevance_vs_cost.png`](results/figures/Figure6_relevance_vs_cost.png).
+
+**Table 6 — main-domain comparison (1,000 queries, ↑ higher is better, ↓ lower is better)**
+
+| Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
+|---|---|---|---|---|---|
+| LLM-Only | 0.611 | 0.321 | 0.558 | 0.330 | 1.19 |
+| Standard RAG | 0.716 | 0.739 | 0.680 | 0.175 | 3.78 |
+| Hybrid RAG | 0.746 | 0.771 | 0.721 | 0.164 | 4.07 |
+| HyDE-RAG | 0.738 | 0.762 | 0.696 | 0.167 | 5.21 |
+| Adaptive-RAG | 0.781 | 0.790 | 0.737 | 0.127 | 4.53 |
+| CRAG | 0.759 | 0.805 | 0.725 | 0.128 | 4.75 |
+| ReAct | 0.773 | 0.757 | 0.733 | 0.143 | 6.05 |
+| Self-RAG | 0.788 | 0.813 | 0.746 | 0.115 | 5.74 |
+| FLARE | 0.776 | 0.795 | 0.734 | 0.133 | 6.00 |
+| IRCoT | 0.763 | 0.781 | 0.714 | 0.147 | 6.34 |
+| **ARDA-SR** | **0.871** | **0.855** | **0.845** | **0.040** | 6.40 |
+
+**Table 9 — cross-domain (Rel ↑ / Faith ↑ / Cov ↑ / FRR ↓ / Lat s)**
+
+| Domain | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
+|---|---|---|---|---|---|---|
+| CUAD | Standard RAG | 0.276 | 0.872 | 0.263 | 0.851 | 1.22 |
+| CUAD | Self-RAG | 0.669 | 0.824 | 0.660 | 0.713 | 4.26 |
+| CUAD | **ARDA-SR** | 0.774 | 0.808 | 0.698 | 0.322 | 8.28 |
+| ConditionalQA | Standard RAG | 0.660 | 0.881 | 0.551 | 0.375 | 1.22 |
+| ConditionalQA | Self-RAG | 0.884 | 0.911 | 0.749 | 0.071 | 3.10 |
+| ConditionalQA | **ARDA-SR** | **0.906** | 0.759 | 0.720 | 0.048 | 7.27 |
+| FinanceBench | Standard RAG | 0.437 | 0.871 | 0.379 | 0.647 | 1.29 |
+| FinanceBench | Self-RAG | 0.688 | 0.811 | 0.615 | 0.440 | 3.59 |
+| FinanceBench | **ARDA-SR** | 0.644 | 0.623 | 0.520 | 0.273 | 7.70 |
+| PubMedQA | Standard RAG | 0.673 | 0.940 | 0.498 | 0.325 | 1.31 |
+| PubMedQA | Self-RAG | 0.896 | 0.947 | 0.762 | 0.110 | 2.92 |
+| PubMedQA | **ARDA-SR** | 0.894 | 0.846 | 0.706 | 0.115 | 6.59 |
+| ID-GovQA | Standard RAG | 0.773 | 0.993 | 0.672 | 0.303 | 1.23 |
+| ID-GovQA | Self-RAG | 0.872 | 0.969 | 0.836 | 0.192 | 2.99 |
+| ID-GovQA | **ARDA-SR** | **0.958** | 0.983 | **0.935** | 0.040 | 9.26 |
+
 ## Supplementary experiments
 
 - **[`supplementary/cross_domain/`](supplementary/cross_domain)** — zero-shot transfer to four
