@@ -104,6 +104,13 @@ All method parameters — the entropy routing threshold, arbitration weights and
 margin, the scenario-reasoning risk-aversion parameter, retrieval mixing weight, chunk size,
 and model names — are centralized in [`config.py`](config.py).
 
+## Contributors
+
+The following contributors have contributed to the development, evaluation, and research associated with ARDA-SR:
+
+- **Wawan Firgiawan**
+
+
 ## Citation
 
 If you use this code or dataset, please cite the accompanying paper (details to follow upon
