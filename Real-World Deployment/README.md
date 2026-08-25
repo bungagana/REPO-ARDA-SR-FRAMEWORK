@@ -23,7 +23,7 @@ research/reproducibility purposes.
 
 | File | Description |
 |---|---|
-| `predict_master.xlsx` | **437 rule-level rows** (per-rule PASS/FAIL criteria + model/judge verdicts). Note: 437 is the number of **criteria/rules**, derived from the **49** episodes that carry criteria (the source log folder holds **404** claim files; the sample is 60 episodes, of which 49 contain eligible rules). |
+| `predict_master.xlsx` | **437 rule-level rows** (per-rule PASS/FAIL criteria + model/judge verdicts). Note: 437 is the number of **criteria/rules**, derived from the **49** eligible episodes. The source log folder holds **404** claim files; the 60-episode sample yields 49 eligible episodes — the other **11** are excluded because the production system produced **no verification rules** for them (their `rule_compliance` is empty or is a single `NEEDS_REVIEW` placeholder, i.e. the claimed ICD code has no guideline criteria in the rule database). |
 | `suggestion_master.xlsx` | **60 claim-level rows** (one per episode — per-claim verdict and correction suggestions per system/judge). |
 | `predict_base.json` / `suggestion_base.json` | Base rows before judge columns. |
 | `sample60_filelist.json` | The deterministic 60-episode sample. |
