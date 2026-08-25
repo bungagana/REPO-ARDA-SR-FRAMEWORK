@@ -126,9 +126,11 @@ and model names — are centralized in [`config.py`](config.py).
 
 The following contributors have contributed to the development, evaluation, and research associated with ARDA-SR:
 
-- **Dwi Sunaryono**
-- **Wawan Firgiawan**
-- **Shoffi Izza Sabila**
+- **Dr. Dwi Sunaryono** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia (corresponding author)
+- **Wawan Firgiawan** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
+- **Bunga Laelatul Muna** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
+- **Dr. Bilqis Amaliah** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
+- **Dr. Shoffi Izza Sabila** — Department of Medical Technology, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
 
 
 ## Citation
