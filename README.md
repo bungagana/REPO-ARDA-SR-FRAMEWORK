@@ -41,7 +41,7 @@ annotation records used to validate it, so results can be independently reproduc
 | [`data/`](data) | The QA benchmark — 1,000 main-domain QA pairs + 111 real-world Indonesian government QA pairs (ID-GovQA) |
 | [`annotations/`](annotations) | Item-level validation of the benchmark by three independent annotators |
 | [`supplementary/`](supplementary) | Cross-domain zero-shot transfer + an unanswerable-query diagnostic |
-| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening — deployment notes, figure, and a **password-protected** dataset archive (password available from the authors on request) |
+| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
 | `config.py` | All method parameters in one place |
 
 **Not included:** the source document corpus, model-generated answers/results from the
