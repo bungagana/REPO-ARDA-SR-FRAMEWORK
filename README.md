@@ -41,7 +41,7 @@ annotation records used to validate it, so results can be independently reproduc
 | [`data/`](data) | The QA benchmark — 1,000 main-domain QA pairs + 111 real-world Indonesian government QA pairs (ID-GovQA) |
 | [`annotations/`](annotations) | Item-level validation of the benchmark by three independent annotators |
 | [`supplementary/`](supplementary) | Cross-domain zero-shot transfer + an unanswerable-query diagnostic |
-| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
+| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening in government question answering (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
 | `config.py` | All method parameters in one place |
 
 **Not included:** the source document corpus, model-generated answers/results from the
@@ -92,7 +92,7 @@ Each script consumes the previous script's output.
 ## Real-World Deployment
 
 A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
-inpatient-claim screening** on the Senopati AI platform
+inpatient-claim screening in government question answering** on the Senopati AI platform
 ([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)).
 
 See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
@@ -144,7 +144,7 @@ If you use this code or dataset, please cite the accompanying paper:
   author  = {Bunga Laelatul Muna and Dwi Sunaryono and Bilqis Amaliah and
              Wawan Firgiawan and Shoffi Izza Sabila},
   journal = {Expert Systems with Applications},
-  year    = {2025},
+  year    = {2026},
   note    = {Under review}
 }
 ```
