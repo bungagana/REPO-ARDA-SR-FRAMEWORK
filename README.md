@@ -89,6 +89,23 @@ Each script consumes the previous script's output.
 > `data/id_govqa_pakdwi_test_sample.json` already contain the QA pairs used in the paper —
 > skip straight to step 4 against your own knowledge base.
 
+## Real-World Deployment
+
+A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
+inpatient-claim screening** on the Senopati AI platform
+([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)).
+
+See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
+
+- deployment notes and the main result table (ARDA-SR vs Standard RAG vs Self-RAG);
+- the deployment figure;
+- a **password-protected** dataset archive of the de-identified evaluation tables.
+  The archive can be downloaded from this repository, but the password is **not** stored
+  here — it is provided by the authors on request (email the corresponding author).
+
+No personal data is released; the institution and platform are anonymised in the text,
+and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
+
 ## Supplementary experiments
 
 - **[`supplementary/cross_domain/`](supplementary/cross_domain)** — zero-shot transfer to four
