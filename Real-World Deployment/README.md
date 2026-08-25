@@ -1,8 +1,8 @@
 # Real-World Deployment — BPJS/INA-CBG Claim Screening
 
 A real-world deployment of ARDA-SR for automated BPJS Kesehatan / INA-CBG
-inpatient-claim screening. This is the "run in production" instance of the ARDA-SR
-framework described in the accompanying manuscript.
+inpatient-claim screening. The deployment runs on the Senopati AI platform
+([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)).
 
 ## Data
 
@@ -13,18 +13,53 @@ archive**:
 data/deployment_data_public.zip
 ```
 
-- The archive is **encrypted** (ZIP password). It can be downloaded directly from this
-  repository, but **cannot be opened without the password**.
-- The password is **not** stored in this repository. To obtain it and the associated
-  usage terms, **email the corresponding author** (address in the manuscript).
-- Access is granted on a per-request basis for research/reproducibility purposes.
+The archive is **encrypted** (ZIP password) — it can be downloaded directly from this
+repository, but **cannot be opened without the password**. The password is **not**
+stored in this repository; to obtain it and the usage terms, email the corresponding
+author (address in the manuscript). Access is granted on a per-request basis for
+research/reproducibility purposes.
 
-No personal data is included: the released material contains no patient names, IDs,
-national identity numbers (NIK), phone numbers, addresses, e-mail addresses, or
-medical-record numbers; only coarse age and sex are retained. The institution and the
-platform are anonymised (referred to as "Hospital A" / "the platform").
-The dataset is subject to on-premise data-residency requirements under Indonesia's
-Personal Data Protection Act (UU No. 27/2022).
+### Contents of the archive
+
+| File | Description |
+|---|---|
+| `predict_master.xlsx` | 437 rule-level rows (per-rule PASS/FAIL criteria and the model/judge verdicts). |
+| `suggestion_master.xlsx` | 60 claim-level rows (per-claim verdict and correction suggestions per system/judge). |
+| `predict_base.json` / `suggestion_base.json` | Base rows before judge columns. |
+| `sample60_filelist.json` | The deterministic 60-episode sample. |
+| `full_report_401.json` | Flat qwen (Standard RAG) re-run results. |
+| `arda_sr_haji_pilot60_v2.json` / `_detailed.json` | ARDA-SR pipeline output. |
+| `claude_judgments.json` | Claude judge column. |
+| `gemini_predict_scores.json` | Gemini rule-level scores. |
+| `judge_scores.json`, `judge_scores_claude.json`, `judge_scores_qwen38max.json` | Judge Rel/Faith/Cov scores. |
+| `judge_agreement.json` | Inter-judge agreement + Fleiss' κ. |
+| `final_3judge_metrics.json` | Final rule- and suggestion-level metrics. |
+| `juri_sweep_rule.csv` | Adjudicator-subset robustness sweep. |
+| `selfrag_full.json` | Self-RAG baseline verdicts + suggestions. |
+
+### No personal data
+
+The released material contains no patient names, IDs, national identity numbers (NIK),
+phone numbers, addresses, e-mail addresses, or medical-record numbers; only coarse age
+and sex are retained. The dataset is subject to on-premise data-residency requirements
+under Indonesia's Personal Data Protection Act (UU No. 27/2022).
+
+## Main result
+
+Table 1 compares ARDA-SR against the most relevant baselines (Standard RAG = flat
+single-pass qwen; Self-RAG) on both the rule level and the suggestion level, under a
+three-judge adjudication panel.
+
+| Method | Acc.↑ | Prec.↑ | Rec.↑ | FRR↓ | ARR↑ | R | F | C |
+|---|---|---|---|---|---|---|---|---|
+| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 3.12 | 3.53 | 2.63 |
+| Self-RAG | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 2.13 | 2.86 | 1.82 |
+| ARDA-SR (Ours) | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **3.25** | **3.71** | **2.89** |
+
+Acc./Prec./Rec./FRR/ARR = rule-level accuracy/precision/recall and refusal rates;
+R/F/C = suggestion Relevance / Faithfulness / Coverage on a 1–5 scale.
+Δ over the Standard-RAG baseline: accuracy 0.795→0.839 (+0.044); FRR 0.11→0.07;
+ARR 0.65→0.68; suggestion coverage 2.63→2.89 (+0.26).
 
 ## Figure
 
@@ -35,4 +70,3 @@ results only; no patient-level detail).
 
 The aggregate metrics and figure are reproducible from the released tables; the
 evaluation and plotting scripts live in the root `evaluation/` and `pipeline/` folders.
-Data additionally available on request per the terms above.
