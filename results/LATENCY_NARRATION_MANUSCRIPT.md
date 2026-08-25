@@ -1,56 +1,58 @@
-# Draft: latency & adaptive-routing narration for the manuscript
+# Draft: latency & routing narration for the manuscript (honest version)
 
-## Why this is needed
+## Correct framing
 
-The manuscript currently states (honestly, but incompletely):
+The manuscript currently states:
 
 > "ARDA-SR has the highest average latency (6.4 seconds), reflecting the additional
 > processing steps in its multi-stage architecture."
 
-This invites a reviewer objection: "if ARDA-SR is the slowest, why use it?" The Pareto
-trade-off is already discussed, but the **adaptive routing** and the fact that 6.4 s is
-**comparable to other reasoning-based baselines** are not made explicit. The text below
-closes that gap. Replace / augment the sentence above with the following.
+This is accurate but under-specified. The key facts that must be communicated — so the
+latency is read as an **intrinsic cost of a quality/robustness trade-off**, not as a
+defect — are:
 
-## Replacement paragraph (Results / Discussion)
+1. **No query answers in under 3 s.** The observed latency range is 3.3–10.1 s
+   (mean 6.40, median 6.07, p90 8.72). There is no "fast" sub-second path.
+2. **The latency is not uniform** but adaptive: the router picks the cheapest sufficient
+   stage, so the average is dominated by a tail of complex scenario queries. However,
+   even the cheapest path (m1) averages ~5.2 s because **every query pays for the AQR
+   routing call in addition to generation** (two LLM calls in the cheap path).
+3. **It is the price of much higher quality.** The fastest baseline, LLM-Only, answers
+   in **1.19 s** (a single call) but reaches Relevance 0.611 and a False-Refusal Rate of
+   0.330. ARDA-SR spends 6.40 s to reach **Relevance 0.871** and **FRR 0.040**. Relative
+   to other *reasoning-based* baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s)
+   the additional latency is modest and yields a Pareto-optimal point.
 
-"ARDA-SR incurs the highest *average* latency (6.40 s) of the evaluated methods, but
-this figure is an average over a deliberately heterogeneous query mix and must be read
-with the routing behaviour in mind. The Adaptive Query Router (AQR) routes each query to
-the cheapest processing stage able to answer it: straightforward queries take a fast
-parametric or simple-retrieval path, and only genuinely ambiguous or policy-scenario
-queries trigger the full multi-stage pipeline. Across the 1,000 test queries the
-per-stage latencies are **m1 (direct/parametric) 5.25 s, m2 (factual retrieval) 6.18 s,
-m3 (dual-draft arbitration) 6.05 s, and m4 (scenario reasoning) 8.24 s**; 48% of queries
-complete in under 6 s and 74% under 7 s. Consequently, the mean is inflated by a small
-tail of complex, scenario-based queries rather than by a uniform per-query cost.
+## Replacement paragraph (Results)
 
-Crucially, 6.40 s is **comparable to the other reasoning-based baselines** (Self-RAG
-5.74 s, ReAct 6.05 s, IRCoT 6.34 s) — ARDA-SR is not uniquely slow, and the marginal
-delay over these methods purchases the **best answer quality** (Relevance 0.871) and the
-**lowest false-refusal rate** (FRR 0.040) among all compared methods, i.e. a
-Pareto-optimal point. For latency-sensitive deployments the AQR entropy threshold can
-be tightened so the majority of queries take the fast m1/m2 path, trading a small amount
-of accuracy for responsiveness; the routing parameter is therefore a configurable knob
-rather than a fixed cost."
+"ARDA-SR incurs the highest mean latency of the evaluated methods (6.40 s; range
+3.3–10.1 s, 74% under 7 s). This reflects an intrinsic cost of its multi-stage design:
+each query first passes the Adaptive Query Router (AQR) — an extra LLM call — so even
+the direct/parametric path (m1) averages 5.25 s, while scenario-based reasoning (m4)
+reaches 8.24 s. Crucially, this cost buys a substantial gain in answer quality and
+robustness: the fastest baseline, LLM-Only, answers in 1.19 s with a single call but
+achieves only Relevance 0.611 and a False-Refusal Rate of 0.330, whereas ARDA-SR
+achieves Relevance 0.871 and FRR 0.040. Compared with the other reasoning-based
+baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s), the extra latency is modest and
+places ARDA-SR on the Pareto-optimal frontier of the quality/cost trade-off. For
+latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
+scenario path."
 
-## Optional table (to place near Figure 6)
+## Optional table (place near Figure 6)
 
 | AQR mode | Processing path | n | Mean latency (s) |
 |---|---|---|---|
-| m1 | Direct / parametric (no retrieval) | 208 | 5.25 |
-| m2 | Factual retrieval | 367 | 6.18 |
-| m3 | Ambiguous → dual-draft arbitration | 211 | 6.05 |
-| m4 | Policy-scenario → scenario reasoning (SR) | 214 | 8.24 |
+| m1 | Direct / parametric (AQR + generate) | 208 | 5.25 |
+| m2 | AQR + single retrieval + generate | 367 | 6.18 |
+| m3 | AQR + dual-draft arbitration | 211 | 6.05 |
+| m4 | AQR + scenario reasoning (SR) | 214 | 8.24 |
 | **all** | — | 1000 | **6.40** |
 
 ## Response-to-reviewer note
 
-If a reviewer asks "why pay 6.4 s?", answer:
-
-> "The 6.40 s mean is not a fixed per-query cost. AQR routes simple queries to 5.2–6.2 s
-> paths and reserves the 8.2 s scenario-reasoning path for complex policy queries (74% of
-> queries finish under 7 s, 48% under 6 s). It is also comparable to the other
-> reasoning baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s); the extra latency buys
-> higher Relevance (0.871) and the lowest FRR (0.040) — a Pareto-optimal trade-off. The
-> AQR threshold can be tuned for latency-sensitive deployments."
+> "ARDA-SR does not produce sub-second answers: its latency ranges 3.3–10.1 s (median
+> 6.1 s) because every query pays for the routing call plus generation, and complex
+> policy queries add scenario reasoning. This is the deliberate price of higher quality
+> (Relevance 0.871 vs 0.611 for LLM-Only) and a lower false-refusal rate (FRR 0.040 vs
+> 0.330). Relative to other reasoning baselines the cost is modest and Pareto-optimal;
+> the AQR threshold is tunable for latency-constrained deployments."

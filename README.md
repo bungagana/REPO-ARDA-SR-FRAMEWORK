@@ -226,31 +226,29 @@ highest Relevance at a moderate cost, whereas cheaper methods (LLM-Only, Standar
 trade away accuracy and costlier ones (ReAct, IRCoT) add little relevance for their
 latency.*
 
-### Latency is adaptive, not uniform
+### Latency: an intrinsic cost of the multi-stage architecture
 
-ARDA-SR's mean latency (6.40 s) is an **average over a heterogeneous query mix**, not a
-fixed per-query cost. The Adaptive Query Router (AQR) routes each query to the cheapest
-processing mode that can answer it, so **simple queries complete much faster** and only
-the most complex ones trigger the full multi-step pipeline:
+ARDA-SR's mean latency is 6.40 s, and **no query answers in under 3 s** (min 3.26 s,
+~74% under 7 s). This is **not a fixed per-query cost** — the routing layer adapts the
+pipeline depth to the query — but even the cheapest path (m1) averages ~5.2 s because
+every query always pays for the **Adaptive Query Router (AQR)** classification plus a
+generation call:
 
-| AQR mode | Meaning | n | Mean latency (s) |
+| AQR mode | Processing path | n | Mean latency (s) |
 |---|---|---|---|
-| **m1** | Direct / parametric — no retrieval | 208 | **5.25** |
-| **m2** | Straightforward factual retrieval | 367 | 6.18 |
-| **m3** | Ambiguous → dual-draft arbitration | 211 | 6.05 |
-| **m4** | Policy-scenario → scenario reasoning (SR) | 214 | **8.24** |
+| **m1** | Direct / parametric (AQR + generate) | 208 | 5.25 |
+| **m2** | AQR + single retrieval + generate | 367 | 6.18 |
+| **m3** | AQR + dual-draft arbitration | 211 | 6.05 |
+| **m4** | AQR + scenario reasoning (SR) | 214 | 8.24 |
 
-Overall: 48% of queries complete in under 6 s and 74% under 7 s; the scenario-reasoning
-path (m4, / policy-scenario category ≈ 8.7 s) is the only slow one, and it is reserved
-for the most demanding queries.
-
-**Why this is not a concern.** First, 6.40 s is **comparable to other reasoning-based
-baselines** (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s) — ARDA-SR is not uniquely
-slow. Second, the cost purchases the **best answer quality** (Relevance 0.871) and the
-**lowest false-refusal rate** (FRR 0.040) among all methods, i.e. a Pareto-optimal
-trade-off. Third, for latency-sensitive deployments the AQR threshold can be tightened
-so most queries take the fast m1/m2 path, trading a little accuracy for responsiveness —
-a configurable knob, not a limitation.
+**Why it is not a defect.** ARDA-SR trades a higher up-front cost for substantially
+better outcomes. The cheapest baseline, LLM-Only, answers in **1.19 s** (a single call)
+but only reaches Relevance 0.611 and sets FRR to 0.330; ARDA-SR spends 6.40 s (routing +
+arbitration + reasoning) to reach **Relevance 0.871** and **FRR 0.040**. Relative to the
+other *reasoning-based* baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s) the extra
+latency is small, and it buys a Pareto-optimal point (best quality, lowest refusal). For
+latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
+scenario path — the cost is configurable, not fixed.
 
 ## Real-World Deployment
 
