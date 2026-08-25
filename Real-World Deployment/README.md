@@ -23,11 +23,11 @@ research/reproducibility purposes.
 
 | File | Description |
 |---|---|
-| `predict_master.xlsx` | 437 rule-level rows (per-rule PASS/FAIL criteria and the model/judge verdicts). |
-| `suggestion_master.xlsx` | 60 claim-level rows (per-claim verdict and correction suggestions per system/judge). |
+| `predict_master.xlsx` | **437 rule-level rows** (per-rule PASS/FAIL criteria + model/judge verdicts). Note: 437 is the number of **criteria/rules**, derived from the **49** episodes that carry criteria (the source log folder holds **404** claim files; the sample is 60 episodes, of which 49 contain eligible rules). |
+| `suggestion_master.xlsx` | **60 claim-level rows** (one per episode — per-claim verdict and correction suggestions per system/judge). |
 | `predict_base.json` / `suggestion_base.json` | Base rows before judge columns. |
 | `sample60_filelist.json` | The deterministic 60-episode sample. |
-| `full_report_401.json` | Flat qwen (Standard RAG) re-run results. |
+| `full_report_401.json` | Flat qwen (Standard RAG) re-run results (401 runs in the production report). |
 | `arda_sr_haji_pilot60_v2.json` / `_detailed.json` | ARDA-SR pipeline output. |
 | `claude_judgments.json` | Claude judge column. |
 | `gemini_predict_scores.json` | Gemini rule-level scores. |
