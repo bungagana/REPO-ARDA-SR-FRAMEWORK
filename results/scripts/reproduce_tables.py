@@ -25,28 +25,67 @@ DATA = os.path.join(HERE, "..", "data")
 OUT = os.path.join(HERE, "..", "tables")
 
 
-def plot_figure6(t6, fig_path=None):
-    """Reproduce Figure 6 (Relevance vs computational cost / latency)."""
+def plot_figure6(t6, fig_path=None, fig_path_pdf=None):
+    """Reproduce Figure 6 (Relevance vs computational cost / latency).
+
+    Emphasises ARDA-SR and draws the Pareto-optimal frontier (higher relevance at
+    lower latency is better), matching the manuscript trade-off figure.
+    """
     try:
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
+        import numpy as np
     except Exception as exc:
         print("matplotlib not available; skip Figure 6:", exc)
         return
-    methods = sorted(t6.keys())
-    rel = [t6[m]["Rel"] for m in methods]
-    lat = [t6[m]["Lat"] for m in methods]
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.scatter(lat, rel, s=40)
+
+    items = [(m, t6[m]["Rel"], t6[m]["Lat"]) for m in t6 if t6[m]["Rel"] is not None]
+    methods = [i[0] for i in items]
+    rel = np.array([i[1] for i in items])
+    lat = np.array([i[2] for i in items])
+
+    fig, ax = plt.subplots(figsize=(6.4, 4.6))
+
+    # scatter all methods
+    ax.scatter(lat, rel, s=70, c="#4c72b0", alpha=0.9, edgecolors="k", linewidths=0.6, label="Method")
+    # ARDA-SR highlighted
+    arda = np.array([m for m in methods if m in ("arda_pmr", "arda_sr", "ARDA-SR")])
     for m, x, y in zip(methods, lat, rel):
-        ax.annotate(m, (x, y), textcoords="offset points", xytext=(4, 4), fontsize=7)
-    ax.set_xlabel("Latency (s)")
-    ax.set_ylabel("Relevance (0-1)")
-    ax.set_title("Figure 6 — Relevance vs computational cost")
+        is_arda = m in ("arda_pmr", "arda_sr", "ARDA-SR")
+        if is_arda:
+            ax.scatter([x], [y], s=170, c="#dd8452", edgecolors="k", linewidths=1.2, zorder=5,
+                       marker="*", label="ARDA-SR")
+        ax.annotate(m.replace("_", " ").title(), (x, y), textcoords="offset points",
+                    xytext=(5, 5), fontsize=7.5, weight="bold" if is_arda else "normal")
+
+    # Pareto frontier: keep points that are not dominated in (latency low, rel high)
+    pts = [(x, y) for x, y in zip(lat, rel)]
+    pac = []
+    for i, (xi, yi) in enumerate(pts):
+        dominated = any((xj <= xi and yj >= yi) and (xj < xi or yj > yi) for j, (xj, yj) in enumerate(pts))
+        if not dominated:
+            pac.append((xi, yi))
+    pac.sort()
+    if len(pac) >= 2:
+        px, py = zip(*pac)
+        ax.plot(px, py, "--", color="#55a868", lw=1.5, label="Pareto frontier")
+
+    ax.set_xlabel("Computational cost — latency (s)")
+    ax.set_ylabel("Answer relevance (0–1)")
+    ax.set_title("Trade-off between Relevance and computational cost\nacross ARDA-SR and baseline methods")
+    ax.grid(True, linestyle=":", alpha=0.5)
+    ax.legend(frameon=False, fontsize=8)
+    ax.set_xlim(left=0.8, right=max(lat) * 1.15)
+    ax.set_ylim(0.55, 0.92)
     fig.tight_layout()
+
     fig_path = fig_path or os.path.join(HERE, "..", "figures", "Figure6_relevance_vs_cost.png")
-    fig.savefig(fig_path, dpi=150)
+    fig.savefig(fig_path, dpi=200, bbox_inches="tight")
+    if fig_path_pdf:
+        fig.savefig(fig_path_pdf, bbox_inches="tight")
+    plt.close(fig)
+    print("wrote", fig_path)
     plt.close(fig)
     print("wrote", fig_path)
 
@@ -201,7 +240,7 @@ def main():
 
     # Repro Figure 6 (Relevance vs latency)
     if t6:
-        plot_figure6(t6)
+        plot_figure6(t6, fig_path_pdf=os.path.join(HERE, "..", "figures", "Figure6_relevance_vs_cost.pdf"))
 
 
 if __name__ == "__main__":

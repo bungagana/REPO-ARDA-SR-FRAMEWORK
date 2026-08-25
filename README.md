@@ -241,6 +241,20 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
   The archive can be downloaded from this repository, but the password is **not** stored
   here — it is provided by the authors on request (email the corresponding author).
 
+**Table 11 — Real-World Application (BPJS/INA-CBG claim screening, three-judge panel)**
+
+| Method | Acc.↑ | Prec.↑ | Rec.↑ | FRR↓ | ARR↑ | Rel ↑ | Faith ↑ | Cov ↑ |
+|---|---|---|---|---|---|---|---|---|
+| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 3.12 | 3.53 | 2.63 |
+| Self-RAG | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 2.13 | 2.86 | 1.82 |
+| **ARDA-SR** | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **3.25** | **3.71** | **2.89** |
+
+*On 60 real inpatient episodes (437 admission rules) ARDA-SR improves rule accuracy over
+the Standard-RAG baseline (+0.044), lowers the false-refusal rate (0.11 → 0.07), and
+produces more complete corrections (coverage 2.63 → 2.89). Self-RAG underperforms here
+despite its extra reflection stage — the arbitration layer is most valuable on
+rule-structured, claim-level tasks.*
+
 No personal data is released; the institution and platform are anonymised in the text,
 and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
 
