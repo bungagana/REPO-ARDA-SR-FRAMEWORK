@@ -126,11 +126,28 @@ and model names — are centralized in [`config.py`](config.py).
 
 The following contributors have contributed to the development, evaluation, and research associated with ARDA-SR:
 
+- **Dwi Sunaryono**
 - **Wawan Firgiawan**
 - **Shoffi Izza Sabila**
 
 
 ## Citation
 
-If you use this code or dataset, please cite the accompanying paper (details to follow upon
-publication).
+If you use this code or dataset, please cite the accompanying paper:
+
+```
+@article{munasunaryono2025arda,
+  title   = {ARDA-SR: Entropy-Based Routing and Dual-Draft Arbitration for False
+             Refusal Reduction and Scenario Reasoning in Government Question Answering},
+  author  = {Bunga Laelatul Muna and Dwi Sunaryono and Bilqis Amaliah and
+             Wawan Firgiawan and Shoffi Izza Sabila},
+  journal = {Expert Systems with Applications},
+  year    = {2025},
+  note    = {Under review}
+}
+```
+
+> **Note.** This is a manuscript under review at *Expert Systems with Applications*
+> (Elsevier); **no DOI is assigned yet**. A citation is provided for attribution only;
+> the final bibliographic details (volume, pages, DOI) will follow publication. The
+> corresponding author is **Dwi Sunaryono (dwi@its.ac.id)**.
