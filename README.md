@@ -158,51 +158,63 @@ python scripts/reproduce_tables.py    # regenerates table6/8/9.csv + Figure 6
 
 ### Table 6 — main-domain comparison (1,000 queries)
 
-| Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
-|---|---|---|---|---|---|
-| LLM-Only | 0.611 | 0.321 | 0.558 | 0.330 | 1.19 |
-| Standard RAG | 0.716 | 0.739 | 0.680 | 0.175 | 3.78 |
-| Hybrid RAG | 0.746 | 0.771 | 0.721 | 0.164 | 4.07 |
-| HyDE-RAG | 0.738 | 0.762 | 0.696 | 0.167 | 5.21 |
-| Adaptive-RAG | 0.781 | 0.790 | 0.737 | 0.127 | 4.53 |
-| CRAG | 0.759 | 0.805 | 0.725 | 0.128 | 4.75 |
-| ReAct | 0.773 | 0.757 | 0.733 | 0.143 | 6.05 |
-| Self-RAG | 0.788 | 0.813 | 0.746 | 0.115 | 5.74 |
-| FLARE | 0.776 | 0.795 | 0.734 | 0.133 | 6.00 |
-| IRCoT | 0.763 | 0.781 | 0.714 | 0.147 | 6.34 |
-| **ARDA-SR** | **0.871** | **0.855** | **0.845** | **0.040** | 6.40 |
+| Method | Rel ↑ | Faith ↑ | Cov ↑ | Hit@5 ↑ | CtxRel ↑ | RoutingAcc ↑ | SRComp ↑ | FRR ↓ | Lat (s) ↓ |
+|---|---|---|---|---|---|---|---|---|---|
+| LLM-Only | 0.611±0.151 | 0.321±0.130 | 0.558±0.143 | – | – | – | – | 0.330 | 1.2 |
+| Standard RAG | 0.716±0.095 | 0.739±0.116 | 0.680±0.097 | 0.768 | 0.702 | – | – | 0.175 | 3.8 |
+| Hybrid RAG | 0.746±0.092 | 0.771±0.106 | 0.721±0.094 | 0.796 | 0.733 | – | – | 0.164 | 4.1 |
+| HyDE-RAG | 0.738±0.095 | 0.762±0.112 | 0.696±0.092 | 0.786 | 0.719 | – | – | 0.167 | 5.2 |
+| Adaptive-RAG | 0.782±0.090 | 0.790±0.107 | 0.737±0.089 | 0.837 | 0.768 | 0.727 | 0.711 | 0.127 | 4.5 |
+| CRAG | 0.759±0.092 | 0.805±0.103 | 0.725±0.091 | 0.832 | 0.751 | – | – | 0.128 | 4.8 |
+| ReAct | 0.773±0.088 | 0.757±0.111 | 0.733±0.091 | 0.797 | 0.754 | 0.687 | 0.673 | 0.143 | 6.0 |
+| Self-RAG | 0.788±0.088 | 0.813±0.098 | 0.746±0.086 | 0.840 | 0.774 | 0.706 | 0.698 | 0.115 | 5.7 |
+| FLARE | 0.776±0.090 | 0.795±0.105 | 0.734±0.086 | 0.819 | 0.761 | – | – | 0.133 | 6.0 |
+| IRCoT | 0.763±0.094 | 0.781±0.109 | 0.714±0.089 | 0.805 | 0.757 | – | – | 0.147 | 6.3 |
+| **ARDA-SR** | **0.871±0.080†** | **0.855±0.081†** | **0.845±0.084†** | **0.878†** | **0.812†** | **0.878†** | **0.821†** | **0.040†** | 6.4 |
 
 *ARDA-SR improves Relevance (+0.083 over the strongest baseline Self-RAG), Faithfulness
 (+0.042), Coverage (+0.099) and cuts the False-Refusal Rate from 0.115 to 0.040, with a
 modest latency increase (6.4 s) — the routing/arbitration layers reduce refusals without
-sacrificing answer quality.*
+sacrificing answer quality. Statistical significance (†) vs. the best baseline is from a
+Wilcoxon signed-rank test, *p* < 0.001. This table reproduces the manuscript's Table 6;
+the raw per-query outputs for Rel/Faith/Cov/FRR/Lat are in
+[`results/data/`](results/data), while the `Hit@5`, `CtxRel`, `RoutingAcc` and `SRComp`
+columns and the standard deviations come from the manuscript (the
+[`reproduce_tables.py`](results/scripts/reproduce_tables.py) script regenerates the mean
+columns from the raw outputs).*
 
-### Table 9 — cross-domain generalization
+### Table 8 — cross-backbone robustness
 
-| Domain | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ | Lat (s) |
-|---|---|---|---|---|---|---|
-| CUAD | Standard RAG | 0.276 | 0.872 | 0.263 | 0.851 | 1.22 |
-| CUAD | Self-RAG | 0.669 | 0.824 | 0.660 | 0.713 | 4.26 |
-| CUAD | **ARDA-SR** | 0.774 | 0.808 | 0.698 | 0.322 | 8.28 |
-| ConditionalQA | Standard RAG | 0.660 | 0.881 | 0.551 | 0.375 | 1.22 |
-| ConditionalQA | Self-RAG | 0.884 | 0.911 | 0.749 | 0.071 | 3.10 |
-| ConditionalQA | **ARDA-SR** | **0.906** | 0.759 | 0.720 | 0.048 | 7.27 |
-| FinanceBench | Standard RAG | 0.437 | 0.871 | 0.379 | 0.647 | 1.29 |
-| FinanceBench | Self-RAG | 0.688 | 0.811 | 0.615 | 0.440 | 3.59 |
-| FinanceBench | **ARDA-SR** | 0.644 | 0.623 | 0.520 | 0.273 | 7.70 |
-| PubMedQA | Standard RAG | 0.673 | 0.940 | 0.498 | 0.325 | 1.31 |
-| PubMedQA | Self-RAG | 0.896 | 0.947 | 0.762 | 0.110 | 2.92 |
-| PubMedQA | **ARDA-SR** | 0.894 | 0.846 | 0.706 | 0.115 | 6.59 |
-| ID-GovQA | Standard RAG | 0.773 | 0.993 | 0.672 | 0.303 | 1.23 |
-| ID-GovQA | Self-RAG | 0.872 | 0.969 | 0.836 | 0.192 | 2.99 |
-| ID-GovQA | **ARDA-SR** | **0.958** | 0.983 | **0.935** | 0.040 | 9.26 |
+This reproduces the manuscript's **Table 8** (cross-backbone comparison across 1,000 test
+queries), which reports **Standard RAG, Self-RAG, and ARDA-SR** under three different
+backbones. The full per-backbone, per-method raw order data for this table is **not
+included in this repository** (the manuscript reports the aggregated values); the three
+backbones are Gemini 2.5 Flash, Qwen2.5-1.5B, and Phi-3mini:
 
-*Across four out-of-domain benchmarks and the real-world ID-GovQA set, ARDA-SR is best
-on Relevance / Coverage and lowest on False-Refusal Rate in most domains. Its
-Faithfulness is lower on narrative corpora (PubMedQA, FinanceBench) but remains strong
-on rule-structured domains — a boundary worth noting when extending the framework.*
+| Backbone | Method | Rel ↑ | Faith ↑ | Cov ↑ | Hit@5 | CtxRel | RoutingAcc | SRComp | FRR ↓ | Lat (s) ↓ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Gemini 2.5 Flash | Standard RAG | 0.716 | 0.739 | 0.680 | 0.768 | 0.702 | – | – | 0.175 | 3.8 |
+| Gemini 2.5 Flash | Self-RAG | 0.788 | 0.813 | 0.746 | 0.840 | 0.774 | 0.706 | 0.698 | 0.115 | 5.7 |
+| Gemini 2.5 Flash | **ARDA-SR** | 0.871 | 0.855 | 0.845 | 0.878 | 0.812 | 0.878 | 0.821 | 0.040 | 6.4 |
+| Qwen2.5-1.5B | Standard RAG | 0.665 | 0.690 | 0.640 | 0.724 | 0.658 | – | – | 0.235 | 5.9 |
+| Qwen2.5-1.5B | Self-RAG | 0.735 | 0.755 | 0.700 | 0.791 | 0.725 | 0.642 | 0.632 | 0.158 | 7.6 |
+| Qwen2.5-1.5B | **ARDA-SR** | 0.812 | 0.826 | 0.786 | 0.866 | 0.803 | 0.801 | 0.742 | 0.083 | 8.9 |
+| Phi-3mini | Standard RAG | 0.690 | 0.712 | 0.662 | 0.748 | 0.684 | – | – | 0.215 | 7.1 |
+| Phi-3mini | Self-RAG | 0.758 | 0.778 | 0.724 | 0.816 | 0.748 | 0.671 | 0.655 | 0.140 | 9.2 |
+| Phi-3mini | **ARDA-SR** | 0.833 | 0.842 | 0.807 | 0.884 | 0.821 | 0.829 | 0.776 | 0.067 | 10.8 |
 
-### Table 8 — cross-backbone robustness (ARDA-SR on ID-GovQA)
+*ARDA-SR's behavioural benefits transfer across backbones of different size and
+MRLM-family (Gemini, Qwen, Phi): the False-Refusal Rate stays low (0.040–0.083) and quality
+is retained, so the framework is not tied to a single model. The performance improvement
+does not depend on model capacity but on the architectural design (entropy-based routing,
+dual-draft arbitration, structured reasoning).*
+
+#### Backbone sweep on ID-GovQA (ARDA-SR only)
+
+The repository's raw outputs also include a separate **ARDA-SR-only backbone sweep** on
+ID-GovQA (the `results/data/arda_sr_{backbone}_pakdwi_summary.json` files). This is a
+supplementary result — the manuscript's cross-backbone table uses different backbones — so
+it is kept here under a separate heading and is **not** a reproduction of Table 8:
 
 | Backbone | n(answerable) | n(unanswerable) | FRR ↓ | Correct refusals | ARR ↑ | FAR ↓ | Hit@5 | Lat (s) |
 |---|---|---|---|---|---|---|---|---|
@@ -212,9 +224,45 @@ on rule-structured domains — a boundary worth noting when extending the framew
 | qwen2.5:14b | 99 | 12 | 0.051 | 8 | 0.667 | 0.333 | 1.0 | 6.25 |
 | qwen2.5:7b | 99 | 12 | 0.263 | 12 | 1.000 | 0.000 | 1.0 | 6.41 |
 
-*ARDA-SR's behavioural benefits transfer across open-source backbones of different
-sizes (7B–8x7B) and a hosted gemma2:9b — the False-Refusal Rate stays low (0.04–0.26)
-on the same ID-GovQA set, so the framework is not tied to a single model.*
+*This in-repo sweep shows ARDA-SR keeps a low False-Refusal Rate (0.04–0.26) across
+open-source backbones of different sizes (7B–8x7B) and a hosted gemma2:9b on ID-GovQA.*
+
+### Table 9 — cross-domain generalization
+
+Zero-shot transfer to four out-of-domain datasets and the real-world ID-GovQA set,
+using Gemini 2.5 Flash with the same setup as the main dataset. This reproduces the
+manuscript's Table 9 (the standard deviations are reported in the manuscript; the raw
+per-query outputs are not consumed by `reproduce_tables.py`, so the mean values below are
+read from the manuscript).
+
+| Dataset | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ |
+|---|---|---|---|---|---|
+| CUAD | Standard RAG | 0.276±0.234† | 0.872±0.287 | 0.263±0.198† | 0.851 |
+| CUAD | Self-RAG | 0.669±0.384† | 0.824±0.308 | 0.660±0.367 | 0.713 |
+| CUAD | **ARDA-SR** | **0.774±0.344** | **0.808±0.320** | **0.698±0.339** | **0.322** |
+| ConditionalQA | Standard RAG | 0.660±0.389† | 0.881±0.265‡ | 0.551±0.328† | 0.375 |
+| ConditionalQA | Self-RAG | 0.884±0.242 | 0.911±0.186‡ | 0.749±0.242 | 0.071 |
+| ConditionalQA | **ARDA-SR** | **0.906±0.229** | 0.759±0.295 | 0.720±0.227 | **0.048** |
+| FinanceBench | Standard RAG | 0.437±0.357† | 0.871±0.278‡ | 0.379±0.301† | 0.647 |
+| FinanceBench | Self-RAG | 0.688±0.379 | 0.811±0.317‡ | 0.615±0.358‡ | 0.440 |
+| FinanceBench | **ARDA-SR** | 0.644±0.378 | 0.623±0.384 | 0.520±0.340 | **0.273** |
+| PubMedQA | Standard RAG | 0.673±0.372† | 0.940±0.191‡ | 0.498±0.273† | 0.325 |
+| PubMedQA | Self-RAG | 0.896±0.236 | 0.947±0.157‡ | 0.762±0.233‡ | 0.110 |
+| PubMedQA | **ARDA-SR** | 0.894±0.225 | 0.846±0.249 | 0.706±0.226 | 0.115 |
+| ID-GovQA | Standard RAG | 0.773±0.358† | 0.993±0.076 | 0.672±0.335† | 0.303 |
+| ID-GovQA | Self-RAG | 0.872±0.291† | 0.969±0.140 | 0.836±0.267† | 0.192 |
+| ID-GovQA | **ARDA-SR** | **0.958±0.095** | 0.983±0.072 | **0.935±0.168** | **0.040** |
+
+**Note.** Unanswerable slice: ID-GovQA 12/111, ConditionalQA 12/180, CUAD 93/180;
+FinanceBench/PubMedQA 0. †/‡ indicate paired Wilcoxon tests against ARDA-SR; the best value
+per dataset and metric is shown in bold. The latency column is intentionally omitted here
+because ARDA-SR is not benchmarked for cross-domain latency — cross-domain results concern
+generalisation, and the reference latency (6.4 s) is reported in Table 6.
+
+*Across the four out-of-domain benchmarks and ID-GovQA, ARDA-SR is best on Relevance /
+Coverage and lowest on False-Refusal Rate in most domains. Its Faithfulness is lower on
+narrative corpora (PubMedQA, FinanceBench) but remains strong on rule-structured domains —
+a boundary worth noting when extending the framework.*
 
 ### Figure 6 — Relevance vs computational cost
 
@@ -291,17 +339,28 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 
 **Table 11 — Real-World Application (BPJS/INA-CBG claim screening, three-judge panel)**
 
-| Method | Acc.↑ | Prec.↑ | Rec.↑ | FRR↓ | ARR↑ | Rel ↑ | Faith ↑ | Cov ↑ |
-|---|---|---|---|---|---|---|---|---|
-| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 3.12 | 3.53 | 2.63 |
-| Self-RAG | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 2.13 | 2.86 | 1.82 |
-| **ARDA-SR** | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **3.25** | **3.71** | **2.89** |
+| Method | Rule level Acc.↑ | Prec.↑ | Rec.↑ | FRR ↓ | ARR ↑ | F1 | Suggestion quality Rel.↑ | Faith.↑ | Cov.↑ |
+|---|---|---|---|---|---|---|---|---|---|
+| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 0.71 | 3.12 | 3.53 | 2.63 |
+| Self-RAG * | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 0.69 | 2.13 | 2.86 | 1.82 |
+| **ARDA-SR (Ours)** | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **0.74** | **3.25** | **3.71** | **2.89** |
+| Δ (ARDA-SR − Standard RAG) | +0.044 | +0.04 | +0.03 | −0.04 | +0.03 | +0.03 | +0.13 | +0.18 | +0.26 |
 
-*On 60 real inpatient episodes (437 admission rules) ARDA-SR improves rule accuracy over
-the Standard-RAG baseline (+0.044), lowers the false-refusal rate (0.11 → 0.07), and
-produces more complete corrections (coverage 2.63 → 2.89). Self-RAG underperforms here
-despite its extra reflection stage — the arbitration layer is most valuable on
-rule-structured, claim-level tasks.*
+*A production screening system for BPJS Kesehatan / INA-CBG inpatient claims, with reference
+labels from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude). Rule-level
+metrics are over n=437 admission criteria (60 de-identified inpatient episodes, seed 100);
+suggestion quality (Rel/Faith/Cov on a 1–5 scale) is over n=180 ratings. Each judge scores the
+criterion against the raw electronic medical record only (the production verdict is never
+shown) and ties resolve to FAIL. All models run locally on-premise (Qwen3.5:9B as backbone,
+Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps patient data in line with
+Law No. 27 of 2022 on Personal Data Protection.*
+
+*\* Self-RAG uses its reflection-only adaptation (generation -> self-reflection -> finalize).
+Its run was attempted repeatedly but could not be completed on the full set: it cannot manage
+certain long/compound rules, so some files produced no per-rule statuses. Its rule-level
+totals are therefore based on fewer adjudicated criteria than Standard RAG / ARDA-SR (which are
+over the full n=437). The value is reported for completeness and should be read with that
+caveat; it is not comparable on identical supporting evidence to the other two columns.*
 
 No personal data is released; the institution and platform are anonymised in the text,
 and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
