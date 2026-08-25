@@ -252,8 +252,7 @@ scenario path — the cost is configurable, not fixed.
 
 **Limitation & future work.** The higher latency is a recognised limitation for
 latency-sensitive applications (see the manuscript's Limitations). Two concrete future
-directions are planned to reduce it while keeping the quality gains (see
-[`results/LATENCY_FUTURE_WORK.md`](results/LATENCY_FUTURE_WORK.md)):
+directions are planned to reduce it while keeping the quality gains:
 
 - **early-exit routing** — route simple queries out before the expensive scenario/
   dual-draft stages;
