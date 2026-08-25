@@ -50,7 +50,8 @@ figure (extracted from the manuscript). You can regenerate the underlying scatte
 |---|---|---|
 | `data/*_results.json` | 1,000 main-domain per-query runs, per method (rel/faith/cov/is_refusal/latency/hit@5/ctx_rel/mode) | `new/ARDA-SR-FRAMEWORK-FULL/results/` |
 | `data/arda_sr_*_pakdwi_summary.json` | cross-backbone summary on ID-GovQA (pakdwi) | cross-domain experiments |
-| `data/summary_<domain>.json` / `_raw.json` | cross-domain per-method metrics + FRR/retrieval | cross-domain experiments |
+| `data/summary_<domain>_fixed.json` | cross-domain per-method metrics (Rel / Faith / Cov / FRR / latency), matching the manuscript Table 9 |
+| `data/summary_<domain>.json` / `_raw.json` | cross-domain supporting summaries (fallback sources for the script) | cross-domain experiments |
 
 The cross-domain **datasets** (download links, schema, per-dataset reproduction steps)
 are documented in [`cross-datasets/`](../cross-datasets).

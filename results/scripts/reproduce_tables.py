@@ -93,18 +93,19 @@ def build_table6(data_dir):
 
 def build_table9(data_dir):
     """Table 9: cross-domain per-method summaries.
-    Combines summary_<domain>.json (rel/faith/cov) with summary_<domain>_raw.json
-    (frr / latency / retrieval) when available.
+    Primary source = summary_<domain>_fixed.json (rel/faith/cov/frr/latency, matches
+    the manuscript). Falls back to summary_<domain>.json + summary_<domain>_raw.json
+    if the _fixed file is absent.
     """
     doms = {}
-    for path in sorted(glob.glob(os.path.join(data_dir, "summary_*.json"))):
-        base = os.path.basename(path).replace(".json", "")
-        if base.endswith("_raw"):
-            ds = base.replace("summary_", "").replace("_raw", "")
-            doms.setdefault(ds, {})["_raw"] = json.load(open(path))
-        else:
-            ds = base.replace("summary_", "")
-            doms.setdefault(ds, {})["_main"] = json.load(open(path))
+    # prefer _fixed files
+    for path in sorted(glob.glob(os.path.join(data_dir, "summary_*_fixed.json"))):
+        ds = os.path.basename(path).replace("summary_", "").replace("_fixed.json", "")
+        doms[ds] = {"_main": json.load(open(path)), "_raw": {}}
+    # backfill with _raw for any domain missing it (for fields not in _fixed)
+    for path in sorted(glob.glob(os.path.join(data_dir, "summary_*_raw.json"))):
+        ds = os.path.basename(path).replace("summary_", "").replace("_raw.json", "")
+        doms.setdefault(ds, {})["_raw"] = json.load(open(path))
     return doms
 
 
@@ -123,7 +124,7 @@ def table9_to_csv(doms, name="table9.csv"):
                 "domain": ds, "method": m,
                 "Rel": g(mm, "rel", "_main"), "Faith": g(mm, "faith", "_main"),
                 "Cov": g(mm, "cov", "_main"),
-                "FRR": g(rr, "frr", "_raw") if g(rr, "frr", "_raw") is not None else g(mm, "frr", "_main"),
+                "FRR": g(mm, "frr", "_main") if g(mm, "frr", "_main") is not None else g(rr, "frr", "_raw"),
                 "Lat": g(mm, "latency_s", "_main") or g(rr, "latency_s", "_raw"),
             })
     path = os.path.join(OUT, name)
