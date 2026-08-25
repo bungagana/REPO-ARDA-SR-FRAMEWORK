@@ -1,0 +1,47 @@
+{
+  "arda_sr": {
+    "rel": 0.9056,
+    "faith": 0.7589,
+    "cov": 0.72,
+    "ctx_rel": 0.67,
+    "hit_at_5": null,
+    "latency_s": 7.266,
+    "n_queries": 180,
+    "frr": 0.047619047619047616,
+    "far": 0.9166666666666666,
+    "n_answerable": 168,
+    "n_unanswerable": 12,
+    "frr_before_fix": 0.011904761904761904,
+    "far_before_fix": 1.0
+  },
+  "selfrag": {
+    "rel": 0.8844,
+    "faith": 0.9111,
+    "cov": 0.7489,
+    "ctx_rel": 0.692,
+    "hit_at_5": null,
+    "latency_s": 3.099,
+    "n_queries": 180,
+    "frr": 0.07142857142857142,
+    "far": 0.75,
+    "n_answerable": 168,
+    "n_unanswerable": 12,
+    "frr_before_fix": 0.011904761904761904,
+    "far_before_fix": 0.9166666666666666
+  },
+  "standard_rag": {
+    "rel": 0.66,
+    "faith": 0.8811,
+    "cov": 0.5511,
+    "ctx_rel": 0.6667,
+    "hit_at_5": null,
+    "latency_s": 1.222,
+    "n_queries": 180,
+    "frr": 0.375,
+    "far": 0.25,
+    "n_answerable": 168,
+    "n_unanswerable": 12,
+    "frr_before_fix": 0.375,
+    "far_before_fix": 0.25
+  }
+}
