@@ -21,6 +21,10 @@ research/reproducibility purposes.
 
 ### Contents of the archive
 
+> Paths below are relative to the archive root; the evaluation-related JSON/CSV files
+> (`judge_scores_*`, `judge_agreement`, `final_3judge_metrics`, `juri_sweep_rule`,
+> `selfrag_full`) are stored under a `results/` subfolder inside the zip.
+
 | File | Description |
 |---|---|
 | `predict_master.xlsx` | **437 rule-level rows** (per-rule PASS/FAIL criteria + model/judge verdicts). Note: 437 is the number of **criteria/rules**, derived from the **49** eligible episodes. The source log folder holds **404** claim files; the 60-episode sample yields 49 eligible episodes — the other **11** are excluded because the production system produced **no verification rules** for them (their `rule_compliance` is empty or is a single `NEEDS_REVIEW` placeholder, i.e. the claimed ICD code has no guideline criteria in the rule database). |
@@ -30,12 +34,22 @@ research/reproducibility purposes.
 | `full_report_401.json` | Flat qwen (Standard RAG) re-run results (401 runs in the production report). |
 | `arda_sr_haji_pilot60_v2.json` / `_detailed.json` | ARDA-SR pipeline output. |
 | `claude_judgments.json` | Claude judge column. |
-| `gemini_predict_scores.json` | Gemini rule-level scores. |
-| `judge_scores.json`, `judge_scores_claude.json`, `judge_scores_qwen38max.json` | Judge Rel/Faith/Cov scores. |
+| `gemini_predict_scores.json` | Gemini **rule-level** predictions (Gemini as a candidate judge, excluded from the final panel). |
+| `judge_scores.json` | Judge 1 = **DeepSeek** — Rel/Faith/Cov scores (1–5) per claim. |
+| `judge_scores_claude.json` | Judge 2 = **Claude** — Rel/Faith/Cov scores. |
+| `judge_scores_qwen38max.json` | Judge 3 = **Qwen3.8Max** — Rel/Faith/Cov scores. |
 | `judge_agreement.json` | Inter-judge agreement + Fleiss' κ. |
-| `final_3judge_metrics.json` | Final rule- and suggestion-level metrics. |
+| `final_3judge_metrics.json` | Final rule- and suggestion-level metrics (3-judge panel). |
 | `juri_sweep_rule.csv` | Adjudicator-subset robustness sweep. |
 | `selfrag_full.json` | Self-RAG baseline verdicts + suggestions. |
+
+> **Note on the judge set.** The final adjudication panel uses **three** judges: DeepSeek,
+> Claude, and Qwen3.8Max. Two candidate judges are **excluded** and (by design) their
+> per-claim score files are **not** included in the archive: **Gemini** — leniency bias
+> (62.7% PASS on rules; 66.7% of its suggestions read "already meets criteria") — and
+> **GPT** — degenerate refusal pattern (94% of rules labelled FAIL). `gemini_predict_scores.json`
+> is retained only to document the Gemini rule-level predictions; its suggestion-quality
+> scores are omitted.
 
 ### No personal data
 
