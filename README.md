@@ -250,14 +250,29 @@ latency is small, and it buys a Pareto-optimal point (best quality, lowest refus
 latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
 scenario path — the cost is configurable, not fixed.
 
+**Latency scales with workload — the on-premise real-world run is ~3 s, not 6.4 s.**
+The 6.40 s mean is measured on the **cloud Gemini backbone** at **1,000 queries**. In the
+on-premise deployment the latency is **proportional to the number of clinical rules**
+processed, not a fixed per-query cost (correlation 0.925 over the deployment corpus):
+
+| Workload | On-premise latency |
+|---|---|
+| Claim with 0 rules | 0.80 s |
+| 2–4 rules (typical claim) | **3.2–4.4 s** |
+| 24–36 rules (batch) | 36–74 s |
+
+So a typical claim is verified in **~3–4 s** on-premise; the large-file latencies arise
+from processing many rules **sequentially**, which is exactly what the planned efficiency
+improvements (below) target — not an inherent limit of the method.
+
 **Limitation & future work.** The higher latency is a recognised limitation for
 latency-sensitive applications (see the manuscript's Limitations). Two concrete future
 directions are planned to reduce it while keeping the quality gains:
 
 - **early-exit routing** — route simple queries out before the expensive scenario/
   dual-draft stages;
-- **parallel execution** of the two drafts in the dual-draft stage instead of
-  sequentially.
+- **parallel execution** of the two drafts in the dual-draft stage, and **parallelising
+  rule-level processing** in the claim-verification workflow, instead of sequentially.
 
 ## Real-World Deployment
 
