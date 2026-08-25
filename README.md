@@ -138,7 +138,7 @@ The following contributors have contributed to the development, evaluation, and 
 If you use this code or dataset, please cite the accompanying paper:
 
 ```
-@article{munasunaryono2025arda,
+@article{munasunaryono2026arda,
   title   = {ARDA-SR: Entropy-Based Routing and Dual-Draft Arbitration for False
              Refusal Reduction and Scenario Reasoning in Government Question Answering},
   author  = {Bunga Laelatul Muna and Dwi Sunaryono and Bilqis Amaliah and

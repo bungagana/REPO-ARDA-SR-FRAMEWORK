@@ -49,11 +49,50 @@ def wilcoxon_test(
 
 
 def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
-    """Cohen's d effect size."""
+    """Cohen's d effect size (paired): uses the std of the per-item difference.
+    The comparison is paired on the same query/model runs, so the within-item
+    difference is the relevant effect measure (see manuscript, Wilcoxon + d)."""
     diff = a - b
     if diff.std() < 1e-10:
         return 0.0
     return float(diff.mean() / diff.std())
+
+
+def fleiss_kappa(ratings: np.ndarray, categories=None) -> float:
+    """Fleiss' kappa for multi-rater agreement (inter-rater reliability).
+
+    Parameters
+    ----------
+    ratings : np.ndarray, shape (n_items, n_categories)
+        Number of raters assigning item i to each category (row sums = n_raters).
+    categories : int, optional
+        Number of categories (inferred from the second axis if None).
+
+    Returns
+    -------
+    float
+        Fleiss' kappa (1 = perfect agreement; 0 = chance; <0 = worse than chance).
+    """
+    ratings = np.asarray(ratings, dtype=float)
+    n_items, n_categories = ratings.shape
+    if n_items < 2 or n_categories < 2:
+        return 0.0
+    n_raters = ratings.sum(axis=1)
+    if (n_raters <= 1).any():
+        return 0.0
+    k = n_raters[0]
+
+    # P_i: agreement of each item
+    p_i = (np.sum(ratings ** 2, axis=1) - k) / (k * (k - 1)) if k > 1 else np.zeros(n_items)
+    p_bar = float(np.mean(p_i))
+
+    # p_j: overall proportion of assignments per category
+    p_j = ratings.sum(axis=0) / ratings.sum()
+    p_e = float(np.sum(p_j ** 2))
+
+    if 1 - p_e == 0:
+        return 0.0
+    return float((p_bar - p_e) / (1 - p_e))
 
 
 def bootstrap_ci(
