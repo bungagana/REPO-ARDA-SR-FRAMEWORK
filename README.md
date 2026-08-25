@@ -298,20 +298,25 @@ latency is small, and it buys a Pareto-optimal point (best quality, lowest refus
 latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
 scenario path — the cost is configurable, not fixed.
 
-**Latency scales with workload — the on-premise real-world run is ~3 s, not 6.4 s.**
+**Latency is workload-dependent, not a fixed per-query cost.**
 The 6.40 s mean is measured on the **cloud Gemini backbone** at **1,000 queries**. In the
 on-premise deployment the latency is **proportional to the number of clinical rules**
-processed, not a fixed per-query cost (correlation 0.925 over the deployment corpus):
+processed (Pearson r = 0.922 over the 60-episode deployment corpus), not a fixed per-query
+cost:
 
 | Workload | On-premise latency |
 |---|---|
 | Claim with 0 rules | 0.80 s |
-| 2–4 rules (typical claim) | **3.2–4.4 s** |
-| 24–36 rules (batch) | 36–74 s |
+| 2–4 rules (typical claim) | 0.8 – 17.3 s (median 5.6 s) |
+| 5–10 rules | 6.3 – 33.0 s |
+| 24–36 rules (batch) | 36.7 – 73.8 s |
 
-So a typical claim is verified in **~3–4 s** on-premise; the large-file latencies arise
-from processing many rules **sequentially**, which is exactly what the planned efficiency
-improvements (below) target — not an inherent limit of the method.
+So the latency rises with workload: a claim with no rules completes in 0.80 s, while a large
+batch of 24–36 rules takes 36.7–73.8 s. The average across the corpus is 15.4 s per claim
+(median 11.7 s; per-rule ≈ 2.3 s). Note that a few 2–4-rule claims are still slow (up to
+17.3 s) because the added latency there comes from the **scenario reasoning (m4)** / complex
+rules rather than the rule count alone — so "latency ∝ rule count" is strongest at large
+scale. This is exactly what the planned efficiency improvements (below) target.
 
 **Limitation & future work.** The higher latency is a recognised limitation for
 latency-sensitive applications (see the manuscript's Limitations). Two concrete future
@@ -356,11 +361,12 @@ Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps patient data 
 Law No. 27 of 2022 on Personal Data Protection.*
 
 *\* Self-RAG uses its reflection-only adaptation (generation -> self-reflection -> finalize).
-Its run was attempted repeatedly but could not be completed on the full set: it cannot manage
-certain long/compound rules, so some files produced no per-rule statuses. Its rule-level
-totals are therefore based on fewer adjudicated criteria than Standard RAG / ARDA-SR (which are
-over the full n=437). The value is reported for completeness and should be read with that
-caveat; it is not comparable on identical supporting evidence to the other two columns.*
+Of the 49 episodes that carry adjudicated criteria, Self-RAG successfully parsed **44** (347
+criteria) and **failed on 5** (90 criteria) — the LLM returned an unparseable JSON for long
+or compound rules, and the run was attempted repeatedly with the same outcome. Its rule-level
+totals are therefore based on **n=347 criteria, not the full n=437** used by Standard RAG /
+ARDA-SR. The value is reported for completeness and should be read with that caveat; it is not
+comparable on identical supporting evidence to the other two columns.*
 
 No personal data is released; the institution and platform are anonymised in the text,
 and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
