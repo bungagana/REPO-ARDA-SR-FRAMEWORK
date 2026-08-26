@@ -346,19 +346,22 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 
 | Method | Rule level Acc.↑ | Prec.↑ | Rec.↑ | FRR ↓ | ARR ↑ | F1 | Suggestion quality Rel.↑ | Faith.↑ | Cov.↑ |
 |---|---|---|---|---|---|---|---|---|---|
-| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 0.71 | 3.12 | 3.53 | 2.63 |
-| Self-RAG * | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 0.69 | 2.13 | 2.86 | 1.82 |
-| **ARDA-SR (Ours)** | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **0.74** | **3.25** | **3.71** | **2.89** |
-| Δ (ARDA-SR − Standard RAG) | +0.044 | +0.04 | +0.03 | −0.04 | +0.03 | +0.03 | +0.13 | +0.18 | +0.26 |
+| Standard RAG (baseline) | 0.79 | 0.78 | 0.65 | 0.12 | 0.65 | 0.71 | 3.12 | 3.53 | 2.63 |
+| Self-RAG * | 0.78 | 0.76 | 0.63 | 0.18 | 0.71 | 0.71 | 2.13 | 2.86 | 1.82 |
+| **ARDA-SR (Ours)** | **0.81** | 0.82 | 0.68 | **0.10** | 0.68 | **0.74** | **3.25** | **3.71** | **2.89** |
+| Δ (ARDA-SR − Standard RAG) | +0.02 | +0.04 | +0.03 | −0.02 | +0.03 | +0.03 | +0.13 | +0.18 | +0.26 |
 
-*A production screening system for BPJS Kesehatan / INA-CBG inpatient claims, with reference
-labels from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude). Rule-level
-metrics are over n=437 admission criteria (60 de-identified inpatient episodes, seed 100);
-suggestion quality (Rel/Faith/Cov on a 1–5 scale) is over n=180 ratings. Each judge scores the
-criterion against the raw electronic medical record only (the production verdict is never
-shown) and ties resolve to FAIL. All models run locally on-premise (Qwen3.5:9B as backbone,
-Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps patient data in line with
-Law No. 27 of 2022 on Personal Data Protection.*
+*A production screening system for BPJS **Kesehatan / INA-CBG inpatient claims, with reference
+labels from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude; ties resolve
+to FAIL). Rule-level metrics are over **n=437** admission criteria (60 de-identified inpatient
+episodes, seed 100) for Standard RAG and ARDA-SR, and over **n=347** criteria for Self-RAG
+(Self-RAG parsed **44 of 49** episodes carrying criteria and **failed on 5** — 90 criteria —
+because the model returned an unparseable JSON for long/compound rules). Suggestion quality
+(Rel/Faith/Cov on a 1–5 scale) is over **n=180** ratings for Standard RAG and ARDA-SR and over
+**n=54** episodes for Self-RAG. Each judge scores the criterion against the raw electronic
+medical record only (the production verdict is never shown). All models run locally on-premise
+(Qwen3.5:9B as backbone, Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps
+patient data in line with Law No. 27 of 2022 on Personal Data Protection.*
 
 *\* Self-RAG uses its reflection-only adaptation (generation -> self-reflection -> finalize).
 Of the 49 episodes that carry adjudicated criteria, Self-RAG successfully parsed **44** (347

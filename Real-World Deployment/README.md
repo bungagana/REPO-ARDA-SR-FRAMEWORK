@@ -66,14 +66,23 @@ three-judge adjudication panel.
 
 | Method | Acc.↑ | Prec.↑ | Rec.↑ | FRR↓ | ARR↑ | R | F | C |
 |---|---|---|---|---|---|---|---|---|
-| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.11 | 0.65 | 3.12 | 3.53 | 2.63 |
-| Self-RAG | 0.778 | 0.76 | 0.63 | 0.12 | 0.63 | 2.13 | 2.86 | 1.82 |
-| ARDA-SR (Ours) | **0.839** | 0.82 | 0.68 | **0.07** | 0.68 | **3.25** | **3.71** | **2.89** |
+| Standard RAG (baseline) | 0.79 | 0.78 | 0.65 | 0.12 | 0.65 | 3.12 | 3.53 | 2.63 |
+| Self-RAG * | 0.78 | 0.76 | 0.63 | 0.18 | 0.71 | 2.13 | 2.86 | 1.82 |
+| ARDA-SR (Ours) | **0.81** | 0.82 | 0.68 | **0.10** | 0.68 | **3.25** | **3.71** | **2.89** |
 
 Acc./Prec./Rec./FRR/ARR = rule-level accuracy/precision/recall and refusal rates;
-R/F/C = suggestion Relevance / Faithfulness / Coverage on a 1–5 scale.
-Δ over the Standard-RAG baseline: accuracy 0.795→0.839 (+0.044); FRR 0.11→0.07;
-ARR 0.65→0.68; suggestion coverage 2.63→2.89 (+0.26).
+R/F/C = suggestion Relevance / Faithfulness / Coverage on a 1–5 scale. All metrics are
+computed under a single three-judge panel (Qwen3.8Max, DeepSeek-V4, Claude; ties →
+FAIL). Rule-level metrics are over **n=437** criteria for Standard RAG and ARDA-SR, and
+over **n=347** for Self-RAG; suggestion metrics are over **n=180** ratings for Standard
+RAG and ARDA-SR and over **n=54** episodes for Self-RAG.
+
+\* Self-RAG parsed **44 of 49** episodes carrying criteria and **failed on 5** (90
+criteria) because the model returned an unparseable JSON for long/compound rules; it is
+therefore computed on n=347 criteria, not the full n=437.
+
+Δ over the Standard-RAG baseline: accuracy 0.79→0.81 (+0.02); FRR 0.12→0.10 (−0.02);
+ARR 0.65→0.68 (+0.03); suggestion coverage 2.63→2.89 (+0.26).
 
 ## Figure
 
