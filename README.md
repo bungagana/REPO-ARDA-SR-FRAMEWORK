@@ -346,30 +346,33 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 
 | Method | Rule level Acc.↑ | Prec.↑ | Rec.↑ | FRR ↓ | ARR ↑ | F1 | Suggestion quality Rel.↑ | Faith.↑ | Cov.↑ |
 |---|---|---|---|---|---|---|---|---|---|
-| Standard RAG (baseline) | 0.79 | 0.78 | 0.65 | 0.12 | 0.65 | 0.71 | 3.12 | 3.53 | 2.63 |
-| Self-RAG * | 0.78 | 0.76 | 0.63 | 0.18 | 0.71 | 0.71 | 2.13 | 2.86 | 1.82 |
-| **ARDA-SR (Ours)** | **0.81** | 0.82 | 0.68 | **0.10** | 0.68 | **0.74** | **3.25** | **3.71** | **2.89** |
-| Δ (ARDA-SR − Standard RAG) | +0.02 | +0.04 | +0.03 | −0.02 | +0.03 | +0.03 | +0.13 | +0.18 | +0.26 |
+| Standard RAG (baseline) | 0.795 | 0.78 | 0.65 | 0.115 | 0.646 | 0.703 | 3.12 | 3.53 | 2.63 |
+| Self-RAG * | 0.778 | 0.76 | 0.63 | 0.180 | 0.708 | 0.705 | 2.13 | 2.86 | 1.82 |
+| **ARDA-SR (Ours)** | **0.839** | 0.82 | 0.68 | **0.083** | **0.708** | **0.767** | **3.25** | **3.71** | **2.89** |
+| Δ (ARDA-SR − Standard RAG) | +0.044 | +0.04 | +0.03 | −0.032 | +0.062 | +0.064 | +0.13 | +0.18 | +0.26 |
 
-*A production screening system for BPJS **Kesehatan / INA-CBG inpatient claims, with reference
+*A production screening system for BPJS Kesehatan / INA-CBG inpatient claims, with reference
 labels from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude; ties resolve
-to FAIL). Rule-level metrics are over **n=437** admission criteria (60 de-identified inpatient
-episodes, seed 100) for Standard RAG and ARDA-SR, and over **n=347** criteria for Self-RAG
-(Self-RAG parsed **44 of 49** episodes carrying criteria and **failed on 5** — 90 criteria —
-because the model returned an unparseable JSON for long/compound rules). Suggestion quality
-(Rel/Faith/Cov on a 1–5 scale) is over **n=180** ratings for Standard RAG and ARDA-SR and over
-**n=54** episodes for Self-RAG. Each judge scores the criterion against the raw electronic
-medical record only (the production verdict is never shown). All models run locally on-premise
-(Qwen3.5:9B as backbone, Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps
-patient data in line with Law No. 27 of 2022 on Personal Data Protection.*
+to FAIL). All rule-level metrics below are computed over the **same n=347 criteria** for the
+three methods, so the comparison is fair (apple-to-apple): 347 is the number of criteria that
+all three systems could adjudicate — Self-RAG parsed **44 of 49** episodes carrying criteria
+and **failed on 5** (90 criteria) because the model returned an unparseable JSON for long or
+compound rules. Suggestion quality (Rel/Faith/Cov on a 1–5 scale) is over **n=180** ratings
+for Standard RAG and ARDA-SR and over **n=54** episodes for Self-RAG. Each judge scores the
+criterion against the raw electronic medical record only (the production verdict is never
+shown). All models run locally on-premise (Qwen3.5:9B as backbone, Gemma2:9B as ARDA-SR
+dual-draft arbiter); running on-premise keeps patient data in line with Law No. 27 of 2022 on
+Personal Data Protection.*
 
 *\* Self-RAG uses its reflection-only adaptation (generation -> self-reflection -> finalize).
 Of the 49 episodes that carry adjudicated criteria, Self-RAG successfully parsed **44** (347
 criteria) and **failed on 5** (90 criteria) — the LLM returned an unparseable JSON for long
-or compound rules, and the run was attempted repeatedly with the same outcome. Its rule-level
-totals are therefore based on **n=347 criteria, not the full n=437** used by Standard RAG /
-ARDA-SR. The value is reported for completeness and should be read with that caveat; it is not
-comparable on identical supporting evidence to the other two columns.*
+or compound rules, and the run was attempted repeatedly with the same outcome. To keep the
+comparison fair, the rule-level metrics in Table 11 for **all three** methods (Standard RAG,
+Self-RAG, ARDA-SR) are computed over the **same n=347 criteria** that Self-RAG could
+adjudicate, rather than over n=437 for Standard RAG / ARDA-SR and n=347 for Self-RAG.
+(Note: n=437 is the total number of criteria in the dataset, reported in Section 3.7 as a
+structural fact; n=347 is the subset comparable across the three systems.)*
 
 No personal data is released; the institution and platform are anonymised in the text,
 and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
