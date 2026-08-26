@@ -301,22 +301,24 @@ scenario path — the cost is configurable, not fixed.
 **Latency is workload-dependent, not a fixed per-query cost.**
 The 6.40 s mean is measured on the **cloud Gemini backbone** at **1,000 queries**. In the
 on-premise deployment the latency is **proportional to the number of clinical rules**
-processed (Pearson r = 0.922 over the 60-episode deployment corpus), not a fixed per-query
+processed (Pearson r = 0.925 over the 60-episode deployment corpus), not a fixed per-query
 cost:
 
-| Workload | On-premise latency |
-|---|---|
-| Claim with 0 rules | 0.80 s |
-| 2–4 rules (typical claim) | 0.8 – 17.3 s (median 5.6 s) |
-| 5–10 rules | 6.3 – 33.0 s |
-| 24–36 rules (batch) | 36.7 – 73.8 s |
+| Clinical rules processed | n | On-premise latency (s), median (range) |
+|---|---|---|
+| 0 (no rule triggered) | 11 | 0.80 (0.80–0.81) |
+| 2–4 (typical claim) | 18 | 5.6 (3.2–17.3) |
+| 5–10 | 16 | 16.1 (6.3–33.0) |
+| 11–23 | 11 | 24.6 (19.6–46.2) |
+| 24–36 (batch) | 4 | 45.4 (36.7–73.8) |
 
 So the latency rises with workload: a claim with no rules completes in 0.80 s, while a large
 batch of 24–36 rules takes 36.7–73.8 s. The average across the corpus is 15.4 s per claim
-(median 11.7 s; per-rule ≈ 2.3 s). Note that a few 2–4-rule claims are still slow (up to
-17.3 s) because the added latency there comes from the **scenario reasoning (m4)** / complex
-rules rather than the rule count alone — so "latency ∝ rule count" is strongest at large
-scale. This is exactly what the planned efficiency improvements (below) target.
+(median 11.7 s; per-rule ≈ 2.3 s; total n = 60 episodes). Note that a few 2–4-rule claims are
+still slow (up to 17.3 s) because the added latency there comes from the **scenario reasoning
+(m4)** / complex rules rather than the rule count alone — so "latency ∝ rule count" is
+strongest at large scale. This is exactly what the planned efficiency improvements (below)
+target.
 
 **Limitation & future work.** The higher latency is a recognised limitation for
 latency-sensitive applications (see the manuscript's Limitations). Two concrete future
