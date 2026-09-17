@@ -1,13 +1,13 @@
 """
 Step 2: Generate QA Dataset — Claude Haiku edition
 ================================================================================
-Generates the QA ground-truth dataset using claude-haiku-4-5 via the official
-`anthropic` SDK, per the methodology described in Section 2.4.1. No LLM
-validator, no annotator staging — this script only generates. There is no
-should_be_answerable field in the output: that label isn't known at
-generation time, so it's simply omitted rather than guessed or hardcoded.
-Human validation (whatever protocol you run) is a separate step you do on
-this output afterward.
+Builds the QA ground-truth dataset with claude-haiku-4-5 through the official
+`anthropic` SDK, following the methodology given in Section 2.4.1. There is no
+LLM validator and no annotator staging — this script does nothing but generate.
+The output carries no should_be_answerable field: that label cannot be known
+when generation happens, so it is left out entirely instead of being guessed or
+hardcoded. Human validation (whatever protocol you adopt) is a separate step
+performed on this output afterward.
 
 Run: python 02_generate_qa_claude.py
   --cats CR AR PS  : only (re)generate these categories
@@ -46,7 +46,7 @@ from utils.kb_builder import KnowledgeBase
 
 random.seed(RANDOM_SEED)
 
-# ── Per-category generation prompts ────────────────────────────────────────
+# ── Generation prompts, one per category ───────────────────────────────────
 
 DK_PROMPT = """\
 Generate {n} conceptual question-answer pairs about Indonesian transmigration.
@@ -142,8 +142,8 @@ Return ONLY a JSON array:
 ]"""
 
 
-BATCH = 15        # QA pairs per API call — safe within ~4000 output tokens
-QA_MAX_TOKENS = 8192   # generous output limit for list generation
+BATCH = 15        # QA pairs per API call — fits safely under ~4000 output tokens
+QA_MAX_TOKENS = 8192   # roomy output cap for list generation
 
 
 class QAGenerator:
@@ -157,7 +157,7 @@ class QAGenerator:
         return random.sample(regional, min(n, len(regional)))
 
     def _batched_json(self, prompt: str) -> List[Dict]:
-        """Call generate_json with QA_MAX_TOKENS; always returns a list."""
+        """Invoke generate_json using QA_MAX_TOKENS; the result is always a list."""
         try:
             raw = self.client.generate_json(prompt, max_tokens=QA_MAX_TOKENS)
             return raw if isinstance(raw, list) else []
@@ -167,11 +167,11 @@ class QAGenerator:
 
     def _while_generate(self, pool: List[Dict], prompt_fn, n: int) -> List[Dict]:
         """
-        Generic while-loop generator: keep sampling chunks from pool until
-        we have n items. Handles Claude returning fewer items than requested.
+        Generic while-loop generator: repeatedly sample chunks from pool until
+        n items are collected. Copes with Claude returning fewer items than asked.
         """
         results: List[Dict] = []
-        max_attempts = n * 6   # hard cap on API calls
+        max_attempts = n * 6   # upper bound on API calls
         attempts = 0
         while len(results) < n and attempts < max_attempts:
             attempts += 1
@@ -244,9 +244,9 @@ class QAGenerator:
 def assign_ids(qa_pairs: List[Dict], start_id: int = 0) -> List[Dict]:
     for i, qa in enumerate(qa_pairs):
         qa["query_id"] = f"qa_{start_id + i:04d}"
-        # No should_be_answerable field here — it isn't known at generation
-        # time. Whatever validation you run afterward should add it based on
-        # real evidence/annotation, not have this script guess it.
+        # No should_be_answerable field is set here, since it cannot be known
+        # during generation. Any later validation step should assign it from
+        # real evidence/annotation rather than relying on this script to guess.
         if not isinstance(qa.get("source_docs"), list):
             qa["source_docs"] = []
     return qa_pairs
@@ -256,7 +256,7 @@ CHECKPOINT_PATH = DATA_DIR / "qa_checkpoint.json"
 
 
 def _load_checkpoint() -> Dict:
-    """Load existing checkpoint if present. Returns {cat: {accepted: [...], kappa: float, stats: {...}}}"""
+    """Read the checkpoint when one exists. Returns {cat: {accepted: [...], kappa: float, stats: {...}}}"""
     if CHECKPOINT_PATH.exists():
         with open(CHECKPOINT_PATH, encoding="utf-8") as f:
             ckpt = json.load(f)
@@ -277,7 +277,7 @@ def main():
     args = parser.parse_args()
 
     cats_to_run = args.cats if args.cats else QA_CATEGORIES
-    # Validate category names
+    # Check that the category names are valid
     invalid = [c for c in cats_to_run if c not in QA_CATEGORIES]
     if invalid:
         logger.error(f"Unknown categories: {invalid}. Valid: {QA_CATEGORIES}")
@@ -288,28 +288,28 @@ def main():
     logger.info(f"  Categories: {cats_to_run}")
     logger.info("=" * 60)
 
-    # Generation uses Claude Haiku (claude-haiku-4-5), per Section 2.4.1.
+    # Generation runs on Claude Haiku (claude-haiku-4-5), as per Section 2.4.1.
     client    = ClaudeClient()
     kb        = KnowledgeBase().load()
     generator = QAGenerator(kb, client)
 
-    # ── Load existing dataset to merge into (partial run support) ─────────
+    # ── Load the existing dataset to merge into (supports partial runs) ───
     existing_path = DATA_DIR / "qa_dataset.json"
     if existing_path.exists() and args.cats:
         with open(existing_path, encoding="utf-8") as f:
             existing = json.load(f)
-        # Remove any existing entries for cats_to_run (will be regenerated)
+        # Drop existing entries for cats_to_run (they will be regenerated)
         all_candidates: List[Dict] = [q for q in existing if q.get("category") not in cats_to_run]
         logger.info(f"  Loaded {len(all_candidates)} existing entries (keeping non-{cats_to_run} categories)")
     else:
         all_candidates: List[Dict] = []
 
-    # ── Load checkpoint (resume support) ──────────────────────────────────
+    # ── Load checkpoint (for resuming) ────────────────────────────────────
     checkpoint = _load_checkpoint()
     stats: Dict = {}
     global_id = len(all_candidates)
 
-    # Reconstruct state from checkpoint for cats_to_run
+    # Rebuild state from the checkpoint for cats_to_run
     for cat in cats_to_run:
         if cat in checkpoint:
             cat_candidates = checkpoint[cat]["candidates"]
@@ -328,11 +328,11 @@ def main():
 
     for cat in cats_to_run:
         if cat in checkpoint:
-            continue   # already done
+            continue   # nothing left to do
 
         logger.info(f"\n── Category: {cat} ({QA_CATEGORY_DESC[cat]}) ──")
-        # No filtering step anymore, so generate exactly the target count
-        # directly instead of over-generating a buffer for a validator to trim.
+        # With no filtering step now, produce exactly the target count directly
+        # rather than over-generating a buffer for a validator to trim down.
         generate_n = QA_TARGET_PER_CATEGORY
 
         logger.info(f"  Generating {generate_n} QA pairs...")
@@ -347,12 +347,12 @@ def main():
         all_candidates.extend(candidates)
         cat_stats = {"generated": len(candidates)}
 
-        # ── Save checkpoint after each category ────────────────────────────
+        # ── Persist checkpoint after every category ───────────────────────
         checkpoint[cat] = {"candidates": candidates, "stats": cat_stats}
         _save_checkpoint(checkpoint)
         logger.info(f"  Checkpoint saved → {CHECKPOINT_PATH}")
 
-    # ── Final outputs ─────────────────────────────────────────────────────
+    # ── Write final outputs ───────────────────────────────────────────────
     with open(DATA_DIR / "qa_dataset.json", "w", encoding="utf-8") as f:
         json.dump(all_candidates, f, ensure_ascii=False, indent=2)
 
@@ -362,11 +362,11 @@ def main():
     with open(DATA_DIR / "qa_generation_stats.json", "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2)
 
-    # ── Delete checkpoint (run complete) ───────────────────────────────────
+    # ── Remove checkpoint (run finished) ──────────────────────────────────
     if CHECKPOINT_PATH.exists():
         CHECKPOINT_PATH.unlink()
 
-    # ── Summary ────────────────────────────────────────────────────────────
+    # ── Print summary ─────────────────────────────────────────────────────
     logger.info("\n" + "=" * 60)
     logger.info("QA Generation Summary:")
     logger.info(f"  TOTAL: {len(all_candidates)} QA pairs")

@@ -1,4 +1,4 @@
-"""Extract text from PDF, DOCX, and TXT files."""
+"""Pull text out of PDF, DOCX, and TXT documents."""
 
 import io
 import logging
@@ -8,7 +8,7 @@ from typing import Iterator
 
 logger = logging.getLogger(__name__)
 
-# Folder-name → document category mapping (matches documents.zip structure)
+# Maps folder names to document categories (mirrors the documents.zip layout)
 FOLDER_CATEGORY_MAP = {
     "kawasan_wilayah":   "regional_profile",
     "komoditas_standar": "technical_standards",
@@ -19,14 +19,14 @@ FOLDER_CATEGORY_MAP = {
 
 
 class DocumentProcessor:
-    """Extract raw text from PDF/DOCX/TXT files inside documents.zip."""
+    """Pull raw text from the PDF/DOCX/TXT files stored in documents.zip."""
 
     def __init__(self, zip_path: str | Path):
         self.zip_path = Path(zip_path)
 
     def iter_documents(self) -> Iterator[dict]:
         """
-        Yield dicts with keys:
+        Emit dictionaries carrying these keys:
           filename, category, doc_type, text
         """
         with zipfile.ZipFile(self.zip_path, "r") as zf:
@@ -68,7 +68,7 @@ class DocumentProcessor:
         with pdfplumber.open(io.BytesIO(data)) as pdf:
             for page in pdf.pages:
                 page_text = page.extract_text() or ""
-                # Also extract tables as text
+                # Tables are pulled out as text too
                 tables = page.extract_tables() or []
                 for table in tables:
                     for row in table:
@@ -94,11 +94,11 @@ class DocumentProcessor:
         return "\n".join(parts)
 
     def _extract_metadata(self, text: str, filename: str) -> dict:
-        """Heuristically extract domain metadata from document text."""
+        """Domain metadata is approximated from the document text using heuristics."""
         import re
         meta = {}
 
-        # Region name: often first line or after "KAWASAN"
+        # Region: usually the first line, or the text following "KAWASAN"
         region_match = re.search(r"KAWASAN\s+(?:TRANSMIGRASI\s+)?([A-Z][A-Z\s\-]+?)(?:\s*[–\-]|\s*,|\n)", text)
         if region_match:
             meta["region"] = region_match.group(1).strip().title()
@@ -113,7 +113,7 @@ class DocumentProcessor:
         if year_match:
             meta["year"] = year_match.group(1)
 
-        # Commodity keywords
+        # Commodities mentioned
         commodities = []
         for c in ["padi", "jagung", "kopi", "kakao", "kelapa sawit", "karet", "sapi", "udang"]:
             if c in text.lower():
@@ -121,7 +121,7 @@ class DocumentProcessor:
         if commodities:
             meta["commodities"] = commodities
 
-        # Regulation type
+        # Type of regulation
         if any(k in text.lower() for k in ["peraturan pemerintah", "pp nomor"]):
             meta["regulation_type"] = "PP"
         elif any(k in text.lower() for k in ["peraturan menteri", "permen"]):

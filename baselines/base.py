@@ -1,4 +1,4 @@
-"""Abstract base class for all QA pipeline implementations."""
+"""Base class (abstract) shared by every QA pipeline in this codebase."""
 
 import time
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class BasePipeline(ABC):
-    """Common interface for all baseline and proposed methods."""
+    """Shared interface that both baseline and proposed methods implement."""
 
     name: str = "base"
 
@@ -24,12 +24,12 @@ class BasePipeline(ABC):
     @abstractmethod
     def run(self, query: str, reference_answer: str = "", k: int = TOP_K) -> Dict:
         """
-        Run the pipeline for a single query.
+        Execute this pipeline once for one query.
 
-        Returns dict with keys:
+        The returned dict contains the keys:
           query, reference, method, answer, evidence,
           is_refusal, latency_s
-          (subclasses may add more keys)
+          (extra keys may be supplied by subclasses)
         """
 
     def _base_result(self, query: str, reference: str) -> Dict:

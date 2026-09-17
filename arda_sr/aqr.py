@@ -1,6 +1,6 @@
 """
 AQR: Adaptive Query Router
-Implements uncertainty-based query routing via conditional entropy.
+Query routing is driven by uncertainty, measured here as conditional entropy.
 
 φ(q)  = feature vector (5 components)
 P(m|q) = mode probability distribution over M = {m1, m2, m3, m4}
@@ -56,9 +56,10 @@ class AQR:
     """
     Adaptive Query Router.
 
-    Route a query to one of four response modes using entropy-based uncertainty:
-    - H ≤ τ_H → confident routing → assign dominant mode
-    - H  > τ_H → activate hybrid path (m3)
+    Each query is sent to one of four response modes, picked from entropy-based
+    uncertainty:
+    - H ≤ τ_H → routing is confident → take the dominant mode
+    - H  > τ_H → switch on the hybrid path (m3)
     """
 
     def __init__(self, client: GeminiClient | None = None, tau_h: float = ENTROPY_THRESHOLD):
@@ -68,11 +69,11 @@ class AQR:
     def classify(self, query: str) -> Dict:
         """
         Returns:
-          mode          : str  — assigned mode (m1/m2/m3/m4)
-          mode_probs    : dict — P(m|q) for all modes
+          mode          : str  — selected mode (m1/m2/m3/m4)
+          mode_probs    : dict — P(m|q) across every mode
           entropy       : float — H(M|φ(q))
           features      : dict — φ(q) feature vector
-          hybrid_path   : bool — True if entropy exceeds threshold
+          hybrid_path   : bool — True when entropy sits above the threshold
           reasoning     : str
         """
         prompt = AQR_PROMPT.format(query=query)
@@ -86,7 +87,7 @@ class AQR:
         mode_probs = result.get("mode_probs", {"m1": 0.25, "m2": 0.25, "m3": 0.25, "m4": 0.25})
         reasoning  = result.get("reasoning", "")
 
-        # Normalise probabilities
+        # Rescale so the probabilities sum to one
         total = sum(mode_probs.get(m, 0.0) for m in MODES)
         if total < 1e-9:
             total = 1.0
@@ -110,10 +111,11 @@ class AQR:
     def _entropy(probs: Dict[str, float]) -> float:
         """H(M|q) = -Σ p·log2(p), in bits.
 
-        Base-2 log is required so H_max for |M|=4 modes equals log2(4) = 2.0
-        bits (paper Section 2.3.2), making τ_H = 1.05 the intended 52.5% of
-        H_max. Using natural log here would make τ_H a different (and
-        undocumented) fraction of the actual max entropy (ln(4) ≈ 1.386 nats).
+        A base-2 log is needed so that H_max for |M|=4 modes comes out to
+        log2(4) = 2.0 bits (paper Section 2.3.2); with that, τ_H = 1.05 is the
+        intended 52.5% of H_max. Switching to a natural log would turn τ_H into
+        some other, undocumented share of the real max entropy (ln(4) ≈ 1.386
+        nats).
         """
         h = 0.0
         for p in probs.values():

@@ -1,4 +1,4 @@
-"""Baseline: Adaptive-RAG (complexity-based strategy routing)."""
+"""Baseline: Adaptive-RAG (routes queries by estimated complexity)."""
 
 import time
 import logging
@@ -13,9 +13,10 @@ logger = logging.getLogger(__name__)
 
 class AdaptiveRAGPipeline(BasePipeline):
     """
-    Adaptive-RAG: classifies query complexity and routes to different strategies.
-    This same-backbone reimplementation uses prompted classification rather than
-    the original trained smaller classifier.
+    Adaptive-RAG: estimates how complex a query is, then dispatches it to a
+    matching strategy. Rather than relying on the original dedicated small
+    classifier, this same-backbone port performs the classification through
+    prompting.
     Reference: Jeong et al. 2024, NAACL.
     """
 
@@ -66,7 +67,7 @@ Response:"""
         t = time.time()
         result = self._base_result(query, reference_answer)
         try:
-            # Step 1: Classify complexity
+            # First, determine the query complexity
             complexity_raw = self.client.generate(
                 self.COMPLEXITY_PROMPT.format(query=query), max_tokens=10
             ).upper().strip()
@@ -111,7 +112,7 @@ Response:"""
 
             result["answer"]     = answer
             result["is_refusal"] = self._is_refusal(answer)
-            # Tool accuracy: was routing decision correct? (estimated by whether evidence helped)
+            # Tool accuracy: whether the routing choice was right (approximated from evidence usefulness)
             result["tool_decision"] = complexity
         except Exception as exc:
             logger.error(f"Adaptive-RAG failed: {exc}")

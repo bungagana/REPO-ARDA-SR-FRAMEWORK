@@ -1,10 +1,11 @@
 """
 Step 2.5: Derive should_be_answerable from real evidence in the corpus.
 
-Implements the paper's Section 2.4.1 "Stage 1" methodology: cosine-similarity
-embedding between each reference_answer and its cited source_docs chunk(s) in
-the real knowledge base. This is a deterministic, reproducible signal computed
-against the actual corpus — not a hardcoded flag and not an LLM guess.
+Applies the paper's Section 2.4.1 "Stage 1" methodology: a cosine-similarity
+embedding comparison between each reference_answer and the source_docs chunk(s)
+it cites in the real knowledge base. The signal is deterministic and
+reproducible, computed against the actual corpus — neither a hardcoded flag
+nor an LLM guess.
 
 Rule:
   - DK (no source_docs): should_be_answerable = True by definition
@@ -14,9 +15,9 @@ Rule:
     else False (flagged as ungrounded — likely a generation artifact from
     QA creation, candidate for human review or regeneration).
 
-This is Stage 1 only. Stage 2 (3 real human annotators, per the paper) should
-still review — especially the items this script flags False — and can
-override this label. Wire that override in via merge_human_validation.py.
+Only Stage 1 is covered here. Stage 2 (3 real human annotators, per the paper)
+should still review — especially the items this script flags False — and may
+override this label. Route that override through merge_human_validation.py.
 
 Run: python verify_answerability.py [--threshold 0.45]
 Reads:  data/qa_dataset.json (no should_be_answerable field)
@@ -62,7 +63,7 @@ def main():
 
     kb = KnowledgeBase().load()
 
-    # Index chunks by filename for fast lookup
+    # Group chunks by filename for quick lookup
     chunks_by_file = defaultdict(list)
     for c in kb.chunks:
         chunks_by_file[c.get("filename", "")].append(c)
@@ -80,7 +81,7 @@ def main():
 
         if cat == "DK" and not source_docs:
             qa["should_be_answerable"] = True
-            qa["evidence_similarity"] = None   # not applicable — no retrieval required for m1
+            qa["evidence_similarity"] = None   # not applicable — m1 needs no retrieval
             n_dk += 1
             continue
 
@@ -90,7 +91,7 @@ def main():
             candidate_chunks.extend(chunks_by_file.get(fn, []))
 
         if not candidate_chunks:
-            # Cited file(s) not found in KB at all — can't verify grounding
+            # The cited file(s) are absent from the KB entirely, so grounding can't be verified
             qa["should_be_answerable"] = False
             qa["evidence_similarity"] = 0.0
             n_no_source_match += 1

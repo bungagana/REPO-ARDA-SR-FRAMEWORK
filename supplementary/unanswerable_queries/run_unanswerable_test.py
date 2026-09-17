@@ -57,7 +57,7 @@ def load_unanswerable_queries(smoke: bool = False) -> list:
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     if smoke:
-        # 6 items = ~1-2 per unans_type, quick sanity check before a full run
+        # 6 items ≈ 1-2 per unans_type, a fast sanity check ahead of a full run
         data = data[:2] + data[15:17] + data[30:32] + data[45:47]
     return data
 
@@ -99,13 +99,14 @@ def run_method(method_name: str, queries: list, kb: KnowledgeBase, client: Gemin
         res["unans_type"] = q["unans_type"]
         res["reason"] = q["reason"]
         res["method"] = method_name
-        # Ground truth for this whole dataset: every item is unanswerable
-        # (r_i = 1), the complement of the main benchmark's r_i = 0 case.
+        # For this entire dataset the ground truth makes every item
+        # unanswerable (r_i = 1), opposite to the main benchmark's r_i = 0.
         res["should_be_answerable"] = False
-        # Keep the pipeline's own is_refusal (for auditability / comparison
-        # with how the main experiment defines refusal), and compute a
-        # corrected version with the extra Indonesian "no evidence" phrases
-        # this experiment surfaced. ARR/FAR below use the corrected field.
+        # The pipeline's own is_refusal is retained (for auditing and for
+        # comparison against how the main experiment defines refusal), and a
+        # corrected value is computed using the extra Indonesian "no evidence"
+        # phrases this experiment turned up. ARR/FAR below rely on the
+        # corrected field.
         res["is_refusal_raw"] = res.get("is_refusal", False)
         res["is_refusal"] = is_refusal_corrected(res.get("answer", ""), res["is_refusal_raw"])
         done[q["query_id"]] = res
@@ -116,8 +117,9 @@ def run_method(method_name: str, queries: list, kb: KnowledgeBase, client: Gemin
 
 
 def compute_far(results: list) -> float:
-    """False Acceptance Rate: fraction of unanswerable queries the system answered
-    instead of refusing. Complement of the paper's FRR (Eq. 24). Lower is better."""
+    """False Acceptance Rate: the share of unanswerable queries the system
+    answered rather than refused. It is the complement of the paper's FRR
+    (Eq. 24). A lower value is preferable."""
     if not results:
         return 0.0
     accepted = sum(1 for r in results if not r.get("is_refusal", False))
@@ -125,10 +127,10 @@ def compute_far(results: list) -> float:
 
 
 def compute_arr(results: list) -> float:
-    """Appropriate Refusal Rate = 1 - FAR: fraction of unanswerable queries the
-    system correctly refused. Higher is better — this is the number to report
-    alongside FRR (also reported ↑-is-good) so both metrics in the paper read
-    the same direction."""
+    """Appropriate Refusal Rate = 1 - FAR: the share of unanswerable queries
+    the system refused correctly. A higher value is preferable — this is the
+    figure to report next to FRR (also reported ↑-is-good) so that both
+    metrics in the paper point the same way."""
     return 1.0 - compute_far(results)
 
 
@@ -220,7 +222,7 @@ def main():
         json.dump({"arr_overall": all_arr, "far_overall": all_far, "arr_by_type": all_arr_by_type}, f, indent=2)
 
     # ── False-acceptance examples for manual inspection / manuscript ──────
-    # (is_refusal here is already the corrected value from run_method)
+    # (is_refusal is already the corrected value produced by run_method)
     fa_rows = []
     corrected_rows = []
     for method in methods:
@@ -243,10 +245,10 @@ def main():
     fa_df = pd.DataFrame(fa_rows)
     fa_df.to_csv(RESULTS_DIR / "false_acceptances.csv", index=False, encoding="utf-8-sig")
 
-    # Still-remaining false acceptances after the extra phrase pass are the
-    # real candidates for a "manual review needed" pass — some may yet be
-    # genuine refusals phrased in a way neither list catches. Flag rather
-    # than silently trust the automated FAR/ARR numbers.
+    # False acceptances left over after the extra phrase pass are the true
+    # candidates for a "manual review needed" pass — some could still be
+    # genuine refusals worded so that neither list catches them. Flag these
+    # instead of silently trusting the automated FAR/ARR figures.
     if corrected_rows:
         corr_df = pd.DataFrame(corrected_rows)
         corr_df.to_csv(RESULTS_DIR / "refusal_detection_corrections.csv", index=False, encoding="utf-8-sig")

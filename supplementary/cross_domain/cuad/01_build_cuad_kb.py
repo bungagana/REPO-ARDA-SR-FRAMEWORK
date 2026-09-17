@@ -2,8 +2,8 @@
 CUAD menguji generalisasi pada domain commercial-contract/legal menggunakan 510 kontrak nyata dari SEC/EDGAR dan 22.450 pertanyaan berlabel lawyer tentang 41 tipe klausul. Sekitar setengah pertanyaan bersifat not answerable, sehingga dataset ini cocok untuk menguji kemampuan sistem membedakan kapan harus menjawab vs. abstain, diukur dengan FRR (answerable) dan FAR (not-answerable).
 
 Untuk retrieval, 510 kontrak dideduplikasi berdasarkan title dan dimasukkan sekali ke corpus. Sistem harus menemukan kontrak yang tepat dari ~500 distractors, lalu menemukan klausul yang relevan. Metadata kontrak tersedia, tetapi belum digunakan
-Reuses utils.kb_builder.KnowledgeBaseBuilder AS-IS (no modification), just
-pointed at a separate kb_dir — main repo's kb/ folder is never touched.
+utils.kb_builder.KnowledgeBaseBuilder is reused AS-IS (unmodified) and
+merely aimed at its own kb_dir — the main repo's kb/ folder is never touched.
 
 Run (from this directory):
     python 01_build_cuad_kb.py [--n 150]
@@ -38,12 +38,12 @@ def main():
 
     from datasets import load_dataset
     print("Loading CUAD (SQuAD-style clause QA) from HuggingFace...")
-    # Legacy loading-script datasets require the auto-converted Parquet
-    # branch under current `datasets` versions — see module docstring.
+    # Datasets that ship legacy loading scripts need the auto-converted
+    # Parquet branch under recent `datasets` releases — see module docstring.
     ds = load_dataset("theatticusproject/cuad-qa", split="train", revision="refs/convert/parquet")
     print(f"Loaded {len(ds)} clause-presence QA rows")
 
-    # ── Build retrieval corpus from unique contracts (dedup by title) ─────
+    # ── Assemble the retrieval corpus from unique contracts (title dedup) ─
     seen_titles = set()
     documents = []
     for row in ds:
@@ -66,7 +66,7 @@ def main():
     builder.build(documents)
     print(f"KB saved to: {KB_DIR}")
 
-    # ── Sample n test questions (reproducible) ────────────────────────────
+    # ── Draw n test questions reproducibly ──────────────────────────────
     rng = random.Random(args.seed)
     n = min(args.n, len(ds))
     indices = rng.sample(range(len(ds)), n)

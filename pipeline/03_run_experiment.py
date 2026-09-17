@@ -1,9 +1,9 @@
 """
 Step 3: Run Main Experiment
 ==============================
-Runs all 10 baselines + ARDA-SR on the full QA dataset.
-Computes automatic metrics + LLM-judge scores.
-Saves per-method result JSONs and a summary metrics CSV.
+Executes all 10 baselines plus ARDA-SR over the full QA dataset.
+Produces automatic metrics alongside LLM-judge scores.
+Writes one result JSON per method and a summary metrics CSV.
 
 Run: python 03_run_experiment.py [--method METHOD] [--smoke]
   --method METHOD  : run only one method (e.g. --method arda_sr)
@@ -64,7 +64,7 @@ def _ckpt_path(method_name: str) -> Path:
 
 
 def _load_ckpt(method_name: str) -> dict:
-    """Load per-query checkpoint. Returns {query_id: result_dict}."""
+    """Read the per-query checkpoint. Returns {query_id: result_dict}."""
     p = _ckpt_path(method_name)
     if p.exists():
         with open(p, encoding="utf-8") as f:
@@ -81,7 +81,7 @@ def _save_ckpt(method_name: str, done: dict) -> None:
 
 def run_method(method_name: str, qa_data: list, kb: KnowledgeBase, client: GeminiClient,
                betas=None) -> list:
-    """Run a single method on all QA pairs, with per-query checkpoint."""
+    """Execute one method across every QA pair, checkpointing per query."""
     done = _load_ckpt(method_name)
     if done:
         logger.info(f"  Resuming {method_name}: {len(done)}/{len(qa_data)} already done")
@@ -104,7 +104,7 @@ def run_method(method_name: str, qa_data: list, kb: KnowledgeBase, client: Gemin
         done[qa["query_id"]] = res
         _save_ckpt(method_name, done)
 
-    # preserve original order
+    # keep the original ordering
     id_order = {qa["query_id"]: i for i, qa in enumerate(qa_data)}
     return sorted(done.values(), key=lambda r: id_order.get(r["query_id"], 0))
 
@@ -135,8 +135,8 @@ def main():
 
     client = GeminiClient()
     kb     = KnowledgeBase().load()
-    # Judge is gpt-5.4-mini (separate model family from Gemini, which generates
-    # the answers being judged) — per Section 2.4.2: "gpt-5.4-mini as an
+    # The judge is gpt-5.4-mini (a different model family than Gemini, which
+    # produces the answers under judgment) — per Section 2.4.2: "gpt-5.4-mini as an
     # independent evaluator... reducing potential bias resulting from the use
     # of the same model for both generation and evaluation."
     judge  = LLMJudge(GPTJudgeClient()) if not args.skip_judge else None
@@ -154,10 +154,10 @@ def main():
     else:
         logger.info(f"\nUsing fixed DDA beta design values: {best_betas}")
 
-    # ── Determine which methods to run ────────────────────────────────────
+    # ── Work out which methods to run ─────────────────────────────────────
     requested = [args.method] if args.method else BASELINE_NAMES
 
-    # Resume: skip methods whose result file already exists (unless --smoke)
+    # Resume support: skip any method whose result file already exists (unless --smoke)
     methods_to_run = []
     for m in requested:
         out_path = RESULTS_DIR / f"{m}_results.json"
@@ -174,7 +174,7 @@ def main():
     all_metrics: dict = {}
     all_results: dict = {}
 
-    # Load existing results for methods we skipped
+    # Pull in existing results for the methods we skipped
     for m in requested:
         out_path = RESULTS_DIR / f"{m}_results.json"
         if m not in methods_to_run and out_path.exists():
@@ -191,7 +191,7 @@ def main():
         elapsed = time.time() - t
         logger.info(f"  Completed in {elapsed:.1f}s")
 
-        # LLM judge scoring
+        # Score with the LLM judge
         llm_scores = None
         if judge and not args.skip_judge:
             logger.info(f"  Running LLM judge on {len(results)} answers...")
@@ -205,9 +205,9 @@ def main():
                         "cov":   llm_scores[qid]["cov"] / 5.0,
                     })
 
-            # CtxRel: separate LLM judge pass over retrieval quality (Section
+            # CtxRel: a separate LLM judge pass over retrieval quality (Section
             # 2.4.2 — "assessed by an LLM evaluator on a scale of 1-5").
-            # Only meaningful for queries where retrieval actually ran.
+            # Relevant only for queries where retrieval actually happened.
             logger.info(f"  Running CtxRel judge on retrieval evidence...")
             ctx_rel_scores = judge.judge_ctx_rel_batch(results, show_progress=True)
             for r in results:
@@ -215,13 +215,13 @@ def main():
                 if qid in ctx_rel_scores:
                     r["ctx_rel"] = ctx_rel_scores[qid]
 
-        # Compute metrics
+        # Calculate metrics
         metrics = compute_all_metrics(results, llm_scores)
         cat_metrics = per_category_metrics(results, llm_scores)
         all_metrics[method] = {**metrics, "per_category": cat_metrics}
         all_results[method] = results
 
-        # Save final result and remove checkpoint
+        # Write the final result and drop the checkpoint
         out_path = RESULTS_DIR / f"{method}_results.json"
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
@@ -234,7 +234,7 @@ def main():
                     f"Rel={metrics.get('rel','--')} | "
                     f"Faith={metrics.get('faith','--')}")
 
-    # ── Re-compute metrics for any loaded (not freshly run) methods ──────
+    # ── Recompute metrics for methods that were loaded rather than re-run ──
     for method, results in all_results.items():
         if method not in all_metrics:
             llm_scores_loaded = {
@@ -247,11 +247,11 @@ def main():
             cat_metrics = per_category_metrics(results, llm_scores_loaded)
             all_metrics[method] = {**metrics, "per_category": cat_metrics}
 
-    # ── Aggregate outputs ─────────────────────────────────────────────────
+    # ── Aggregate and save outputs ────────────────────────────────────────
     with open(RESULTS_DIR / "all_metrics.json", "w", encoding="utf-8") as f:
         json.dump(all_metrics, f, indent=2)
 
-    # Summary table
+    # Build the summary table
     rows = summary_table(all_metrics)
     df = pd.DataFrame(rows)
     df.to_csv(RESULTS_DIR / "metrics_summary.csv", index=False)
@@ -259,7 +259,7 @@ def main():
     logger.info("\nMetrics Summary:")
     logger.info(df.to_string(index=False))
 
-    # Statistical significance: ARDA-SR vs each baseline
+    # Statistical significance: ARDA-SR against every baseline
     if "arda_sr" in all_results and len(methods_to_run) > 1:
         logger.info("\nStatistical Significance (ARDA-SR vs baselines):")
         arda_rel = [r.get("rel", 0.5) for r in all_results["arda_sr"]]

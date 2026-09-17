@@ -22,9 +22,9 @@ class MetadataAwareARDASRPipeline(GenericARDASRPipeline):
         self.metadata_extractor = metadata_extractor
 
     def run(self, query: str, reference_answer: str = "", k: int = TOP_K) -> Dict:
-        # Verbatim copy of GenericARDASRPipeline.run() (generic_modules.py)
-        # with exactly one change: the metadata-extraction call is
-        # pluggable instead of hardcoded to the Indonesia-specific
+        # A verbatim copy of GenericARDASRPipeline.run() (generic_modules.py)
+        # with a single change: the metadata-extraction call is made
+        # pluggable rather than hardcoded to the Indonesia-specific
         # arda_sr.retrieval.HybridRetriever.extract_metadata_from_query.
         t_start = time.time()
         result = {

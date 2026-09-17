@@ -1,10 +1,11 @@
 """
 DDA: Dual-Draft Arbitrator
-Generates two parallel answer drafts and selects/combines via utility-based scoring.
+Two answer drafts are produced in parallel, then picked or merged through
+utility-based scoring.
 
 u(a) = β1·Rel(a) + β2·Faith(a) + β3·Cov(a) − β4·Risk(a)
-Default β values are fixed from design reasoning. Optional grid search must use
-development data that are separate from the final test set.
+The default β values come from fixed design reasoning. Any optional grid search
+has to run on development data kept apart from the final test set.
 """
 
 import itertools
@@ -66,10 +67,11 @@ Candidate Answer: {answer}
                                // facts confidently, risk should be HIGH regardless of plausibility.
 }}"""
 
-# Minimum acceptable weighted-utility score for a lone parametric draft
-# (Algorithm 1, line 31: "minimum-quality verification"). Reuses the same
-# 0.3 bar DDA already applies elsewhere so the threshold is consistent
-# across the module rather than a second, undocumented magic number.
+# Lowest weighted-utility score a lone parametric draft may have
+# (Algorithm 1, line 31: "minimum-quality verification"). It reuses the
+# same 0.3 bar already applied elsewhere in DDA, which keeps one consistent
+# threshold module-wide instead of introducing another undocumented magic
+# number.
 MIN_QUALITY_THRESHOLD = 0.3
 
 COMBINE_PROMPT = """\
@@ -86,7 +88,8 @@ Combined Answer:"""
 class DDA:
     """
     Dual-Draft Arbitrator.
-    Maintains answerability by always generating a parametric fallback draft.
+    Answerability is maintained because a parametric fallback draft is always
+    produced.
     """
 
     def __init__(
@@ -104,20 +107,21 @@ class DDA:
         reference: str = "",
     ) -> Dict:
         """
-        Generate two drafts, score with utility function, return best (or combined).
+        Produce both drafts, score each with the utility function, and return the
+        better one (or their combination).
 
         Returns dict with: answer, draft_dir, draft_ret, utility_dir, utility_ret,
                            selected, betas, evidence_used
         """
-        # ── Draft A: Parametric (direct) ──────────────────────────────────
+        # ── Draft A: direct parametric ────────────────────────────────────
         draft_dir = self._generate_direct(query)
 
-        # ── Draft B: Retrieval-grounded ────────────────────────────────────
+        # ── Draft B: grounded in retrieved evidence ───────────────────────
         evidence_text = self._format_evidence(evidence)
         draft_ret = self._generate_retrieval(query, evidence_text) if evidence else ""
 
         # ── Score both drafts (Faith is judged against the SAME evidence
-        #    text passed to the retrieval draft, per paper Section 2.3.4:
+        #    text handed to the retrieval draft, as paper Section 2.3.4 says:
         #    "evaluates each draft against the query and the available
         #    contextual evidence") ─────────────────────────────────────────
         u_dir = self._score_utility(query, draft_dir, reference, evidence_text="")
@@ -129,13 +133,13 @@ class DDA:
         score_dir = self._weighted_utility(u_dir)
         score_ret = self._weighted_utility(u_ret) if draft_ret else -1.0
 
-        # ── Arbitration — literal three-way rule, Eq. (17) ─────────────────
+        # ── Arbitration — the exact three-way rule from Eq. (17) ──────────
         min_quality_passed = True
         if not draft_ret:
             # Algorithm 1, line 31: "Set a* <- a(dir) after minimum-quality
-            # verification". Score the lone parametric draft against the
-            # same utility function; flag (but still return, to preserve
-            # DDA's answerability-maintenance goal) if it fails the bar.
+            # verification". The lone parametric draft is scored with the
+            # same utility function; if it fails the bar we flag it, yet still
+            # return it so DDA's answerability-maintenance goal holds.
             selected = "direct"
             answer = draft_dir
             min_quality_passed = score_dir >= MIN_QUALITY_THRESHOLD
@@ -149,7 +153,7 @@ class DDA:
             selected = "combined"
             answer = self._combine(query, draft_dir, draft_ret)
 
-        # Detect refusal in the chosen answer
+        # Look for a refusal in whichever answer was chosen
         is_refusal = self._is_refusal(answer) or not min_quality_passed
 
         return {
@@ -167,17 +171,17 @@ class DDA:
         }
 
     def _generate_direct(self, query: str) -> str:
-        # No try/except: an API failure here must propagate and abort this
-        # query's arbitrate() call, NOT be swallowed into an empty draft
-        # that DDA would then silently treat as a real (if low-utility)
-        # candidate. See pipeline.py's _simple_generate() for the same fix
-        # and why (2026-08-15 spending-cap incident: silent "" on failure
-        # let corrupted rows get checkpointed as complete).
+        # Deliberately no try/except: an API failure has to propagate and
+        # abort this query's arbitrate() call, NOT be swallowed into an empty
+        # draft that DDA would then quietly accept as a genuine (if
+        # low-utility) candidate. pipeline.py's _simple_generate() carries the
+        # same fix and reasoning (2026-08-15 spending-cap incident: returning a
+        # silent "" on failure let corrupted rows be checkpointed as complete).
         prompt = DIRECT_PROMPT.format(query=query)
         return self.client.generate(prompt, max_tokens=512)
 
     def _generate_retrieval(self, query: str, evidence_text: str) -> str:
-        # See _generate_direct() — same rationale, no try/except.
+        # Same rationale as _generate_direct() — no try/except here either.
         prompt = RETRIEVAL_PROMPT.format(query=query, evidence=evidence_text)
         return self.client.generate(prompt, max_tokens=768)
 
@@ -188,10 +192,11 @@ class DDA:
             query=query, reference=reference or answer, answer=answer,
             evidence=evidence_text or "(none — parametric-only draft)",
         )
-        # No try/except: a scoring failure must abort the query (retryable),
-        # not silently substitute a neutral 0.5/0.5/0.5/0.5 vector that would
-        # bias DDA's arbitration on fabricated scores. Same rationale as
-        # _generate_direct()/_generate_retrieval() above.
+        # Again no try/except: a scoring failure must abort the query so it can
+        # be retried, rather than quietly substituting a neutral
+        # 0.5/0.5/0.5/0.5 vector whose fabricated scores would skew DDA's
+        # arbitration. Matches the rationale for _generate_direct() and
+        # _generate_retrieval() above.
         scores = self.client.generate_json(prompt)
         return {
             "relevance":    float(scores.get("relevance", 0.5)),
@@ -236,7 +241,7 @@ class DDA:
         return any(p in t for p in refusal_phrases)
 
 
-# ── Beta Grid Search ───────────────────────────────────────────────────────
+# ── Grid search over betas ─────────────────────────────────────────────────
 
 def grid_search_betas(
     validation_data: List[Dict],
@@ -244,9 +249,10 @@ def grid_search_betas(
     beta_values: List[float] = DDA_BETA_SEARCH,
 ) -> Dict[str, float]:
     """
-    Grid search β1–β4 over validation_data (list of {query, evidence, reference_answer}).
+    Grid-search β1–β4 across validation_data (a list of
+    {query, evidence, reference_answer}).
     Constraint: β1+β2+β3+β4 = 1.0, all > 0.
-    Returns best beta dict.
+    Returns the best beta dict.
     """
     logger.info("Running DDA β grid search...")
     best_betas = DEFAULT_BETAS
@@ -263,11 +269,11 @@ def grid_search_betas(
     ]
     logger.info(f"  {len(candidates)} beta combinations to evaluate on {len(validation_data)} samples")
 
-    for b1, b2, b3, b4 in candidates[:50]:  # limit to first 50 for speed
+    for b1, b2, b3, b4 in candidates[:50]:  # cap at the first 50 to keep it fast
         betas = {"b1": b1, "b2": b2, "b3": b3, "b4": b4}
         dda_tmp.betas = betas
         total = 0.0
-        for item in validation_data[:10]:    # sample 10 items
+        for item in validation_data[:10]:    # draw a 10-item sample
             result = dda_tmp.arbitrate(
                 item["query"], item.get("evidence", []), item.get("reference_answer", "")
             )

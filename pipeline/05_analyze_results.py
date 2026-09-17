@@ -65,13 +65,13 @@ def load_ablation_metrics() -> dict:
         return json.load(f)
 
 
-# Table generators
+# Table builders
 
 def make_overall_table(all_metrics: dict, std_lookup: dict | None = None) -> pd.DataFrame:
     """
-    std_lookup: {method: {"rel": std, "faith": std, "cov": std}}, computed from
+    std_lookup: {method: {"rel": std, "faith": std, "cov": std}}, derived from
     per-query judge scores (see variance_analysis() in evaluation/statistical.py).
-    Pass the "ALL"-category slice of variance_analysis(all_results) here.
+    Supply the "ALL"-category slice of variance_analysis(all_results) here.
     """
     std_lookup = std_lookup or {}
     rows = []
@@ -132,7 +132,7 @@ def make_ablation_table(ablation_metrics: dict) -> pd.DataFrame:
             "FRR":        _fmt(m.get("frr")),
             "Latency(s)":_fmt(m.get("latency_s")),
         }
-        # Delta vs previous variant
+        # Difference from the previous variant
         if prev:
             for k, pm_key in [("DeltaRel", "rel"), ("DeltaFaith", "faith"), ("DeltaFrr", "frr")]:
                 cur_v = m.get(pm_key)
@@ -156,7 +156,7 @@ def display_category_keys(obj):
     return obj
 
 
-# Figure generators
+# Figure builders
 
 def plot_frr_comparison(all_metrics: dict, output_path: Path):
     methods = [m for m in BASELINE_NAMES if m in all_metrics]
@@ -210,7 +210,7 @@ def plot_category_heatmap(all_results: dict, output_path: Path):
     logger.info(f"  Saved: {output_path}")
 
 
-# LaTeX table export
+# Export to LaTeX tables
 
 def df_to_latex(df: pd.DataFrame, caption: str, label: str) -> str:
     n_cols = len(df.columns)
@@ -305,7 +305,7 @@ def _fmt_latency(v) -> str:
         return str(v)
 
 
-# Main
+# Entry point
 
 def main():
     logger.info("=" * 60)
@@ -324,7 +324,7 @@ def main():
         logger.warning("Aliasing legacy metrics key 'arda_pmr' -> 'arda_sr'")
         all_metrics["arda_sr"] = all_metrics.pop("arda_pmr")
 
-    # Load raw results for plots
+    # Load raw results used by the plots
     all_results = {}
     for m in BASELINE_NAMES:
         results = load_results(m)
@@ -344,24 +344,24 @@ def main():
         for method, cats in var_analysis_raw.items()
     }
 
-    # Tables
+    # Build tables
     logger.info("\nGenerating tables...")
 
-    # Table 4: Overall performance
+    # Table 4: overall performance
     t4 = make_overall_table(all_metrics, std_lookup)
     t4.to_csv(OUTPUTS_DIR / "table_overall.csv", index=False)
     with open(OUTPUTS_DIR / "table_overall.tex", "w") as f:
         f.write(overall_to_latex(t4, "Performance comparison across 1,000 test queries. $\\uparrow$ indicates higher is better, $\\downarrow$ indicates lower is better. Standard deviations are reported for answer quality metrics. Statistical significance ($\\dagger$) denotes improvement over the best baseline (Wilcoxon signed-rank, $p < 0.001$).", "tab:overall"))
     logger.info("  table_overall.csv / .tex")
 
-    # Table 5: Per-category
+    # Table 5: per-category
     t5 = make_percategory_table(all_metrics)
     t5.to_csv(OUTPUTS_DIR / "table_percategory.csv", index=False)
     with open(OUTPUTS_DIR / "table_percategory.tex", "w") as f:
         f.write(df_to_latex(t5, "Per-category performance comparison.", "tab:percategory"))
     logger.info("  table_percategory.csv / .tex")
 
-    # Table 6: Ablation
+    # Table 6: ablation
     if ablation_mets:
         t6 = make_ablation_table(ablation_mets)
         t6.to_csv(OUTPUTS_DIR / "table_ablation.csv", index=False)
@@ -369,12 +369,12 @@ def main():
             f.write(df_to_latex(t6, "Ablation results on 1000 test queries.", "tab:ablation"))
         logger.info("  table_ablation.csv / .tex")
 
-    # Figures
+    # Build figures
     logger.info("\nGenerating figures...")
     plot_frr_comparison(all_metrics, OUTPUTS_DIR / "fig_frr_comparison.pdf")
     plot_category_heatmap(all_results, OUTPUTS_DIR / "fig_category_heatmap.pdf")
 
-    # Statistical tests
+    # Run statistical tests
     logger.info("\nRunning statistical tests (Wilcoxon)...")
     stat_tests = {}
     if "arda_sr" in all_results:
@@ -392,7 +392,7 @@ def main():
             stat_tests[method] = {
                 "rel":   wilcoxon_test(arda_rel, bl_rel),
                 "faith": wilcoxon_test(arda_faith, bl_faith),
-                "frr":   wilcoxon_test(bl_frr, arda_frr),  # lower FRR = better for ARDA
+                "frr":   wilcoxon_test(bl_frr, arda_frr),  # lower FRR is better for ARDA
             }
             logger.info(f"  vs {method}: Rel p={stat_tests[method]['rel']['p_value']:.4f} "
                         f"{'yes' if stat_tests[method]['rel']['significant'] else 'no'}")
@@ -400,12 +400,12 @@ def main():
     with open(OUTPUTS_DIR / "statistical_tests.json", "w") as f:
         json.dump(stat_tests, f, indent=2)
 
-    # Variance analysis (reuse var_analysis_raw computed earlier, before Table 4)
+    # Variance analysis (reuse var_analysis_raw from earlier, before Table 4)
     var_analysis = display_category_keys(var_analysis_raw)
     with open(OUTPUTS_DIR / "variance_analysis.json", "w") as f:
         json.dump(var_analysis, f, indent=2)
 
-    # Bootstrap CI for ARDA-SR
+    # Bootstrap confidence interval for ARDA-SR
     if all_results.get("arda_sr"):
         arda_rel = [r.get("rel", 0.5) for r in all_results["arda_sr"]]
         ci_lo, ci_hi = bootstrap_ci(arda_rel)

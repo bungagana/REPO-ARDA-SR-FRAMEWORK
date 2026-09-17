@@ -1,8 +1,8 @@
 # Results & reproduction
 
-This folder contains the raw experiment outputs, the comparison tables, the figure, and
-the reproduction script for the paper's three **comparison tables** (Table 6, 8, 9) and
-**Figure 6**.
+The raw experiment outputs, the comparison tables, the figure, and the reproduction
+script for the paper's three **comparison tables** (Table 6, 8, 9) and **Figure 6** are
+all gathered in this folder.
 
 ## Layout
 
@@ -26,22 +26,22 @@ cd results
 python scripts/reproduce_tables.py
 ```
 
-This reads `data/*` and writes:
+It reads `data/*` and writes:
 
-- `tables/table6.csv` — answer quality (Rel/Faith/Cov) + FRR + latency per method on the
-  1,000 main-domain queries.
-- `tables/table8.csv` — cross-backbone summary (per backbone on the pakdwi dataset).
-- `tables/table9.csv` — cross-domain per-method metrics (Rel/Faith/Cov/FRR/Lat).
+- `tables/table6.csv` — per-method answer quality (Rel/Faith/Cov) + FRR + latency across
+  the 1,000 main-domain queries.
+- `tables/table8.csv` — cross-backbone summary (each backbone on the pakdwi dataset).
+- `tables/table9.csv` — per-method cross-domain metrics (Rel/Faith/Cov/FRR/Lat).
 
-Dependencies: `numpy` (see `requirements.txt`). The script performs **no LLM calls** —
-it only aggregates the already-stored per-query/per-domain metrics, so it is offline and
-deterministic.
+Dependencies: `numpy` (see `requirements.txt`). Because the script merely aggregates the
+already-stored per-query/per-domain metrics and makes **no LLM calls**, it stays offline
+and deterministic.
 
 ## Figure 6
 
-`data/Figure6_relevance_vs_cost.png` is the Relevance-vs-computational-cost trade-off
-figure (extracted from the manuscript). You can regenerate the underlying scatter from
-`table6.csv` (Rel on the y-axis, latency on the x-axis) — see
+The Relevance-vs-computational-cost trade-off figure (extracted from the manuscript) is
+`data/Figure6_relevance_vs_cost.png`. Its underlying scatter can be regenerated from
+`table6.csv` (Rel on the y-axis, latency on the x-axis) — check
 `results/scripts/reproduce_tables.py` for the metric fields it uses.
 
 ## Data provenance
@@ -53,5 +53,5 @@ figure (extracted from the manuscript). You can regenerate the underlying scatte
 | `data/summary_<domain>_fixed.json` | cross-domain per-method metrics (Rel / Faith / Cov / FRR / latency), matching the manuscript Table 9 |
 | `data/summary_<domain>.json` / `_raw.json` | cross-domain supporting summaries (fallback sources for the script) | cross-domain experiments |
 
-The cross-domain **datasets** (download links, schema, per-dataset reproduction steps)
-are documented in [`cross-datasets/`](../cross-datasets).
+Documentation for the cross-domain **datasets** (download links, schema, per-dataset
+reproduction steps) is in [`cross-datasets/`](../cross-datasets).

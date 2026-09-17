@@ -1,4 +1,4 @@
-"""Baseline: CRAG (Corrective Retrieval-Augmented Generation)."""
+"""Baseline: CRAG (retrieval-augmented generation with correction)."""
 
 import time
 import logging
@@ -13,18 +13,18 @@ logger = logging.getLogger(__name__)
 
 class CRAGPipeline(BasePipeline):
     """
-    CRAG: evaluates retrieval quality before generation.
-    If retrieval is poor → fallback to parametric knowledge.
+    CRAG: inspects how good the retrieval was before any generation happens.
+    When retrieval comes back weak → it falls back on parametric knowledge.
     Reference: Yan et al. 2024 (Scopus).
 
-    Fidelity note: this is a same-backbone, prompt-based approximation of
-    CRAG's retrieval-evaluation step. The original CRAG uses a small
-    trained relevance evaluator (a fine-tuned T5) plus a web-search
-    fallback/refinement stage; here, relevance evaluation is delegated to
-    the shared LLM backbone via EVAL_PROMPT, and corrective retrieval is
-    restricted to the same closed corpus (no live web access is available
-    in this setting). Should not be read as a reproduction of the original
-    trained evaluator's behavior.
+    Fidelity note: what follows is a prompt-driven, same-backbone
+    approximation of the retrieval-evaluation stage in CRAG. The original
+    system relies on a compact trained relevance judge (a fine-tuned T5)
+    together with a web-search stage for fallback and refinement; in this
+    port the relevance judgment is handed to the shared LLM backbone through
+    EVAL_PROMPT, and corrective retrieval stays inside the same closed
+    corpus (no live web access exists in this setup). It should not be taken
+    as a faithful reproduction of the original trained evaluator.
     """
 
     name = "crag"
@@ -91,7 +91,7 @@ Answer:"""
             evidence = self.retriever.retrieve(query, k=k)
             result["evidence"] = evidence
 
-            # Step 1: Evaluate retrieval quality
+            # First, assess how good the retrieval is
             ev_text  = self._format_evidence(evidence)
             eval_out = self.client.generate_json(
                 self.EVAL_PROMPT.format(query=query, evidence=ev_text[:1500])
@@ -101,7 +101,7 @@ Answer:"""
             result["crag_verdict"] = verdict
             result["crag_score"]   = score
 
-            # Step 2: Generate based on verdict
+            # Second, generate according to the verdict
             if verdict == "CORRECT" and score >= 0.6:
                 answer = self.client.generate(
                     self.CORRECT_PROMPT.format(query=query, evidence=ev_text), max_tokens=512
@@ -137,7 +137,7 @@ Answer:"""
         return result
 
     def _corrective_retrieve(self, query: str, evidence_text: str) -> List[Dict]:
-        """Approximate CRAG's corrective retrieval using the same corpus."""
+        """Carry out CRAG-style corrective retrieval within the same corpus."""
         try:
             out = self.client.generate_json(
                 self.DECOMPOSE_PROMPT.format(query=query, evidence=evidence_text[:1000])

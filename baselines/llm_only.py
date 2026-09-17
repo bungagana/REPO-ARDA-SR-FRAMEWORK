@@ -1,4 +1,4 @@
-"""Baseline: LLM-Only (no retrieval, pure parametric knowledge)."""
+"""Baseline: LLM-Only (purely parametric knowledge, without retrieval)."""
 
 import time
 import logging
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 class LLMOnlyPipeline(BasePipeline):
     """
     LLM-Only baseline.
-    Answers questions using only the LLM's parametric knowledge.
-    No retrieval, no external documents.
+    Questions are answered from the LLM's parametric knowledge alone.
+    There is no retrieval and no external documents.
     Reference: Abdullahi et al. (2026) — LLM hallucination survey.
     """
 

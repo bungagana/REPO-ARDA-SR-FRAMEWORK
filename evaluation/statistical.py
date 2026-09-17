@@ -1,6 +1,6 @@
 """
-Statistical analysis for experiment results.
-Wilcoxon signed-rank test, Cohen's d, bootstrap CI, variance analysis.
+Statistical routines applied to experiment results.
+Wilcoxon signed-rank test, Cohen's d, bootstrap CI, and variance analysis.
 """
 
 import json
@@ -23,7 +23,7 @@ def wilcoxon_test(
     alpha: float = WILCOXON_ALPHA,
 ) -> Dict:
     """
-    Wilcoxon signed-rank test between method A and method B.
+    Wilcoxon signed-rank test comparing method A with method B.
     Returns: {statistic, p_value, significant, effect_size_d}
     """
     a = np.array(scores_a)
@@ -49,9 +49,9 @@ def wilcoxon_test(
 
 
 def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
-    """Cohen's d effect size (paired): uses the std of the per-item difference.
-    The comparison is paired on the same query/model runs, so the within-item
-    difference is the relevant effect measure (see manuscript, Wilcoxon + d)."""
+    """Cohen's d effect size (paired), derived from the std of each item's difference.
+    Because the comparison pairs the same query/model runs, the within-item
+    difference is the appropriate effect measure (see manuscript, Wilcoxon + d)."""
     diff = a - b
     if diff.std() < 1e-10:
         return 0.0
@@ -59,14 +59,14 @@ def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def fleiss_kappa(ratings: np.ndarray, categories=None) -> float:
-    """Fleiss' kappa for multi-rater agreement (inter-rater reliability).
+    """Fleiss' kappa, measuring agreement across multiple raters (inter-rater reliability).
 
     Parameters
     ----------
     ratings : np.ndarray, shape (n_items, n_categories)
-        Number of raters assigning item i to each category (row sums = n_raters).
+        Count of raters placing item i in each category (row sums = n_raters).
     categories : int, optional
-        Number of categories (inferred from the second axis if None).
+        How many categories exist (taken from the second axis when None).
 
     Returns
     -------
@@ -82,11 +82,11 @@ def fleiss_kappa(ratings: np.ndarray, categories=None) -> float:
         return 0.0
     k = n_raters[0]
 
-    # P_i: agreement of each item
+    # P_i: per-item agreement level
     p_i = (np.sum(ratings ** 2, axis=1) - k) / (k * (k - 1)) if k > 1 else np.zeros(n_items)
     p_bar = float(np.mean(p_i))
 
-    # p_j: overall proportion of assignments per category
+    # p_j: overall share of assignments falling in each category
     p_j = ratings.sum(axis=0) / ratings.sum()
     p_e = float(np.sum(p_j ** 2))
 
@@ -101,8 +101,8 @@ def bootstrap_ci(
     ci: float = 0.95,
 ) -> Tuple[float, float]:
     """
-    Bootstrap confidence interval for the mean.
-    Returns (lower, upper) at the specified CI level.
+    Bootstrap confidence interval around the mean.
+    Gives (lower, upper) bounds at the requested CI level.
     """
     scores_arr = np.array(scores)
     boot_means = [rng.choice(scores_arr, size=len(scores_arr), replace=True).mean()
@@ -115,8 +115,8 @@ def bootstrap_ci(
 
 def variance_analysis(results_by_method: Dict[str, List[Dict]]) -> Dict:
     """
-    Compute per-method, per-category variance in key metrics.
-    Addresses reviewer concern: variance should be consistent with query complexity.
+    Calculate variance in key metrics for each method and category.
+    Answers a reviewer concern: variance ought to track query complexity.
     """
     metrics_of_interest = ["rel", "faith", "cov", "frr"]
     out = {}
@@ -148,7 +148,7 @@ def significance_matrix(
     alpha: float = WILCOXON_ALPHA,
 ) -> Dict:
     """
-    Compute pairwise Wilcoxon significance matrix.
+    Build a pairwise Wilcoxon significance matrix.
     Returns dict: {(method_a, method_b): {p_value, significant, effect_size_d}}
     """
     methods = list(method_scores.keys())
@@ -167,7 +167,7 @@ def summary_table(
     method_order: Optional[List[str]] = None,
 ) -> List[Dict]:
     """
-    Format metrics dict into a list-of-rows table for CSV/LaTeX export.
+    Turn a metrics dict into a list-of-rows table suitable for CSV/LaTeX export.
     all_metrics: {method_name: {rel, faith, cov, hit_at_5, ctx_rel, tool_acc, frr, far, latency_s}}
     """
     order = method_order or list(all_metrics.keys())

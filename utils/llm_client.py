@@ -1,4 +1,4 @@
-"""Gemini API wrapper using google-genai SDK with retry and rate-limiting."""
+"""Wrapper for the Gemini API built on the google-genai SDK, with retries and rate limiting."""
 
 import time
 import json
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiClient:
-    """Thread-safe Gemini client with rate-limiting and exponential backoff."""
+    """A thread-safe Gemini client featuring exponential backoff and rate limiting."""
 
     def __init__(self, model: str = GEMINI_MODEL, temperature: float = TEMPERATURE):
         if not GEMINI_API_KEY:
@@ -35,7 +35,7 @@ class GeminiClient:
         self._last_call = time.time()
 
     def generate(self, prompt: str, max_tokens: int = MAX_OUTPUT_TOKENS) -> str:
-        """Generate text from a prompt. Returns raw text string."""
+        """Produce text for a prompt. Gives back the raw string."""
         self._throttle()
         config = types.GenerateContentConfig(
             temperature=self.temperature,
@@ -61,14 +61,14 @@ class GeminiClient:
                     raise
 
     def generate_json(self, prompt: str, max_tokens: int = MAX_OUTPUT_TOKENS) -> dict | list:
-        """Generate and parse JSON response. Strips markdown fences if present."""
+        """Produce a response and parse it as JSON, stripping markdown fences if any."""
         raw = self.generate(prompt, max_tokens)
-        # Strip ```json ... ``` fences
+        # Remove ```json ... ``` fence markers
         raw = re.sub(r"```(?:json)?\s*", "", raw).replace("```", "").strip()
         try:
             return json.loads(raw)
         except json.JSONDecodeError:
-            # Try to extract first JSON object/array
+            # Attempt to pull out the first JSON object or array
             match = re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])", raw)
             if match:
                 return json.loads(match.group(1))
@@ -76,7 +76,7 @@ class GeminiClient:
             raise
 
 
-# Module-level singleton for convenience
+# Convenience singleton held at module level
 _client: Optional[GeminiClient] = None
 
 

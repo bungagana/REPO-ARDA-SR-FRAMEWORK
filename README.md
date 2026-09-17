@@ -16,19 +16,21 @@ A Retrieval-Augmented Generation framework for reliable, auditable government qu
 
 ---
 
-ARDA-SR routes each query through an **entropy-based router**, arbitrates between a
-**parametric** and a **retrieval-grounded** answer draft, and — for policy-scenario
-questions — reasons explicitly over multiple decision alternatives. The goal is to reduce
-false refusals and produce more reliable, auditable answers for public-sector QA systems.
+Every query first passes through an **entropy-based router**; a **parametric** draft and a
+**retrieval-grounded** draft are then arbitrated against each other, and for questions tied
+to policy scenarios the system reasons in an explicit way over several decision options.
+The aim is twofold: fewer false refusals, and answers for public-sector QA systems that are
+both more dependable and easier to audit.
 
-This repository contains the full implementation, the benchmark dataset, and the human
-annotation records used to validate it, so results can be independently reproduced and checked.
+Bundled here are the complete implementation, the benchmark dataset, and the records of
+human annotation that were used for validation, allowing the results to be reproduced and
+checked by others.
 
 <div align="center">
 
 ![TransHub — an ARDA-SR-powered assistant for Indonesia's Ministry of Transmigration](image.png)
 
-*TransHub: an ARDA-SR-powered assistant deployed for Indonesia's Ministry of Transmigration*
+*TransHub: an assistant powered by ARDA-SR, deployed for Indonesia's Ministry of Transmigration*
 
 </div>
 
@@ -36,17 +38,17 @@ annotation records used to validate it, so results can be independently reproduc
 
 | Path | Description |
 |---|---|
-| [`arda_sr/`](arda_sr) | The ARDA-SR method: Adaptive Query Router (AQR), Dual-Draft Arbitrator (DDA), Scenario Reasoning (SR), and hybrid retrieval |
-| [`baselines/`](baselines) | 10 comparison baselines — Standard RAG, Hybrid RAG, HyDE-RAG, Adaptive-RAG, CRAG, ReAct, Self-RAG, FLARE, IRCoT, LLM-only |
-| [`evaluation/`](evaluation) | Answer-quality judging (Relevance / Faithfulness / Coverage), routing & refusal metrics, statistical testing |
-| [`pipeline/`](pipeline) | End-to-end scripts: build KB → generate benchmark → run experiment → ablation → analyze |
+| [`arda_sr/`](arda_sr) | The ARDA-SR method itself: hybrid retrieval plus Adaptive Query Router (AQR), Dual-Draft Arbitrator (DDA), and Scenario Reasoning (SR) |
+| [`baselines/`](baselines) | 10 baselines for comparison — Standard RAG, Hybrid RAG, HyDE-RAG, Adaptive-RAG, CRAG, ReAct, Self-RAG, FLARE, IRCoT, LLM-only |
+| [`evaluation/`](evaluation) | Judging of answer quality (Relevance / Faithfulness / Coverage), metrics for routing and refusal, and statistical testing |
+| [`pipeline/`](pipeline) | Scripts covering the whole flow: build KB → generate benchmark → run experiment → ablation → analyze |
 | [`data/`](data) | The QA benchmark — 1,000 main-domain QA pairs + 111 real-world Indonesian government QA pairs (ID-GovQA) |
-| [`annotations/`](annotations) | Item-level validation of the benchmark by three independent annotators |
-| [`supplementary/`](supplementary) | Cross-domain zero-shot transfer + an unanswerable-query diagnostic |
-| [`results/`](results) | Reproducible comparison tables (Table 6, 8, 9), Figure 6, raw per-query experiment outputs, and the `reproduce_tables.py` script |
+| [`annotations/`](annotations) | Benchmark validation at item level, carried out by three independent annotators |
+| [`supplementary/`](supplementary) | Zero-shot cross-domain transfer + a diagnostic for unanswerable queries |
+| [`results/`](results) | Comparison tables that reproduce (Table 6, 8, 9), Figure 6, raw per-query experiment outputs, and the `reproduce_tables.py` script |
 | [`cross-datasets/`](cross-datasets) | Public cross-domain datasets (CUAD / ConditionalQA / FinanceBench / PubMedQA) — download links, schema, and per-dataset reproduction steps |
 | [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening in government question answering (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
-| `config.py` | All method parameters in one place |
+| `config.py` | Every method parameter gathered in one place |
 
 **Not included:** the source document corpus, the model weights, and API keys.
 
@@ -58,7 +60,7 @@ annotation records used to validate it, so results can be independently reproduc
 pip install -r requirements.txt
 ```
 
-**2. Configure API keys** — create a `.env` file in the project root:
+**2. Configure API keys** — put a `.env` file in the project root:
 
 ```dotenv
 GEMINI_API_KEY=your-key-here
@@ -69,11 +71,11 @@ OPENAI_API_KEY=your-key-here
 | Key | Used for |
 |---|---|
 | `GEMINI_API_KEY` | Generation, routing, and retrieval-grounded drafting (the core ARDA-SR model) |
-| `ANTHROPIC_API_KEY` | QA benchmark generation only |
-| `OPENAI_API_KEY` | Independent answer-quality judging — a separate model family from the generator, to avoid self-evaluation bias |
+| `ANTHROPIC_API_KEY` | Used for QA benchmark generation only |
+| `OPENAI_API_KEY` | Answer-quality judging done independently — drawn from a different model family than the generator, so that self-evaluation bias is avoided |
 
-**3. Add your document corpus** — place source documents under `data/`, following the layout
-expected by `utils/kb_builder.py`.
+**3. Add your document corpus** — drop source documents into `data/`, using the layout that
+`utils/kb_builder.py` expects.
 
 **4. Run the pipeline**
 
@@ -86,19 +88,20 @@ python pipeline/04_ablation.py             # component-wise ablation study
 python pipeline/05_analyze_results.py      # aggregate into summary tables
 ```
 
-Each script consumes the previous script's output.
+Every script takes the output of the one before it as input.
 
-> **Just want to re-run evaluation on the existing benchmark?** `data/qa_dataset.json` and
-> `data/id_govqa_pakdwi_test_sample.json` already contain the QA pairs used in the paper —
-> skip straight to step 4 against your own knowledge base.
+> **Only want to re-run evaluation on the benchmark that already exists?** The QA pairs used
+> in the paper are already present in `data/qa_dataset.json` and
+> `data/id_govqa_pakdwi_test_sample.json` — so you can jump directly to step 4, using your
+> own knowledge base.
 
 ## Datasets
 
-The framework is evaluated on a main-domain dataset (1000 government QA pairs) plus
-**four public cross-domain benchmarks** and a **real-world Indonesian government set**.
-The cross-domain datasets are all directly downloadable from their official public
-sources (repository [`cross-datasets/`](cross-datasets));
-full schema + per-dataset reproduction steps are in
+Evaluation of the framework rests on a main-domain dataset (1000 government QA pairs),
+augmented by **four public cross-domain benchmarks** and a **real-world Indonesian
+government set**. Every cross-domain dataset can be obtained directly from its official
+public source (see the [`cross-datasets/`](cross-datasets) repository); the full schema
+together with per-dataset reproduction steps appears in
 [`cross-datasets/README.md`](cross-datasets/README.md).
 
 | Dataset | Domain | Size | Official source / link | Citation (in manuscript) |
@@ -111,12 +114,12 @@ full schema + per-dataset reproduction steps are in
 | **ID-GovQA** | Indonesian government policy | 111 | authors' own, from **public open-data portals** ([`data/id_govqa_pakdwi_test_sample.json`](data/id_govqa_pakdwi_test_sample.json)) | authors |
 | **Real-World Deployment** | BPJS/INA-CBG inpatient-claim screening | 60 episodes / 437 rules | de-identified, download via [`Real-World Deployment/data/deployment_data_public.zip`](Real-World%20Deployment/data/deployment_data_public.zip) (password-protected) | manuscript §Real-World |
 
-> **Real-world deployment data.** A de-identified evaluation set of **60 inpatient
-> episodes (437 admission rules, 60 claims)** from a production BPJS/INA-CBG
-> claim-screening run. It is downloadable as a **password-protected archive** from
+> **Real-world deployment data.** From a production BPJS/INA-CBG claim-screening run comes
+> a de-identified evaluation set of **60 inpatient episodes (437 admission rules, 60
+> claims)**. You can download it as a **password-protected archive** from
 > [`Real-World Deployment/data/deployment_data_public.zip`](Real-World%20Deployment/data/deployment_data_public.zip);
-> the password is **not** stored in this repository and is provided by the authors on
-> request. The set is subject to Indonesia's **PDP Act (UU 27/2022)** (see
+> the password is **not** kept in this repository and the authors supply it on request.
+> Indonesia's **PDP Act (UU 27/2022)** applies to this set (see
 > [`Real-World Deployment/README.md`](Real-World%20Deployment/README.md)).
 
 ### How to reproduce the data (run the pipeline)
@@ -124,26 +127,26 @@ full schema + per-dataset reproduction steps are in
 ```bash
 # 1. Build each KB from its public source (e.g. PubMedQA)
 cd supplementary/cross_domain/pubmedqa
-python 01_build_pubmedqa_kb.py        # downloads the dataset + builds the KB
+python 01_build_pubmedqa_kb.py        # fetches the dataset, then builds the KB
 
 # 2. Run the comparison (Standard RAG / Self-RAG / ARDA-SR)
 python 02_run_pubmedqa_test.py
 
-# The same two-step flow applies to cuad/, conditionalqa/, financebench/, and the
+# This same two-step flow works for cuad/, conditionalqa/, financebench/, and the
 # main-domain pipeline/ (see pipeline/01_build_kb.py … 03_run_experiment.py)
 ```
 
-Per-dataset download links: CUAD `/datasets/theatticusproject/cuad-qa` ·
+Download links per dataset: CUAD `/datasets/theatticusproject/cuad-qa` ·
 ConditionalQA `github.com/haitian-sun/ConditionalQA` ·
 FinanceBench `/datasets/PatronusAI/financebench` ·
 PubMedQA `/datasets/qiaojin/PubMedQA`.
 
 ## Reproducible results
 
-The comparison tables below are regenerated deterministically from the raw experiment
-outputs in [`results/data/`](results/data) by
-[`results/scripts/reproduce_tables.py`](results/scripts/reproduce_tables.py) — **no API
-calls**. Full tables (CSV) are in [`results/tables/`](results/tables):
+The comparison tables shown below are rebuilt deterministically, with **no API calls**,
+from the raw experiment outputs in [`results/data/`](results/data) using
+[`results/scripts/reproduce_tables.py`](results/scripts/reproduce_tables.py). The full
+tables (CSV) live in [`results/tables/`](results/tables):
 [`table6.csv`](results/tables/table6.csv) ·
 [`table8.csv`](results/tables/table8.csv) ·
 [`table9.csv`](results/tables/table9.csv); the trade-off figure in
@@ -153,7 +156,7 @@ Run it yourself:
 
 ```bash
 cd results
-python scripts/reproduce_tables.py    # regenerates table6/8/9.csv + Figure 6
+python scripts/reproduce_tables.py    # rebuilds table6/8/9.csv + Figure 6
 ```
 
 ### Table 6 — main-domain comparison (1,000 queries)
@@ -172,24 +175,25 @@ python scripts/reproduce_tables.py    # regenerates table6/8/9.csv + Figure 6
 | IRCoT | 0.763±0.094 | 0.781±0.109 | 0.714±0.089 | 0.805 | 0.757 | – | – | 0.147 | 6.3 |
 | **ARDA-SR** | **0.871±0.080†** | **0.855±0.081†** | **0.845±0.084†** | **0.878†** | **0.812†** | **0.878†** | **0.821†** | **0.040†** | 6.4 |
 
-*ARDA-SR improves Relevance (+0.083 over the strongest baseline Self-RAG), Faithfulness
-(+0.042), Coverage (+0.099) and cuts the False-Refusal Rate from 0.115 to 0.040, with a
-modest latency increase (6.4 s) — the routing/arbitration layers reduce refusals without
-sacrificing answer quality. Statistical significance (†) vs. the best baseline is from a
-Wilcoxon signed-rank test, *p* < 0.001. This table reproduces the manuscript's Table 6;
-the raw per-query outputs for Rel/Faith/Cov/FRR/Lat are in
-[`results/data/`](results/data), while the `Hit@5`, `CtxRel`, `RoutingAcc` and `SRComp`
-columns and the standard deviations come from the manuscript (the
-[`reproduce_tables.py`](results/scripts/reproduce_tables.py) script regenerates the mean
-columns from the raw outputs).*
+*Relative to the strongest baseline (Self-RAG), ARDA-SR lifts Relevance by +0.083,
+Faithfulness by +0.042, and Coverage by +0.099, while the False-Refusal Rate falls from
+0.115 to 0.040 at only a modest latency cost (6.4 s) — in other words, the
+routing/arbitration layers bring refusals down without giving up answer quality. The †
+marker for statistical significance against the best baseline comes from a Wilcoxon
+signed-rank test, *p* < 0.001. This table is a reproduction of the manuscript's Table 6;
+raw per-query outputs for Rel/Faith/Cov/FRR/Lat sit in [`results/data/`](results/data),
+whereas the `Hit@5`, `CtxRel`, `RoutingAcc` and `SRComp` columns together with the
+standard deviations are taken from the manuscript (the
+[`reproduce_tables.py`](results/scripts/reproduce_tables.py) script rebuilds the mean
+columns out of the raw outputs).*
 
 ### Table 8 — cross-backbone robustness
 
-This reproduces the manuscript's **Table 8** (cross-backbone comparison across 1,000 test
-queries), which reports **Standard RAG, Self-RAG, and ARDA-SR** under three different
-backbones. The full per-backbone, per-method raw order data for this table is **not
-included in this repository** (the manuscript reports the aggregated values); the three
-backbones are Gemini 2.5 Flash, Qwen2.5-1.5B, and Phi-3mini:
+Here we reproduce the manuscript's **Table 8** (a cross-backbone comparison over 1,000 test
+queries), which reports **Standard RAG, Self-RAG, and ARDA-SR** across three distinct
+backbones. The raw per-backbone, per-method order data behind this table is **not
+included in this repository** (only the aggregated values appear in the manuscript); the
+three backbones are Gemini 2.5 Flash, Qwen2.5-1.5B, and Phi-3mini:
 
 | Backbone | Method | Rel ↑ | Faith ↑ | Cov ↑ | Hit@5 | CtxRel | RoutingAcc | SRComp | FRR ↓ | Lat (s) ↓ |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -203,18 +207,19 @@ backbones are Gemini 2.5 Flash, Qwen2.5-1.5B, and Phi-3mini:
 | Phi-3mini | Self-RAG | 0.758 | 0.778 | 0.724 | 0.816 | 0.748 | 0.671 | 0.655 | 0.140 | 9.2 |
 | Phi-3mini | **ARDA-SR** | 0.833 | 0.842 | 0.807 | 0.884 | 0.821 | 0.829 | 0.776 | 0.067 | 10.8 |
 
-*ARDA-SR's behavioural benefits transfer across backbones of different size and
-MRLM-family (Gemini, Qwen, Phi): the False-Refusal Rate stays low (0.040–0.083) and quality
-is retained, so the framework is not tied to a single model. The performance improvement
-does not depend on model capacity but on the architectural design (entropy-based routing,
-dual-draft arbitration, structured reasoning).*
+*The behavioural gains of ARDA-SR carry over to backbones that differ in size and in
+MRLM-family (Gemini, Qwen, Phi): quality is retained and the False-Refusal Rate remains
+low (0.040–0.083), which shows the framework is not bound to any single model. What drives
+the improvement is the architectural design (entropy-based routing, dual-draft arbitration,
+structured reasoning) rather than model capacity.*
 
 #### Backbone sweep on ID-GovQA (ARDA-SR only)
 
-The repository's raw outputs also include a separate **ARDA-SR-only backbone sweep** on
-ID-GovQA (the `results/data/arda_sr_{backbone}_pakdwi_summary.json` files). This is a
-supplementary result — the manuscript's cross-backbone table uses different backbones — so
-it is kept here under a separate heading and is **not** a reproduction of Table 8:
+Also present among the repository's raw outputs is a separate **ARDA-SR-only backbone
+sweep** on ID-GovQA (the `results/data/arda_sr_{backbone}_pakdwi_summary.json` files).
+Because the backbones in the manuscript's cross-backbone table differ, this counts as a
+supplementary result; it therefore appears here under its own heading and is **not** a
+reproduction of Table 8:
 
 | Backbone | n(answerable) | n(unanswerable) | FRR ↓ | Correct refusals | ARR ↑ | FAR ↓ | Hit@5 | Lat (s) |
 |---|---|---|---|---|---|---|---|---|
@@ -224,16 +229,17 @@ it is kept here under a separate heading and is **not** a reproduction of Table 
 | qwen2.5:14b | 99 | 12 | 0.051 | 8 | 0.667 | 0.333 | 1.0 | 6.25 |
 | qwen2.5:7b | 99 | 12 | 0.263 | 12 | 1.000 | 0.000 | 1.0 | 6.41 |
 
-*This in-repo sweep shows ARDA-SR keeps a low False-Refusal Rate (0.04–0.26) across
-open-source backbones of different sizes (7B–8x7B) and a hosted gemma2:9b on ID-GovQA.*
+*As this in-repo sweep demonstrates, ARDA-SR maintains a low False-Refusal Rate (0.04–0.26)
+on ID-GovQA across open-source backbones of varied size (7B–8x7B) as well as a hosted
+gemma2:9b.*
 
 ### Table 9 — cross-domain generalization
 
-Zero-shot transfer to four out-of-domain datasets and the real-world ID-GovQA set,
-using Gemini 2.5 Flash with the same setup as the main dataset. This reproduces the
-manuscript's Table 9 (the standard deviations are reported in the manuscript; the raw
-per-query outputs are not consumed by `reproduce_tables.py`, so the mean values below are
-read from the manuscript).
+Zero-shot transfer onto four out-of-domain datasets plus the real-world ID-GovQA set, run
+with Gemini 2.5 Flash and the same setup as the main dataset. This is a reproduction of the
+manuscript's Table 9 (standard deviations appear in the manuscript; since
+`reproduce_tables.py` does not use the raw per-query outputs, the mean values below are
+taken from the manuscript).
 
 | Dataset | Method | Rel ↑ | Faith ↑ | Cov ↑ | FRR ↓ |
 |---|---|---|---|---|---|
@@ -254,33 +260,33 @@ read from the manuscript).
 | ID-GovQA | **ARDA-SR** | **0.958±0.095** | 0.983±0.072 | **0.935±0.168** | **0.040** |
 
 **Note.** Unanswerable slice: ID-GovQA 12/111, ConditionalQA 12/180, CUAD 93/180;
-FinanceBench/PubMedQA 0. †/‡ indicate paired Wilcoxon tests against ARDA-SR; the best value
-per dataset and metric is shown in bold. The latency column is intentionally omitted here
-because ARDA-SR is not benchmarked for cross-domain latency — cross-domain results concern
-generalisation, and the reference latency (6.4 s) is reported in Table 6.
+FinanceBench/PubMedQA 0. †/‡ mark paired Wilcoxon tests against ARDA-SR; the best value for
+each dataset and metric appears in bold. The latency column is deliberately left out here,
+since ARDA-SR is not benchmarked for cross-domain latency — cross-domain results are about
+generalisation, and the reference latency (6.4 s) can be found in Table 6.
 
-*Across the four out-of-domain benchmarks and ID-GovQA, ARDA-SR is best on Relevance /
-Coverage and lowest on False-Refusal Rate in most domains. Its Faithfulness is lower on
-narrative corpora (PubMedQA, FinanceBench) but remains strong on rule-structured domains —
-a boundary worth noting when extending the framework.*
+*On the four out-of-domain benchmarks and ID-GovQA, ARDA-SR achieves the best Relevance /
+Coverage and the lowest False-Refusal Rate in most domains. Its Faithfulness drops on
+narrative corpora (PubMedQA, FinanceBench) yet stays strong on rule-structured domains — a
+boundary worth keeping in mind when the framework is extended.*
 
 ### Figure 6 — Relevance vs computational cost
 
 ![Figure 6 — Relevance vs computational-cost trade-off across methods](results/figures/Figure6_relevance_vs_cost.png)
 
-*Figure 6 (regenerated by `reproduce_tables.py`) plots answer Relevance against mean
-latency for each method; ARDA-SR sits on the Pareto-optimal frontier — it achieves the
-highest Relevance at a moderate cost, whereas cheaper methods (LLM-Only, Standard RAG)
-trade away accuracy and costlier ones (ReAct, IRCoT) add little relevance for their
-latency.*
+*Figure 6 (rebuilt by `reproduce_tables.py`) charts answer Relevance against mean latency
+for every method; ARDA-SR lies on the Pareto-optimal frontier — it reaches the highest
+Relevance for a moderate cost, while the cheaper methods (LLM-Only, Standard RAG) give up
+accuracy, and the costlier ones (ReAct, IRCoT) gain little Relevance for the latency they
+add.*
 
 ### Latency: an intrinsic cost of the multi-stage architecture
 
-ARDA-SR's mean latency is 6.40 s, and **no query answers in under 3 s** (min 3.26 s,
-~74% under 7 s). This is **not a fixed per-query cost** — the routing layer adapts the
-pipeline depth to the query — but even the cheapest path (m1) averages ~5.2 s because
-every query always pays for the **Adaptive Query Router (AQR)** classification plus a
-generation call:
+ARDA-SR averages 6.40 s of latency, and **no query is answered in under 3 s** (min 3.26 s,
+with ~74% under 7 s). That figure is **not a fixed per-query cost** — the routing layer
+adjusts how deep the pipeline goes according to the query — yet the cheapest path (m1)
+still averages ~5.2 s, since each query always incurs the **Adaptive Query Router (AQR)**
+classification plus one generation call:
 
 | AQR mode | Processing path | n | Mean latency (s) |
 |---|---|---|---|
@@ -289,20 +295,21 @@ generation call:
 | **m3** | AQR + dual-draft arbitration | 211 | 6.05 |
 | **m4** | AQR + scenario reasoning (SR) | 214 | 8.24 |
 
-**Why it is not a defect.** ARDA-SR trades a higher up-front cost for substantially
-better outcomes. The cheapest baseline, LLM-Only, answers in **1.19 s** (a single call)
-but only reaches Relevance 0.611 and sets FRR to 0.330; ARDA-SR spends 6.40 s (routing +
-arbitration + reasoning) to reach **Relevance 0.871** and **FRR 0.040**. Relative to the
-other *reasoning-based* baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT 6.34 s) the extra
-latency is small, and it buys a Pareto-optimal point (best quality, lowest refusal). For
-latency-sensitive deployments the AQR threshold can be tuned so most queries skip the
-scenario path — the cost is configurable, not fixed.
+**Why this is not a defect.** In exchange for a higher up-front cost, ARDA-SR delivers
+substantially better outcomes. LLM-Only, the cheapest baseline, replies in **1.19 s** (one
+call) but reaches only Relevance 0.611 and an FRR of 0.330; by spending 6.40 s (routing +
+arbitration + reasoning), ARDA-SR reaches **Relevance 0.871** and an **FRR of 0.040**. Set
+against the other *reasoning-based* baselines (Self-RAG 5.74 s, ReAct 6.05 s, IRCoT
+6.34 s), the added latency is small, and it secures a Pareto-optimal point (best quality,
+lowest refusal). Deployments that are sensitive to latency can tune the AQR threshold so
+that the scenario path is skipped for most queries — the cost is configurable rather than
+fixed.
 
-**Latency is workload-dependent, not a fixed per-query cost.**
-The 6.40 s mean is measured on the **cloud Gemini backbone** at **1,000 queries**. In the
-on-premise deployment the latency is **proportional to the number of clinical rules**
-processed (Pearson r = 0.925 over the 60-episode deployment corpus), not a fixed per-query
-cost:
+**Latency depends on the workload; it is not a fixed per-query cost.**
+The 6.40 s mean is taken on the **cloud Gemini backbone** at **1,000 queries**. In the
+on-premise deployment, latency instead scales **in proportion to the number of clinical
+rules** processed (Pearson r = 0.925 across the 60-episode deployment corpus), rather than
+being a fixed per-query cost:
 
 | Clinical rules processed | n | On-premise latency (s), median (range) |
 |---|---|---|
@@ -312,37 +319,38 @@ cost:
 | 11–23 | 11 | 24.6 (19.6–46.2) |
 | 24–36 (batch) | 4 | 45.4 (36.7–73.8) |
 
-So the latency rises with workload: a claim with no rules completes in 0.80 s, while a large
-batch of 24–36 rules takes 36.7–73.8 s. The average across the corpus is 15.4 s per claim
-(median 11.7 s; per-rule ≈ 2.3 s; total n = 60 episodes). Note that a few 2–4-rule claims are
-still slow (up to 17.3 s) because the added latency there comes from the **scenario reasoning
-(m4)** / complex rules rather than the rule count alone — so "latency ∝ rule count" is
-strongest at large scale. This is exactly what the planned efficiency improvements (below)
-target.
+Latency therefore climbs with the workload: a claim triggering no rules finishes in 0.80 s,
+whereas a large batch of 24–36 rules needs 36.7–73.8 s. Across the corpus the mean is 15.4 s
+per claim (median 11.7 s; per-rule ≈ 2.3 s; total n = 60 episodes). Bear in mind that some
+2–4-rule claims are still slow (up to 17.3 s), because in those cases the extra latency
+stems from the **scenario reasoning (m4)** / complex rules and not from rule count alone — so
+"latency ∝ rule count" holds most strongly at large scale. That is precisely what the
+efficiency improvements planned below are meant to address.
 
-**Limitation & future work.** The higher latency is a recognised limitation for
-latency-sensitive applications (see the manuscript's Limitations). Two concrete future
-directions are planned to reduce it while keeping the quality gains:
+**Limitation & future work.** For applications sensitive to latency, the higher latency is
+acknowledged as a limitation (see the manuscript's Limitations). Two specific directions
+for future work are planned, aimed at cutting it while preserving the quality gains:
 
-- **early-exit routing** — route simple queries out before the expensive scenario/
+- **early-exit routing** — send simple queries out before reaching the costly scenario/
   dual-draft stages;
-- **parallel execution** of the two drafts in the dual-draft stage, and **parallelising
-  rule-level processing** in the claim-verification workflow, instead of sequentially.
+- **parallel execution** of both drafts within the dual-draft stage, and **parallelising
+  rule-level processing** in the claim-verification workflow, in place of sequential
+  handling.
 
 ## Real-World Deployment
 
-A production deployment of ARDA-SR for automated **BPJS Kesehatan / INA-CBG
-inpatient-claim screening in government question answering** on the Senopati AI platform
-([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)) —
-placed after the experimental results, as in the manuscript.
+A production deployment of ARDA-SR that automates **BPJS Kesehatan / INA-CBG
+inpatient-claim screening in government question answering**, running on the Senopati AI
+platform ([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)) —
+positioned after the experimental results, following the manuscript.
 
 See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 
-- deployment notes and the main result table (ARDA-SR vs Standard RAG vs Self-RAG);
+- deployment notes together with the main result table (ARDA-SR vs Standard RAG vs Self-RAG);
 - the deployment figure;
-- a **password-protected** dataset archive of the de-identified evaluation tables.
-  The archive can be downloaded from this repository, but the password is **not** stored
-  here — it is provided by the authors on request (email the corresponding author).
+- a **password-protected** dataset archive holding the de-identified evaluation tables.
+  Although the archive is downloadable from this repository, the password is **not** stored
+  here — the authors provide it upon request (contact the corresponding author by email).
 
 **Table 11 — Real-World Application (BPJS/INA-CBG claim screening, three-judge panel)**
 
@@ -353,51 +361,52 @@ See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
 | **ARDA-SR (Ours)** | **0.839** | 0.82 | 0.68 | **0.083** | **0.708** | **0.767** | **3.25** | **3.71** | **2.89** |
 | Δ (ARDA-SR − Standard RAG) | +0.044 | +0.04 | +0.03 | −0.032 | +0.062 | +0.064 | +0.13 | +0.18 | +0.26 |
 
-*A production screening system for BPJS Kesehatan / INA-CBG inpatient claims, with reference
-labels from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude; ties resolve
-to FAIL). All rule-level metrics below are computed over the **same n=347 criteria** for the
-three methods, so the comparison is fair (apple-to-apple): 347 is the number of criteria that
-all three systems could adjudicate — Self-RAG parsed **44 of 49** episodes carrying criteria
-and **failed on 5** (90 criteria) because the model returned an unparseable JSON for long or
-compound rules. Suggestion quality (Rel/Faith/Cov on a 1–5 scale) is over **n=180** ratings
-for Standard RAG and ARDA-SR and over **n=54** episodes for Self-RAG. Each judge scores the
-criterion against the raw electronic medical record only (the production verdict is never
-shown). All models run locally on-premise (Qwen3.5:9B as backbone, Gemma2:9B as ARDA-SR
-dual-draft arbiter); running on-premise keeps patient data in line with Law No. 27 of 2022 on
-Personal Data Protection.*
+*A production screening system for BPJS Kesehatan / INA-CBG inpatient claims, whose reference
+labels come from an independent three-LLM judge panel (Qwen3.8Max, DeepSeek-V4, Claude; ties
+resolve to FAIL). Every rule-level metric below is computed over the **same n=347 criteria**
+for the three methods, keeping the comparison fair (apple-to-apple): 347 is the count of
+criteria that all three systems were able to adjudicate — Self-RAG parsed **44 of 49**
+episodes carrying criteria and **failed on 5** (90 criteria), since the model returned an
+unparseable JSON for long or compound rules. Suggestion quality (Rel/Faith/Cov on a 1–5
+scale) is measured over **n=180** ratings for Standard RAG and ARDA-SR and over **n=54**
+episodes for Self-RAG. A judge scores the criterion against the raw electronic medical record
+alone (the production verdict is never shown). Every model runs locally on-premise
+(Qwen3.5:9B as backbone, Gemma2:9B as ARDA-SR dual-draft arbiter); running on-premise keeps
+patient data in line with Law No. 27 of 2022 on Personal Data Protection.*
 
-*\* Self-RAG uses its reflection-only adaptation (generation -> self-reflection -> finalize).
-Of the 49 episodes that carry adjudicated criteria, Self-RAG successfully parsed **44** (347
-criteria) and **failed on 5** (90 criteria) — the LLM returned an unparseable JSON for long
-or compound rules, and the run was attempted repeatedly with the same outcome. To keep the
-comparison fair, the rule-level metrics in Table 11 for **all three** methods (Standard RAG,
-Self-RAG, ARDA-SR) are computed over the **same n=347 criteria** that Self-RAG could
-adjudicate, rather than over n=437 for Standard RAG / ARDA-SR and n=347 for Self-RAG.
-(Note: n=437 is the total number of criteria in the dataset, reported in Section 3.7 as a
-structural fact; n=347 is the subset comparable across the three systems.)*
+*\* Self-RAG relies on its reflection-only adaptation (generation -> self-reflection ->
+finalize). Among the 49 episodes carrying adjudicated criteria, Self-RAG parsed **44** (347
+criteria) successfully and **failed on 5** (90 criteria) — the LLM returned an unparseable
+JSON for long or compound rules, and repeated attempts at the run gave the same result. So
+that the comparison stays fair, the rule-level metrics in Table 11 for **all three** methods
+(Standard RAG, Self-RAG, ARDA-SR) are computed over the **same n=347 criteria** Self-RAG
+could adjudicate, rather than over n=437 for Standard RAG / ARDA-SR and n=347 for Self-RAG.
+(Note: n=437 is the dataset's total criteria count, given in Section 3.7 as a structural
+fact; n=347 is the subset that is comparable across the three systems.)*
 
-No personal data is released; the institution and platform are anonymised in the text,
-and the dataset is subject to Indonesia's **Personal Data Protection Act (UU 27/2022)**.
+No personal data is released; the text anonymises both the institution and the platform,
+and Indonesia's **Personal Data Protection Act (UU 27/2022)** governs the dataset.
 
 ## Supplementary experiments
 
-- **[`supplementary/cross_domain/`](supplementary/cross_domain)** — zero-shot transfer to four
-  public benchmarks spanning legal, government-policy, finance, and biomedical domains (CUAD,
-  ConditionalQA, FinanceBench, PubMedQA). Each dataset folder includes a `01_build_*_kb.py`
-  that fetches the dataset from its official public source.
+- **[`supplementary/cross_domain/`](supplementary/cross_domain)** — zero-shot transfer onto four
+  public benchmarks that span the legal, government-policy, finance, and biomedical domains
+  (CUAD, ConditionalQA, FinanceBench, PubMedQA). Inside each dataset folder is a
+  `01_build_*_kb.py` that pulls the dataset from its official public source.
 - **[`supplementary/unanswerable_queries/`](supplementary/unanswerable_queries)** — a 60-query
-  diagnostic set (missing provinces, uncovered regulations, uncovered commodities, out-of-domain
-  topics) used to verify the system appropriately declines to answer rather than hallucinating.
+  diagnostic set (missing provinces, uncovered regulations, uncovered commodities,
+  out-of-domain topics), used to confirm that the system declines to answer where appropriate
+  rather than hallucinating.
 
 ## Configuration
 
-All method parameters — the entropy routing threshold, arbitration weights and decision
-margin, the scenario-reasoning risk-aversion parameter, retrieval mixing weight, chunk size,
-and model names — are centralized in [`config.py`](config.py).
+Every method parameter — entropy routing threshold, arbitration weights and decision margin,
+the scenario-reasoning risk-aversion parameter, retrieval mixing weight, chunk size, and
+model names — is centralized in [`config.py`](config.py).
 
 ## Contributors
 
-The following contributors have contributed to the development, evaluation, and research associated with ARDA-SR:
+The people listed below contributed to the development, evaluation, and research work behind ARDA-SR:
 
 - **Dr. Dwi Sunaryono** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia (corresponding author)
 - **Bunga Laelatul Muna** — Department of Informatics, Institut Teknologi Sepuluh Nopember, Surabaya 60111, Indonesia
@@ -407,7 +416,7 @@ The following contributors have contributed to the development, evaluation, and 
 
 ## Citation
 
-If you use this code or dataset, please cite the accompanying paper:
+Should you use this code or dataset, please cite the paper that accompanies it:
 
 ```
 @article{munasunaryono2026arda,
@@ -421,7 +430,7 @@ If you use this code or dataset, please cite the accompanying paper:
 }
 ```
 
-> **Note.** This is a manuscript under review at *Expert Systems with Applications*
-> (Elsevier); **no DOI is assigned yet**. A citation is provided for attribution only;
-> the final bibliographic details (volume, pages, DOI) will follow publication. The
+> **Note.** The manuscript is under review at *Expert Systems with Applications* (Elsevier);
+> **no DOI has been assigned yet**. The citation above serves attribution only; the final
+> bibliographic details (volume, pages, DOI) will appear once publishing is complete. The
 > corresponding author is **Dwi Sunaryono (dwi@its.ac.id)**.

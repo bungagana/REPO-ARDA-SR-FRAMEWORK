@@ -39,7 +39,7 @@ def main():
     ds = load_dataset("PatronusAI/financebench", split="train")
     print(f"Loaded {len(ds)} rows")
 
-    # ── Build retrieval corpus from ALL rows' evidence excerpts ───────────
+    # ── Assemble the retrieval corpus from every row's evidence excerpts ──
     documents = []
     for row in ds:
         fbid = row["financebench_id"]
@@ -59,7 +59,7 @@ def main():
     builder.build(documents)
     print(f"KB saved to: {KB_DIR}")
 
-    # ── Sample n test questions (reproducible) ────────────────────────────
+    # ── Draw n test questions reproducibly ──────────────────────────────
     rng = random.Random(args.seed)
     n = min(args.n, len(ds))
     indices = rng.sample(range(len(ds)), n)

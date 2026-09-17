@@ -23,7 +23,7 @@ MODES = ["m1", "m2", "m3", "m4"]
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# GenericAQR — verbatim copy of arda_sr/aqr.py, prompt domain-parameterized
+# GenericAQR — a verbatim copy of arda_sr/aqr.py, prompt domain-parameterized
 # ═════════════════════════════════════════════════════════════════════════
 
 GENERIC_AQR_PROMPT = """\
@@ -44,7 +44,7 @@ JSON:"""
 
 
 class GenericAQR:
-    """Domain-parameterized copy of arda_sr.aqr.AQR. Logic identical."""
+    """A domain-parameterized duplicate of arda_sr.aqr.AQR. The logic is identical."""
 
     def __init__(self, client: GeminiClient | None = None, tau_h: float = ENTROPY_THRESHOLD,
                  domain_context: str = DEFAULT_DOMAIN_CONTEXT):
@@ -98,11 +98,11 @@ class GenericAQR:
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# GenericDDA — verbatim copy of arda_sr/dda.py, prompts domain-parameterized
+# GenericDDA — a verbatim copy of arda_sr/dda.py, prompts domain-parameterized
 # ═════════════════════════════════════════════════════════════════════════
 
 DEFAULT_BETAS = {"b1": 0.30, "b2": 0.25, "b3": 0.20, "b4": 0.25}
-MIN_QUALITY_THRESHOLD = 0.3  # identical to arda_sr/dda.py — Algorithm 1 line 31
+MIN_QUALITY_THRESHOLD = 0.3  # the same as arda_sr/dda.py — Algorithm 1 line 31
 
 GENERIC_DIRECT_PROMPT = """\
 You are a knowledgeable assistant for the following domain: {domain_context}.
@@ -124,8 +124,8 @@ Evidence:
 
 Answer:"""
 
-# Utility-scoring and merge prompts contain no domain-specific text in the
-# original — copied unchanged.
+# The utility-scoring and merge prompts carry no domain-specific text in the
+# original, so they are copied unchanged.
 UTILITY_PROMPT = """\
 Evaluate the quality of this answer to the given question.
 Return ONLY JSON with scores in [0.0, 1.0]:
@@ -156,7 +156,7 @@ Combined Answer:"""
 
 
 class GenericDDA:
-    """Domain-parameterized copy of arda_sr.dda.DDA. Logic identical."""
+    """A domain-parameterized duplicate of arda_sr.dda.DDA. The logic is identical."""
 
     def __init__(self, client: GeminiClient | None = None, betas: Dict[str, float] | None = None,
                  domain_context: str = DEFAULT_DOMAIN_CONTEXT):
@@ -204,10 +204,10 @@ class GenericDDA:
         }
 
     def _generate_direct(self, query: str) -> str:
-        # No try/except: an API failure must propagate and abort this
-        # query's arbitrate() call (retryable), not be swallowed into an
-        # empty draft that would silently get checkpointed as complete.
-        # Same fix as arda_sr/dda.py, 2026-08-15 spending-cap incident.
+        # No try/except: an API failure has to propagate and abort this
+        # query's arbitrate() call (so it can be retried), rather than being
+        # swallowed into an empty draft that would quietly be checkpointed as
+        # complete. Same fix as arda_sr/dda.py, 2026-08-15 spending-cap incident.
         prompt = GENERIC_DIRECT_PROMPT.format(query=query, domain_context=self.domain_context)
         return self.client.generate(prompt, max_tokens=512)
 
@@ -223,8 +223,8 @@ class GenericDDA:
             query=query, reference=reference or answer, answer=answer,
             evidence=evidence_text or "(none — parametric-only draft)",
         )
-        # No try/except -- a scoring failure must abort/retry the query, not
-        # silently substitute a fabricated neutral 0.5 vector.
+        # No try/except -- a scoring failure has to abort/retry the query
+        # rather than quietly swap in a fabricated neutral 0.5 vector.
         scores = self.client.generate_json(prompt)
         return {
             "relevance":    float(scores.get("relevance", 0.5)),
@@ -268,7 +268,7 @@ class GenericDDA:
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# GenericSR — verbatim copy of arda_sr/sr.py, prompts domain-parameterized
+# GenericSR — a verbatim copy of arda_sr/sr.py, prompts domain-parameterized
 # ═════════════════════════════════════════════════════════════════════════
 
 GENERIC_SCENARIO_GENERATION_PROMPT = """\
@@ -328,7 +328,7 @@ Recommendation:"""
 
 
 class GenericSR:
-    """Domain-parameterized copy of arda_sr.sr.SR. Logic identical."""
+    """A domain-parameterized duplicate of arda_sr.sr.SR. The logic is identical."""
 
     def __init__(self, client: GeminiClient | None = None, lam: float = SR_LAMBDA,
                  n_scenarios: int = SR_NUM_SCENARIOS, domain_context: str = DEFAULT_DOMAIN_CONTEXT):
@@ -442,7 +442,7 @@ class GenericSR:
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# GenericLLMJudge — verbatim copy of evaluation/llm_judge.py, domain-parameterized
+# GenericLLMJudge — a verbatim copy of evaluation/llm_judge.py, domain-parameterized
 # ═════════════════════════════════════════════════════════════════════════
 
 GENERIC_JUDGE_PROMPT = """\
@@ -548,7 +548,7 @@ Return ONLY this JSON (no other text):
 
 
 class GenericLLMJudge:
-    """Domain-parameterized copy of evaluation.llm_judge.LLMJudge. Logic identical."""
+    """A domain-parameterized duplicate of evaluation.llm_judge.LLMJudge. The logic is identical."""
 
     def __init__(self, client: GeminiClient | None = None, domain_context: str = DEFAULT_DOMAIN_CONTEXT):
         self.client = client or GeminiClient()
@@ -577,11 +577,11 @@ class GenericLLMJudge:
             evidence=evidence_text or "(no evidence retrieved — no-retrieval/parametric answer)",
             answer=answer[:1500], domain_context=self.domain_context,
         )
-        # No try/except: an API failure must abort this query's judging
-        # (retryable on resume via the caller's checkpoint), not silently
-        # substitute a fabricated rel=faith=cov=2 fallback that would be
-        # indistinguishable from a real judgment and never get retried.
-        # Same fix/rationale applied to evaluation/llm_judge.py and
+        # No try/except: an API failure has to abort this query's judging
+        # (retryable on resume via the caller's checkpoint) rather than
+        # quietly swapping in a fabricated rel=faith=cov=2 fallback, which
+        # would look exactly like a real judgment and never be retried.
+        # Same fix and rationale were applied to evaluation/llm_judge.py and
         # arda_sr/pipeline.py on 2026-08-15 (spending-cap incident).
         raw = self.client.generate_json(prompt)
         return {
@@ -595,8 +595,8 @@ class GenericLLMJudge:
 
     def judge_combined_single(self, query: str, answer: str, reference: str = "",
                                evidence: Optional[List[Dict]] = None) -> Dict:
-        """1-call variant: rel/faith/cov + ctx_rel together when evidence exists.
-        Falls back to judge_single() when there's no evidence (ctx_rel N/A)."""
+        """Single-call variant: rel/faith/cov plus ctx_rel together whenever evidence exists.
+        Drops back to judge_single() in the absence of evidence (ctx_rel is N/A)."""
         if not evidence:
             return self.judge_single(query, answer, reference, evidence)
         if not answer.strip():
@@ -651,7 +651,7 @@ class GenericLLMJudge:
             return 1
         prompt = GENERIC_CTX_REL_PROMPT.format(query=query, evidence=evidence_text,
                                                   domain_context=self.domain_context)
-        # No try/except -- see judge_single()'s comment above.
+        # No try/except -- refer to judge_single()'s comment above.
         raw = self.client.generate_json(prompt)
         return max(1, min(5, int(raw.get("ctx_rel", 3))))
 
@@ -666,9 +666,9 @@ class GenericLLMJudge:
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# GenericARDASRPipeline — verbatim copy of arda_sr/pipeline.py::ARDASRPipeline
-# .run(), wired to the Generic* modules above. arda_sr/pipeline.py itself is
-# NOT imported or modified — this is a fully independent orchestrator so the
+# GenericARDASRPipeline — a verbatim copy of arda_sr/pipeline.py::ARDASRPipeline
+# .run(), hooked up to the Generic* modules above. arda_sr/pipeline.py is itself
+# NOT imported or modified — this orchestrator is fully independent so the
 # main repo stays untouched.
 # ═════════════════════════════════════════════════════════════════════════
 
@@ -677,9 +677,9 @@ RETRIEVAL_MODES = {"m2", "m3", "m4"}
 
 class GenericARDASRPipeline:
     """
-    Domain-parameterized copy of arda_sr.pipeline.ARDASRPipeline.
-    Control flow identical to the original .run(): AQR routes -> retrieval
-    (if needed) -> SR (mode m4) or DDA (otherwise) produces the answer.
+    A domain-parameterized duplicate of arda_sr.pipeline.ARDASRPipeline.
+    The control flow matches the original .run(): AQR routes -> retrieval
+    (when required) -> SR (mode m4) or DDA (otherwise) yields the answer.
 
     Usage:
         pipeline = GenericARDASRPipeline(kb, client, domain_context="...")
@@ -711,13 +711,13 @@ class GenericARDASRPipeline:
 
         evidence: List[Dict] = []
         if mode in RETRIEVAL_MODES or routing.get("hybrid_path"):
-            # NOTE: extract_metadata_from_query is still the Indonesia-specific
+            # NOTE: extract_metadata_from_query remains the Indonesia-specific
             # regex from arda_sr/retrieval.py (provinces/commodities/regulation
-            # type) — for non-Indonesian-government domains it will simply
-            # return an empty filter (no crash), so retrieval degrades
-            # gracefully to plain hybrid scoring without pre-filtering. This
-            # is a known, documented limitation of this cross-domain check,
-            # not a bug — see AFTER-REVIEW/cross-domain/AUDIT.md.
+            # type) — on non-Indonesian-government domains it just returns an
+            # empty filter (no crash), so retrieval degrades gracefully to
+            # plain hybrid scoring without pre-filtering. This is a known,
+            # documented limitation of the cross-domain check, not a bug — see
+            # AFTER-REVIEW/cross-domain/AUDIT.md.
             meta_filter = HybridRetriever.extract_metadata_from_query(query)
             evidence = self.retriever.retrieve(query, k=k, metadata_filter=meta_filter or None)
             result["evidence"] = evidence

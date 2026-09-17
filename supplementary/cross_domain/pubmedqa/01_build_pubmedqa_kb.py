@@ -17,9 +17,9 @@ THIS_DIR = Path(__file__).resolve().parent
 ROOT_DIR = THIS_DIR.parents[2]
 sys.path.insert(0, str(ROOT_DIR))
 
-# Import order: KB/embedding stack (sentence_transformers/faiss) is what
-# we're about to use directly here; no google.genai import in this script
-# at all, so the usual Windows segfault-on-import-order issue doesn't apply.
+# Import ordering: this script uses the KB/embedding stack
+# (sentence_transformers/faiss) directly and pulls in no google.genai at
+# all, so the familiar Windows import-order segfault cannot bite here.
 from utils.kb_builder import KnowledgeBaseBuilder  # noqa: E402
 
 KB_DIR = THIS_DIR / "kb_pubmedqa"
@@ -37,7 +37,7 @@ def main():
     ds = load_dataset("qiaojin/PubMedQA", "pqa_labeled", split="train")
     print(f"Loaded {len(ds)} rows")
 
-    # ── Build retrieval corpus from ALL rows' context paragraphs ─────────
+    # ── Assemble the retrieval corpus from every row's context paragraphs ─
     documents = []
     for row in ds:
         pubid = row["pubid"]
@@ -56,7 +56,7 @@ def main():
     builder.build(documents)
     print(f"KB saved to: {KB_DIR}")
 
-    # ── Sample n test questions (reproducible) ────────────────────────────
+    # ── Draw n test questions reproducibly ──────────────────────────────
     rng = random.Random(args.seed)
     indices = rng.sample(range(len(ds)), min(args.n, len(ds)))
     sample = []
@@ -66,9 +66,9 @@ def main():
             "query_id": f"pubmedqa_{row['pubid']}",
             "question": row["question"],
             "reference_answer": row["long_answer"],
-            "final_decision": row["final_decision"],  # yes/no/maybe, for optional exact-match scoring
+            "final_decision": row["final_decision"],  # yes/no/maybe, used for optional exact-match scoring
             "category": "health",
-            "should_be_answerable": True,  # every PQA-L row has grounding context in the corpus by construction
+            "should_be_answerable": True,  # by construction, every PQA-L row has grounding context in the corpus
         })
 
     with open(THIS_DIR / "pubmedqa_test_sample.json", "w", encoding="utf-8") as f:

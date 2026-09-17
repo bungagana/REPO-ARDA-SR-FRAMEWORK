@@ -1,6 +1,6 @@
 """
-LLM-as-Judge evaluation following the RAGAS methodology.
-Scores answer quality on 3 dimensions: Relevance, Faithfulness, Coverage (1–5 Likert).
+Evaluation with an LLM acting as judge, in the spirit of the RAGAS methodology.
+Answer quality is rated along 3 axes: Relevance, Faithfulness, Coverage (1–5 Likert).
 """
 
 import json
@@ -119,8 +119,8 @@ Return ONLY this JSON (no other text):
 
 class LLMJudge:
     """
-    LLM-as-judge for automated evaluation.
-    Scores are normalised to [0,1] (raw / 5) when used in metrics.
+    Automated evaluation driven by an LLM judge.
+    When consumed by metrics, scores are rescaled to [0,1] (raw value / 5).
     """
 
     def __init__(self, client: GeminiClient | None = None):
@@ -132,7 +132,7 @@ class LLMJudge:
         show_progress: bool = True,
     ) -> Dict[str, Dict]:
         """
-        Score a list of result dicts.
+        Assign scores to a list of result dicts.
         Returns: {query_id: {rel, faith, cov, rel_reason, faith_reason, cov_reason}}
         """
         from tqdm import tqdm
@@ -158,13 +158,13 @@ class LLMJudge:
         reference: str = "",
         evidence: Optional[List[Dict]] = None,
     ) -> Dict:
-        """Score a single (query, answer, reference, evidence) tuple.
+        """Score one (query, answer, reference, evidence) tuple.
 
-        `evidence` is the list of retrieved chunk dicts actually used by the
-        pipeline for this query (same shape as elsewhere: {filename, text, ...}).
-        Passing it lets Faithfulness be judged against the real evidence, per
-        the paper's Faith(a) definition (Section 2.4.2) — a bare (query,
-        reference, answer) judge cannot assess grounding at all.
+        `evidence` holds the retrieved chunk dicts the pipeline actually used
+        for this query (identical shape as elsewhere: {filename, text, ...}).
+        Supplying it allows Faithfulness to be judged against genuine evidence,
+        following the paper's Faith(a) definition (Section 2.4.2) — a judge
+        given only (query, reference, answer) cannot assess grounding at all.
         """
         if not answer.strip():
             return {"rel": 1, "faith": 1, "cov": 1,
@@ -176,11 +176,11 @@ class LLMJudge:
             evidence=evidence_text or "(no evidence retrieved — no-retrieval/parametric answer)",
             answer=answer[:1500],
         )
-        # No try/except: an API failure here must abort this query's judging
-        # (retryable on resume), not silently substitute a fabricated
-        # rel=faith=cov=2 fallback that judge_resumable() would then treat
-        # as a real, complete judgment forever. Same rationale as
-        # arda_sr/pipeline.py's _simple_generate() fix (2026-08-15
+        # Deliberately no try/except: an API failure here has to abort this
+        # query's judging (so it can be retried on resume) rather than quietly
+        # swap in a fabricated rel=faith=cov=2 fallback, which judge_resumable()
+        # would forever take as a genuine completed judgment. Same reasoning as
+        # the _simple_generate() fix in arda_sr/pipeline.py (2026-08-15
         # spending-cap incident).
         raw = self.client.generate_json(prompt)
         return {
@@ -200,15 +200,15 @@ class LLMJudge:
         evidence: Optional[List[Dict]] = None,
     ) -> Dict:
         """
-        Single-call variant of judge_single() that also returns ctx_rel in the
-        same LLM call, for queries that have evidence -- cuts judging from 2
-        API calls/query down to 1 for the evidence-bearing subset. Added
-        2026-08-15 to speed up the not-yet-started V3 rerun; NOT used to
-        retroactively touch V1/V2's already-collected (2-call) judged data,
-        which remains valid as-is (compute_ctx_rel() only reads the final
-        `ctx_rel` field value, not how many calls produced it). Falls back to
-        the plain judge_single() when there's no evidence, since ctx_rel
-        isn't applicable there anyway.
+        One-call counterpart to judge_single() that also returns ctx_rel within
+        the same LLM request, for queries carrying evidence -- this trims
+        judging from 2 API calls/query to 1 on the evidence-bearing subset.
+        Introduced 2026-08-15 to accelerate the not-yet-started V3 rerun; it was
+        NOT applied to retroactively alter V1/V2's already-collected (2-call)
+        judged data, which stays valid untouched (compute_ctx_rel() reads only
+        the final `ctx_rel` field value, not how many calls produced it). When
+        no evidence exists it delegates to plain judge_single(), since ctx_rel
+        does not apply there anyway.
         """
         if not evidence:
             return self.judge_single(query, answer, reference, evidence)
@@ -223,7 +223,7 @@ class LLMJudge:
             evidence=evidence_text or "(no evidence retrieved -- no-retrieval/parametric answer)",
             answer=answer[:1500],
         )
-        # No try/except -- same rationale as judge_single()/judge_ctx_rel_single().
+        # No try/except here -- same reasoning as judge_single()/judge_ctx_rel_single().
         raw = self.client.generate_json(prompt)
         return {
             "rel":            max(1, min(5, int(raw.get("rel", 3)))),
@@ -241,7 +241,7 @@ class LLMJudge:
         results: List[Dict],
         show_progress: bool = True,
     ) -> Dict[str, Dict]:
-        """Batch form of judge_combined_single(). Returns {query_id: {rel, faith, cov, ctx_rel, ...}}."""
+        """Batch version of judge_combined_single(). Returns {query_id: {rel, faith, cov, ctx_rel, ...}}."""
         from tqdm import tqdm
         scores = {}
         iterator = tqdm(results, desc="LLM judging (combined)") if show_progress else results
@@ -261,11 +261,11 @@ class LLMJudge:
         show_progress: bool = True,
     ) -> Dict[str, int]:
         """
-        Context Relevance (CtxRel), scored 1-5 by an LLM evaluator, per Section
-        2.4.2: "CtxRel is assessed by an LLM evaluator on a scale of 1-5 based
-        on the adequacy of information supporting the answer." This replaces
-        the earlier lexical token-overlap heuristic, which could not capture
-        semantic relevance and did not match the paper's stated methodology.
+        Context Relevance (CtxRel), scored 1-5 by an LLM evaluator, as stated in
+        Section 2.4.2: "CtxRel is assessed by an LLM evaluator on a scale of 1-5 based
+        on the adequacy of information supporting the answer." It supersedes the
+        earlier lexical token-overlap heuristic, which failed to capture semantic
+        relevance and did not follow the paper's stated methodology.
         Returns: {query_id: ctx_rel_score (1-5)}
         """
         from tqdm import tqdm
@@ -275,21 +275,21 @@ class LLMJudge:
             qid = r.get("query_id", r.get("query", "")[:50])
             evidence = r.get("evidence", [])
             if not evidence:
-                # No retrieval performed (e.g. mode m1 / LLM-only) — CtxRel is
-                # not applicable; excluded from the mean by the caller.
+                # Retrieval was skipped (e.g. mode m1 / LLM-only), so CtxRel
+                # does not apply and the caller drops it from the mean.
                 continue
             scores[qid] = self.judge_ctx_rel_single(r.get("query", ""), evidence)
         return scores
 
     def judge_ctx_rel_single(self, query: str, evidence: List[Dict]) -> int:
-        """Score how adequately `evidence` supports answering `query`, 1-5."""
+        """Rate on a 1-5 scale how well `evidence` backs up an answer to `query`."""
         evidence_text = self._format_evidence(evidence)
         if not evidence_text:
             return 1
         prompt = CTX_REL_PROMPT.format(query=query, evidence=evidence_text)
-        # No try/except — see judge_single()'s comment above; a fabricated
-        # ctx_rel=3 fallback would be indistinguishable from a real score
-        # and never get retried.
+        # No try/except — see the comment on judge_single() above; an invented
+        # ctx_rel=3 fallback would look exactly like a genuine score and would
+        # never be retried.
         raw = self.client.generate_json(prompt)
         return max(1, min(5, int(raw.get("ctx_rel", 3))))
 
@@ -304,8 +304,8 @@ class LLMJudge:
 
     def correlation_with_human(self, judge_scores: Dict, human_scores: Dict) -> float:
         """
-        Compute Pearson correlation between LLM judge and human scores.
-        human_scores: same format {qid: {rel, faith, cov}}
+        Calculate the Pearson correlation of LLM-judge scores against human scores.
+        human_scores: identical format {qid: {rel, faith, cov}}
         """
         from scipy import stats
         llm_flat, human_flat = [], []

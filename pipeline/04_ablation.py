@@ -1,7 +1,7 @@
 """
 Step 4: Ablation Study (Bottom-Up)
 =====================================
-Evaluates 5 ablation variants, each adding one ARDA-SR component:
+Runs 5 ablation variants, each one adding a single ARDA-SR component:
 
   V0: Base RAG            (standard retrieve-then-generate)
   V1: + AQR module       (adaptive routing)
@@ -44,7 +44,7 @@ from evaluation.statistical import summary_table
 
 
 # ── Ablation variant configs ───────────────────────────────────────────────
-# Each variant enables/disables ARDA-SR modules
+# Every variant turns specific ARDA-SR modules on or off
 VARIANT_CONFIGS = {
     "V0_base_rag": {
         "use_aqr":             False,
@@ -161,7 +161,7 @@ def main():
     for variant_name, config in VARIANT_CONFIGS.items():
         out_path = RESULTS_DIR / f"ablation_{variant_name}_results.json"
 
-        # Resume: skip variant if result file already exists (not smoke mode)
+        # Resume support: skip a variant whose result file already exists (outside smoke mode)
         if not args.smoke and out_path.exists():
             logger.info(f"  Skipping {variant_name}: results already exist ({out_path.name})")
             with open(out_path, encoding="utf-8") as f:
@@ -206,7 +206,7 @@ def main():
             "per_category": cat_metrics,
         }
 
-        # Save immediately (resume support)
+        # Write immediately (so runs can resume)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
         logger.info(f"  Saved → {out_path.name}")
@@ -215,13 +215,13 @@ def main():
                     f"Faith={metrics.get('faith','--')} | "
                     f"FRR={metrics.get('frr','--')}")
 
-    # ── Save and display ───────────────────────────────────────────────────
+    # ── Save and print ────────────────────────────────────────────────────
     with open(RESULTS_DIR / "ablation_metrics.json", "w", encoding="utf-8") as f:
         json.dump(ablation_metrics, f, indent=2)
 
     rows = summary_table(ablation_metrics, method_order=list(VARIANT_CONFIGS.keys()))
     df = pd.DataFrame(rows)
-    # Add label column
+    # Insert the label column
     df.insert(1, "Added Component",
               [VARIANT_CONFIGS[m]["label"] for m in VARIANT_CONFIGS if m in ablation_metrics])
     df.to_csv(RESULTS_DIR / "ablation_summary.csv", index=False)

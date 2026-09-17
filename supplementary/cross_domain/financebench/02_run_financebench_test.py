@@ -24,8 +24,8 @@ CROSS_DOMAIN_DIR = THIS_DIR.parent
 sys.path.insert(0, str(ROOT_DIR))
 sys.path.insert(0, str(CROSS_DOMAIN_DIR))
 
-# Import order: KB stack before google.genai (Windows segfault fix, same as
-# every other AFTER-REVIEW script this session).
+# Import ordering: the KB stack must load ahead of google.genai (the
+# Windows segfault workaround used by every other AFTER-REVIEW script here).
 from utils.kb_builder import KnowledgeBase  # noqa: E402
 from utils.llm_client import GeminiClient  # noqa: E402
 from utils.openai_client import GPTJudgeClient  # noqa: E402
@@ -38,11 +38,11 @@ RESULTS_DIR = THIS_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
 
-# 2 baselines, deliberately spanning the range rather than picking an easy
-# opponent: standard_rag = weakest baseline in the main experiment
-# (FRR=0.175, Table 5), selfrag = strongest (FRR=0.115). Both verified
+# 2 baselines chosen to span the range on purpose instead of an easy
+# opponent: standard_rag is the weakest baseline in the main experiment
+# (FRR=0.175, Table 5), selfrag the strongest (FRR=0.115). Both confirmed
 # domain-clean (no hardcoded "transmigration" text — AFTER-REVIEW/
-# cross-domain/AUDIT.md), so no extra Generic-prompt work was needed.
+# cross-domain/AUDIT.md), which meant no extra Generic-prompt work.
 DEFAULT_METHODS = ["standard_rag", "selfrag", "arda_sr"]
 DOMAIN_CONTEXT = "financial reporting and corporate finance (FinanceBench: analyst questions over real SEC filings such as 10-K reports)"
 
@@ -64,9 +64,9 @@ def main():
 
     client = GeminiClient()
     kb = KnowledgeBase(kb_dir=KB_DIR).load()
-    # Judge uses the SAME Gemini client as generation (see JUDGE MODEL NOTE
-    # in the module docstring) — an explicit, documented cost trade-off for
-    # this cross-domain check, unlike the main experiment's independent judge.
+    # The judge shares the SAME Gemini client as generation (see JUDGE MODEL
+    # NOTE in the module docstring) — a deliberate, documented cost trade-off
+    # for this cross-domain check, unlike the main experiment's separate judge.
     judge = GenericLLMJudge(GPTJudgeClient(), domain_context=DOMAIN_CONTEXT) if not args.skip_judge else None
 
     all_metrics = {}
@@ -74,9 +74,9 @@ def main():
         print(f"\n{'-'*40}\nRunning: {method}")
         out_path = RESULTS_DIR / f"{method}_financebench_results.json"
 
-        # Resume-friendly: if answers were already generated (e.g. an earlier
-        # --skip-judge run), reuse them instead of regenerating — judging can
-        # be added "later" without re-spending Gemini calls on generation.
+        # Resumable: when answers already exist (say, from an earlier
+        # --skip-judge run), reuse rather than regenerate them — judging can
+        # be added "later" without burning more Gemini calls on generation.
         if out_path.exists() and not args.smoke:
             with open(out_path, encoding="utf-8") as f:
                 results = json.load(f)
@@ -85,9 +85,9 @@ def main():
             if method == "arda_sr":
                 pipeline = GenericARDASRPipeline(kb, client, domain_context=DOMAIN_CONTEXT)
             else:
-                # standard_rag (and the other baselines) carry no hardcoded
-                # transmigration text — verified by grep, see AUDIT.md —
-                # so the original baseline classes are used unmodified.
+                # standard_rag (like the other baselines) contains no hardcoded
+                # transmigration text — confirmed by grep, see AUDIT.md —
+                # so the original baseline classes stay unmodified.
                 pipeline = ALL_BASELINES[method](kb, client)
 
             results = []
@@ -116,8 +116,8 @@ def main():
         elif judge:
             print("  All answers already judged — skipping judge pass.")
 
-        # CtxRel (Section 2.4.2: LLM-judged retrieval-quality score, 1-5) —
-        # only meaningful for queries that actually retrieved evidence.
+        # CtxRel (Section 2.4.2: an LLM-judged retrieval-quality score, 1-5) —
+        # relevant only for queries that did retrieve evidence.
         needs_ctx_rel = judge and any(r.get("evidence") and r.get("ctx_rel") is None for r in results)
         if needs_ctx_rel:
             to_ctx_judge = [r for r in results if r.get("evidence") and r.get("ctx_rel") is None]
@@ -131,9 +131,9 @@ def main():
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
-        # Rebuild a {query_id: {rel,faith,cov}} dict (raw 1-5 scale) from
-        # `results` for compute_all_metrics — covers BOTH answers judged in
-        # this run and any judged in a previous run and loaded from disk.
+        # Rebuild the {query_id: {rel,faith,cov}} dict (raw 1-5 scale) from
+        # `results` for compute_all_metrics — covering BOTH answers judged in
+        # this run and any judged earlier and loaded off disk.
         llm_scores = {
             r["query_id"]: {"rel": r["rel"] * 5, "faith": r["faith"] * 5, "cov": r["cov"] * 5}
             for r in results if r.get("rel") is not None

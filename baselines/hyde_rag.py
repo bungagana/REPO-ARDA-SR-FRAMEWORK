@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 class HyDERAGPipeline(BasePipeline):
     """
-    HyDE-RAG: generate a hypothetical answer → embed it → retrieve similar real documents.
-    Improves retrieval alignment for complex queries.
+    HyDE-RAG: draft a hypothetical answer → embed that draft → pull back
+    similar genuine documents. It tightens retrieval alignment on complex
+    questions.
     Reference: IEEE 11080443.
     """
 
@@ -44,17 +45,17 @@ Answer:"""
         t = time.time()
         result = self._base_result(query, reference_answer)
         try:
-            # Step 1: Generate hypothetical document
+            # First, draft the hypothetical document
             hyp_answer = self.client.generate(
                 self.HYDE_PROMPT.format(query=query), max_tokens=256
             )
-            # Step 2: Retrieve with dense search over the hypothetical document embedding.
+            # Second, run dense search against the hypothetical document's embedding.
             hyp_vec = self.kb.embed_query(hyp_answer)
             indices = self.kb.faiss_search(hyp_vec, k)
             evidence = [self.kb.chunks[i] for i in indices if i >= 0]
             result["evidence"] = evidence
 
-            # Step 3: Generate final answer with retrieved evidence
+            # Third, produce the final answer from the retrieved evidence
             ev_text = self._format_evidence(evidence)
             answer  = self.client.generate(
                 self.ANSWER_PROMPT.format(query=query, evidence=ev_text), max_tokens=512

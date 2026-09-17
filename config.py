@@ -1,4 +1,4 @@
-"""Central configuration for all ARDA-SR experiments."""
+"""Shared configuration settings for every ARDA-SR experiment."""
 
 import os
 from pathlib import Path
@@ -19,23 +19,24 @@ for d in [KB_DIR, DATA_DIR, RESULTS_DIR, OUTPUTS_DIR]:
 
 # ── LLM ───────────────────────────────────────────────────────────────────
 GEMINI_API_KEY      = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL        = "gemini-2.5-flash"   # generation & routing — per paper Section 2.4.3 backbone
-# NOTE: judging is done by GPT_JUDGE_MODEL (see below) via GPTJudgeClient, not Gemini —
-# there is no separate Gemini judge model anymore (removed dead GEMINI_JUDGE_MODEL constant).
-TEMPERATURE         = 0.0                  # deterministic generation
+GEMINI_MODEL        = "gemini-2.5-flash"   # text generation and routing — backbone from paper Section 2.4.3
+# NOTE: judging runs through GPTJudgeClient with GPT_JUDGE_MODEL (see below), not
+# Gemini; the separate Gemini judge model no longer exists (the dead
+# GEMINI_JUDGE_MODEL constant was removed).
+TEMPERATURE         = 0.0                  # generation is deterministic
 MAX_OUTPUT_TOKENS   = 2048
-REQUEST_DELAY_S     = 1.2                  # seconds between API calls (rate limit)
+REQUEST_DELAY_S     = 1.2                  # delay in seconds between API calls (rate limit)
 MAX_RETRIES         = 5
 
-# ── Claude (QA generation only — per paper Section 2.4.1: "claude-haiku-4-5") ──
+# ── Claude (QA generation only — paper Section 2.4.1 specifies "claude-haiku-4-5") ──
 ANTHROPIC_API_KEY   = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_QA_MODEL     = "claude-haiku-4-5"
 
-# ── OpenAI (LLM-as-judge only — replaces Gemini-as-its-own-judge conflict of
-# interest; generation/retrieval/DDA/SR all stay on Gemini) ──────────────────
+# ── OpenAI (LLM-as-judge only — removes the conflict of interest in having
+# Gemini judge itself; generation/retrieval/DDA/SR remain on Gemini) ─────────
 OPENAI_API_KEY      = os.getenv("OPENAI_API_KEY", "")
 GPT_JUDGE_MODEL      = "gpt-5.4-mini"
-GPT_JUDGE_REASONING_EFFORT = "low"  # judging is a short structured-JSON scoring task
+GPT_JUDGE_REASONING_EFFORT = "low"  # judging is a short scoring task with structured JSON
 
 # ── Embeddings ────────────────────────────────────────────────────────────
 EMBED_MODEL  = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
@@ -48,24 +49,24 @@ CHUNK_OVERLAP = 80
 
 # ── Retrieval ─────────────────────────────────────────────────────────────
 TOP_K          = 5
-HYBRID_ALPHA   = 0.6   # weight for dense (semantic); (1-α) for BM25
+HYBRID_ALPHA   = 0.6   # dense (semantic) weight; BM25 gets (1-α)
 
 # ── AQR ──────────────────────────────────────────────────────────────────
-ENTROPY_THRESHOLD = 1.05  # τ_H; above this → hybrid path
+ENTROPY_THRESHOLD = 1.05  # τ_H; a value above it triggers the hybrid path
 
 # ── DDA ──────────────────────────────────────────────────────────────────
 DDA_BETA_SEARCH = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45]
-DDA_VALIDATION_SPLIT = 0.2   # for separate development data only; never tune on final test data
-DDA_DECISION_MARGIN = 0.05   # utility gap required before preferring the retrieval draft
+DDA_VALIDATION_SPLIT = 0.2   # only for separate development data; never tune on the final test set
+DDA_DECISION_MARGIN = 0.05   # utility gap needed before the retrieval draft is preferred
 
 # ── SR ───────────────────────────────────────────────────────────────────
-SR_LAMBDA        = 0.5    # risk-aversion parameter λ_SR
-SR_NUM_SCENARIOS = 3      # scenarios to generate per policy query
+SR_LAMBDA        = 0.5    # risk-aversion parameter, λ_SR
+SR_NUM_SCENARIOS = 3      # number of scenarios generated per policy query
 
 # ── QA Generation ─────────────────────────────────────────────────────────
 QA_CATEGORIES = ["DK", "FR", "CR", "AR", "PS"]
 QA_TARGET_PER_CATEGORY  = 200
-QA_GENERATE_PER_CATEGORY = 250   # generate extra for filtering
+QA_GENERATE_PER_CATEGORY = 250   # extra questions generated so filtering has slack
 
 QA_CATEGORY_DESC = {
     "DK": "Direct Knowledge — conceptual questions answerable without document retrieval",

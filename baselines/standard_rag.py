@@ -1,4 +1,4 @@
-"""Baseline: Standard RAG (fixed retrieve-then-generate pipeline)."""
+"""Baseline: Standard RAG (retrieve-then-generate, with no variation)."""
 
 import time
 import logging
@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class StandardRAGPipeline(BasePipeline):
     """
-    Standard RAG: always retrieve Top-K, then generate.
-    Dense (cosine) retrieval only.
+    Standard RAG: retrieval of the Top-K always happens first, generation
+    second. Retrieval is dense (cosine) and nothing else.
     Reference: Zhao et al. (2026) RAG Survey.
     """
 
@@ -36,7 +36,7 @@ Answer:"""
         t = time.time()
         result = self._base_result(query, reference_answer)
         try:
-            # Dense retrieval only (no BM25, no metadata filter)
+            # Dense retrieval alone (neither BM25 nor metadata filtering)
             query_vec = self.kb.embed_query(query)
             indices = self.kb.faiss_search(query_vec, k)
             evidence = [self.kb.chunks[i] for i in indices if i >= 0]

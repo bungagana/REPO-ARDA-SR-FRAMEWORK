@@ -28,8 +28,8 @@ CROSS_DOMAIN_DIR = THIS_DIR.parent
 sys.path.insert(0, str(ROOT_DIR))
 sys.path.insert(0, str(CROSS_DOMAIN_DIR))
 
-# Import order: KB stack before google.genai (Windows segfault fix, same as
-# every other AFTER-REVIEW script this session).
+# Import ordering: the KB stack must load ahead of google.genai (the
+# Windows segfault workaround used by every other AFTER-REVIEW script here).
 from utils.kb_builder import KnowledgeBase  # noqa: E402
 from utils.llm_client import GeminiClient  # noqa: E402
 from utils.openai_client import GPTJudgeClient  # noqa: E402

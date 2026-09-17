@@ -1,7 +1,7 @@
-"""Baseline: same-backbone Self-RAG reimplementation.
+"""Baseline: Self-RAG reimplemented on the same backbone.
 
-This is an inference-time approximation of Self-RAG behavior under the shared
-Gemini backbone, not the original fine-tuned Self-RAG checkpoint.
+What follows approximates Self-RAG's behavior at inference time on the shared
+Gemini backbone; it is not the original fine-tuned Self-RAG checkpoint.
 """
 
 import time
@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 
 class SelfRAGPipeline(BasePipeline):
     """
-    Same-backbone Self-RAG reimplementation: asks the shared backbone to decide
-    when to retrieve and to emit reflection-like critique tokens.
+    Self-RAG reimplemented on the same backbone: the shared backbone is asked
+    to choose when retrieval is needed and to produce reflection-style
+    critique tokens.
 
-    This keeps the backbone controlled across baselines, but it should not be
-    interpreted as an exact reproduction of the original fine-tuned Self-RAG
-    model with learned reflection tokens.
+    This holds the backbone constant across baselines, yet it should not be
+    read as an exact reproduction of the original fine-tuned Self-RAG model
+    whose reflection tokens are learned.
     Reference: Asai et al. 2024, ICLR.
     """
 
@@ -63,7 +64,7 @@ Revised Answer:"""
         t = time.time()
         result = self._base_result(query, reference_answer)
         try:
-            # Step 1: Decide whether to retrieve
+            # First, decide if retrieval is needed
             dec = self.client.generate_json(self.RETRIEVE_DECISION_PROMPT.format(query=query))
             should_retrieve = bool(dec.get("retrieve", True))
 
@@ -75,17 +76,17 @@ Revised Answer:"""
                 evidence = []
                 ev_section = ""
 
-            # Step 2: Generate with critique tokens
+            # Second, generate together with critique tokens
             prompt = self.GENERATION_PROMPT.format(
                 query=query, evidence_section=ev_section
             )
             raw_answer = self.client.generate(prompt, max_tokens=768)
 
-            # Step 3: Parse critique tokens
+            # Third, parse the critique tokens
             is_sup = "[issup]: yes" in raw_answer.lower()
             clean_answer = raw_answer.split("[IsREL]")[0].strip()
 
-            # Step 4: Refine if unsupported and evidence exists
+            # Fourth, refine when unsupported and evidence is present
             if not is_sup and evidence:
                 ev_text = self._format_evidence(evidence)
                 clean_answer = self.client.generate(

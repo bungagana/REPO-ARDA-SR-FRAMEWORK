@@ -1,18 +1,18 @@
 
 | Folder | Dataset | Domain | Kenapa dipilih |
 |---|---|---|---|
-| `conditionalqa/` | ConditionalQA (ACL 2022) | Kebijakan publik UK (gov.uk) | Paling mirip struktur domain asli (dokumen kebijakan pemerintah) |
-| `cuad/` | CUAD | Kontrak komersial/legal | ~50% query *not answerable* — bagus buat uji FRR/FAR |
-| `financebench/` | FinanceBench | Audit keuangan (SEC filings) | Sesuai Future Work paper (financial audits) |
-| `pubmedqa/` | PubMedQA (PQA-L) | Kesehatan/biomedis | Sesuai Future Work paper (health regulations) |
-| `pakdwi/` | Data internal pak Dwi | Domain kustom | Data privat, di luar KB utama |
+| `conditionalqa/` | ConditionalQA (ACL 2022) | Kebijakan publik UK (gov.uk) | Struktur paling mirip dengan domain asli (dokumen kebijakan pemerintah) |
+| `cuad/` | CUAD | Kontrak komersial/legal | ~50% query *not answerable* — bagus untuk menguji FRR/FAR |
+| `financebench/` | FinanceBench | Audit keuangan (SEC filings) | Selaras dengan Future Work paper (financial audits) |
+| `pubmedqa/` | PubMedQA (PQA-L) | Kesehatan/biomedis | Selaras dengan Future Work paper (health regulations) |
+| `pakdwi/` | Data internal pak Dwi | Domain kustom | Data privat di luar KB utama |
 
-Judge semua pakai **GPT-5.4-mini** (independen dari generator Gemini) —
-sama protokol dengan Table 6 di manuskrip utama.
+Semua judge memakai **GPT-5.4-mini** (independen dari generator Gemini), dengan
+protokol yang sama seperti Table 6 di manuskrip utama.
 
 ## Cara run (tiap dataset, dari dalam foldernya masing-masing)
 
-KB tiap dataset **sudah pernah dibangun** (folder `kb_*/` sudah ada) — jadi langkah 1 (build KB) **tidak perlu diulang** kecuali mau bikin KB baru dari nol atau ganti jumlah sampel.
+KB tiap dataset **sudah pernah dibangun** (folder `kb_*/` sudah tersedia), sehingga langkah 1 (build KB) **tidak perlu diulang** kecuali ingin membuat KB baru dari nol atau mengganti jumlah sampel.
 
 ### 1. ConditionalQA
 ```bash

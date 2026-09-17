@@ -1,23 +1,25 @@
 """
-Cross-domain generalization check (UK public-policy domain): builds a
-standalone knowledge base from ConditionalQA (Sun et al., ACL 2022 —
-https://github.com/haitian-sun/ConditionalQA) — a PUBLIC, already-complete
-corpus+QA benchmark: questions+scenarios+answers are written by human
-annotators over real gov.uk policy pages, NOT generated from the same
-corpus, so this check is not exposed to the reviewer's circularity concern
-(same rationale as 01_build_financebench_kb.py / 01_build_pubmedqa_kb.py).
+A generalization check across domains for UK public-policy material: this
+script assembles a self-contained knowledge base out of ConditionalQA
+(Sun et al., ACL 2022 — https://github.com/haitian-sun/ConditionalQA), an
+open, fully-curated corpus+QA benchmark whose questions, scenarios, and
+answers were authored by people over actual gov.uk policy pages rather
+than synthesized from the very corpus. That keeps the reviewer's
+circularity worry at bay here (the same argument holds for
+01_build_financebench_kb.py and 01_build_pubmedqa_kb.py).
 
-WHY THIS DATASET (see chat discussion): ConditionalQA is the closest public
-structural analogue to ARDA-SR's original domain (Indonesian transmigration
-government policy documents) among the candidates considered — real
-government policy pages, per-question "scenario" describing the user's
-situation that the correct answer is CONDITIONAL on, a natural
-not_answerable label (~4% of rows), and multi-answer items where several
-conditions each yield a different valid answer. This is meant to give
-AQR's m4 routing / SR's scenario-comparison logic and DDA's refusal
-handling more genuine signal than PubMedQA/FinanceBench did, where those
-mechanisms were rarely exercised (see AFTER-REVIEW/cross-domain/AUDIT.md
-and the FinanceBench/PubMedQA results discussion).
+CHOICE OF DATASET (see chat discussion): among the options weighed,
+ConditionalQA mirrors the structure of ARDA-SR's home domain (Indonesian
+transmigration policy documents) most closely — genuine government policy
+pages, a per-question "scenario" spelling out the user's situation on
+which the right answer is CONDITIONAL, a natural not_answerable label
+(about 4% of rows), and items with several answers in which distinct
+conditions each produce a separate valid response. The aim is to exercise
+AQR's m4 routing, SR's scenario-comparison logic, and DDA's refusal
+handling with more real signal than PubMedQA or FinanceBench supplied,
+since those mechanisms seldom came into play there (refer to
+AFTER-REVIEW/cross-domain/AUDIT.md and the FinanceBench/PubMedQA
+results discussion).
 
 Run (from this directory):
     python 01_build_conditionalqa_kb.py [--n 150]
@@ -67,9 +69,9 @@ def _strip_html(html_fragments: list) -> str:
 
 
 def _format_answer(answers: list) -> str:
-    """ConditionalQA answers: list of [answer_text, [supporting_condition_refs]].
-    Multiple entries = multiple conditionally-valid answers; join them so the
-    reference captures every condition-dependent answer, not just the first."""
+    """ConditionalQA answers arrive as a list of [answer_text, [supporting_condition_refs]].
+    Several entries mean several conditionally-valid answers; joining them lets the
+    reference hold every condition-dependent answer rather than only the first."""
     if not answers:
         return ""
     texts = [a[0] for a in answers if a and a[0]]
@@ -97,7 +99,7 @@ def main():
     print(f"Loaded {len(docs_raw)} policy documents, {len(train_raw)} train + "
           f"{len(dev_raw)} dev questions ({len(pool)} pooled)")
 
-    # ── Build retrieval corpus from ALL policy documents ──────────────────
+    # ── Assemble the retrieval corpus from every policy document ──────────
     documents = []
     for doc in docs_raw:
         text = _strip_html(doc.get("contents", []))
@@ -115,7 +117,7 @@ def main():
     builder.build(documents)
     print(f"KB saved to: {KB_DIR}")
 
-    # ── Sample n test questions (reproducible) ────────────────────────────
+    # ── Draw n test questions in a reproducible way ──────────────────────
     rng = random.Random(args.seed)
     n = min(args.n, len(pool))
     indices = rng.sample(range(len(pool)), n)

@@ -1,4 +1,4 @@
-"""Build and persist the FAISS + BM25 knowledge base from document chunks."""
+"""Construct the FAISS + BM25 knowledge base from document chunks and store it."""
 
 import json
 import math
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # ── Chunker ────────────────────────────────────────────────────────────────
 
 def _split_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> List[str]:
-    """Recursive character-level splitter respecting paragraph boundaries."""
+    """Split text recursively by character while honoring paragraph breaks."""
     separators = ["\n\n", "\n", ". ", " ", ""]
     for sep in separators:
         parts = text.split(sep) if sep else list(text)
@@ -35,12 +35,12 @@ def _split_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP)
             else:
                 if buf:
                     chunks.append(buf)
-                # If part itself is too long, recurse with next separator
+                # A part that is still too long gets recursed on using the next separator
                 buf = part.strip()
         if buf:
             chunks.append(buf)
 
-        # Merge short chunks & enforce overlap
+        # Short chunks are merged, then overlap is applied
         merged = []
         for c in chunks:
             if merged and len(merged[-1]) + len(c) + 1 <= size:
@@ -49,7 +49,7 @@ def _split_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP)
                 merged.append(c)
 
         if all(len(c) <= size for c in merged):
-            # Apply overlap: prepend tail of previous chunk
+            # Overlap step: tack the previous chunk's tail onto the front
             result = []
             for i, c in enumerate(merged):
                 if i > 0 and overlap > 0:
@@ -64,7 +64,7 @@ def _split_text(text: str, size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP)
 # ── Knowledge Base Builder ─────────────────────────────────────────────────
 
 class KnowledgeBaseBuilder:
-    """Builds a dual-index KB: FAISS (dense) + BM25 (sparse)."""
+    """Constructs a KB with two indexes: FAISS (dense) alongside BM25 (sparse)."""
 
     def __init__(self, kb_dir: Path = KB_DIR):
         self.kb_dir = Path(kb_dir)
@@ -82,8 +82,8 @@ class KnowledgeBaseBuilder:
 
     def build(self, documents: List[Dict]) -> None:
         """
-        Build KB from document dicts (with keys: filename, category, doc_type, text).
-        Saves: kb/chunks.json, kb/faiss_index/, kb/bm25_index.pkl
+        Assemble the KB from document dicts (keys: filename, category, doc_type, text).
+        Writes: kb/chunks.json, kb/faiss_index/, kb/bm25_index.pkl
         """
         logger.info(f"Building KB from {len(documents)} documents...")
         chunks = self._make_chunks(documents)
@@ -163,7 +163,7 @@ class KnowledgeBaseBuilder:
             texts, batch_size=64, show_progress_bar=True, normalize_embeddings=True
         ).astype("float32")
 
-        index = faiss.IndexFlatIP(EMBED_DIM)   # Inner product == cosine when normalized
+        index = faiss.IndexFlatIP(EMBED_DIM)   # With normalized vectors, inner product equals cosine similarity
         index.add(vectors)
 
         faiss_path = self.kb_dir / "faiss_index"
@@ -190,7 +190,7 @@ class KnowledgeBaseBuilder:
 # ── KB Loader (used at inference time) ────────────────────────────────────
 
 class KnowledgeBase:
-    """Load and query a pre-built KB."""
+    """Read in an existing KB and issue queries against it."""
 
     def __init__(self, kb_dir: Path = KB_DIR):
         self.kb_dir = Path(kb_dir)

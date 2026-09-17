@@ -1,4 +1,4 @@
-"""Baseline: ReAct (Reasoning + Acting with iterative retrieval steps)."""
+"""Baseline: ReAct (acting plus reasoning across repeated retrieval steps)."""
 
 import time
 import logging
@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class ReActPipeline(BasePipeline):
     """
-    ReAct: interleaves Thought → Action → Observation steps.
-    Actions: Search[query] or Finish[answer].
+    ReAct: cycles through Thought → Action → Observation steps.
+    The available actions are Search[query] and Finish[answer].
     Reference: Yao et al. 2023, ICLR.
     """
 
@@ -52,10 +52,10 @@ Question: {query}
                 prompt = self.SYSTEM_PROMPT.format(query=query, history=history)
                 response = self.client.generate(prompt, max_tokens=512)
 
-                # Parse Action
+                # Extract the action
                 action_match = re.search(r"Action:\s*(Search|Finish)\[(.+?)\]", response, re.DOTALL)
                 if not action_match:
-                    # No action found → treat as final answer
+                    # No action present → take it as the final answer
                     history += f"\n{response}"
                     break
 
@@ -66,14 +66,14 @@ Question: {query}
                     result["answer"] = action_arg
                     break
 
-                # Search action
+                # Handle a Search action
                 evidence = self.retriever.retrieve(action_arg, k=3)
                 evidence_all.extend(evidence)
                 obs_text = "\n".join(e.get("text", "")[:300] for e in evidence)
                 history += f"\n{response}\nObservation: {obs_text[:800]}"
 
             if not result["answer"]:
-                # Extract from last Thought or just return history
+                # Pull from the last Thought, otherwise return the history
                 thought_match = re.search(r"Thought:\s*(.+?)(?=\n|$)", history, re.DOTALL)
                 result["answer"] = thought_match.group(1).strip() if thought_match else history[-500:]
 

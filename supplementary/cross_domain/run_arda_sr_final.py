@@ -11,8 +11,8 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from config import GEMINI_API_KEY  # noqa: E402
 # Import order matters: utils.kb_builder (torch/faiss/sentence-transformers)
-# MUST be imported before utils.llm_client (google-generativeai/grpc) -- the
-# reverse order segfaults on Windows (native-library load-order conflict,
+# MUST come before utils.llm_client (google-generativeai/grpc) -- the reverse
+# order segfaults on Windows (a native-library load-order conflict,
 # found 2026-08-18).
 from utils.kb_builder import KnowledgeBase  # noqa: E402
 from utils.llm_client import GeminiClient  # noqa: E402
@@ -24,7 +24,7 @@ from config import HYBRID_ALPHA  # noqa: E402
 
 OUT_PATH = THIS_DIR / "results" / "arda_sr_final_results.json"
 
-# ── Fix 1: AQR routing ──────────────────────────────────────────────────
+# ── Fix 1: routing in AQR ───────────────────────────────────────────────
 FIXED_AQR_PROMPT = """\
 You are an AQR (Adaptive Query Router) for a government transmigration QA system.
 
@@ -72,31 +72,32 @@ class FixedAQR(AQR):
                 "features": features, "hybrid_path": hybrid, "reasoning": result.get("reasoning", "")}
 
 
-# ── Fixes 2-4: retrieval (no year filter + entity boost + 3.docx relabel) ─
-# Fix 10 (found 2026-08-19, re-auditing why "Kerang" queries kept failing
-# retrieval across the whole session despite fixes 3/5/9): the original
-# pattern only matched the ALL-CAPS header style used by most profile
-# files ("KAWASAN TRANSMIGRASI MUTIARA – MUNA, SULTRA"). kerang1.txt (and
-# several others) instead open with a Title-Case variant ("Kerang – Paser,
-# Kalimantan Timur\nKawasan Transmigrasi Kerang memiliki luas..."), which
-# the case-sensitive "KAWASAN TRANSMIGRASI" trigger never matched -- so
-# "KERANG" never made it into entity_names at all, and no boost/fix 5/fix 9
-# mechanism downstream could ever engage for it, regardless of how much
-# those mechanisms were tuned. Naively adding re.IGNORECASE to the whole
-# pattern was tried and rejected: it also matches "kawasan transmigrasi X"
-# giving mid-sentence trigger phrase (frequent in regulation PDFs/prose
-# docs), and un-anchored from case the greedy name-capture group swallows
-# whole clauses ("SELAUT MEMILIKI AKSES INTERNET..."). Fix: keep the NAME
-# capture case-sensitive (so it still stops at the first lowercase-led
-# word, bounding it to real Title-Case name tokens) and only add
-# "Kawasan Transmigrasi" as a second, explicit trigger-phrase alternative
-# -- covers the one real casing variant seen in this corpus without
-# opening up full case-insensitivity. Verified: single-kawasan file count
-# (_build_file_entities' size==1 cohort) went 12 -> 41, correctly picking
-# up kerang1.txt -> KERANG and ~28 other previously-invisible profile
-# files, while known multi-kawasan compendium files (3.docx,
-# EBOOK_SIPUKAT_Profil_Kawasan.pdf, pengantar_kriteria_kawasan.docx, ...)
-# still correctly resolve to size > 1 and stay excluded from the boost.
+# ── Fixes 2-4: retrieval (no year filter, entity boost, 3.docx relabel) ──
+# Fix 10 (found 2026-08-19, while re-auditing why "Kerang" queries kept
+# failing retrieval for the entire session despite fixes 3/5/9): the
+# original pattern matched only the ALL-CAPS header style most profile
+# files use ("KAWASAN TRANSMIGRASI MUTIARA – MUNA, SULTRA"). kerang1.txt
+# (and several others) instead begin with a Title-Case variant ("Kerang
+# – Paser, Kalimantan Timur\nKawasan Transmigrasi Kerang memiliki
+# luas..."), which the case-sensitive "KAWASAN TRANSMIGRASI" trigger never
+# caught -- so "KERANG" never entered entity_names at all, and no
+# boost/fix 5/fix 9 mechanism downstream could engage for it, no matter
+# how much those mechanisms were tuned. Naively putting re.IGNORECASE on
+# the whole pattern was tried and rejected: it also matches mid-sentence
+# "kawasan transmigrasi X" trigger phrases (common in regulation PDFs and
+# prose docs), and once case is un-anchored the greedy name-capture group
+# swallows whole clauses ("SELAUT MEMILIKI AKSES INTERNET..."). Fix: leave
+# the NAME capture case-sensitive (so it still stops at the first
+# lowercase-led word, bounding it to genuine Title-Case name tokens) and
+# merely add "Kawasan Transmigrasi" as a second, explicit trigger-phrase
+# alternative -- this covers the one real casing variant in the corpus
+# without opening up full case-insensitivity. Verified: the
+# single-kawasan file count (_build_file_entities' size==1 cohort) rose
+# 12 -> 41, correctly picking up kerang1.txt -> KERANG and ~28 other
+# previously-invisible profile files, while known multi-kawasan
+# compendium files (3.docx, EBOOK_SIPUKAT_Profil_Kawasan.pdf,
+# pengantar_kriteria_kawasan.docx, ...) still resolve to size > 1 and stay
+# excluded from the boost.
 HEADER_RE = re.compile(
     r"(?:KAWASAN TRANSMIGRASI|Kawasan Transmigrasi) "
     r"([A-Z][A-Za-z]*(?:[ –—-][A-Z][A-Za-z]*){0,3})"
@@ -104,20 +105,21 @@ HEADER_RE = re.compile(
 _JUNK_NAMES = {
     "DAN", "DI", "KE", "YANG", "DENGAN", "PADA", "ATAU", "SERTA",
     # fix 10 fallout: the Title-Case trigger variant also fires on generic
-    # words/short truncated fragments that happen to follow "Kawasan
-    # Transmigrasi" in incidental prose (regulation PDFs, cross-references)
-    # rather than a real kawasan name. Each of these, left in, would match
-    # as a substring inside nearly every file's text (e.g. "TAHUN" appears
-    # in "IPKT Tahun 2023" everywhere) and pollute _build_file_entities'
-    # per-file entity sets from size==1 to size>1, silently EXCLUDING the
-    # genuine single-kawasan files (muna.txt, kerang1.txt, ...) that fix 9
-    # depends on -- caught by re-testing qa_0206/qa_0216 immediately after
-    # landing fix 10 and finding muna.txt had regressed out of file_entities
-    # entirely. "LAMUNTI"/"KETUNGAU H"/"MUARA TA"/"SALI" are truncated
-    # duplicates of a longer valid name (LAMUNTI DADAHUP, KETUNGAU HULU,
-    # MUARA TAKUNG-KAMANG BARU, SALIM BATU) picked up from a differently
-    # line-wrapped occurrence of the same header elsewhere in the corpus;
-    # dropping the short fragment leaves the full name intact.
+    # words and short truncated fragments that merely happen to follow
+    # "Kawasan Transmigrasi" in incidental prose (regulation PDFs,
+    # cross-references) instead of a real kawasan name. Left in, each of
+    # these would match as a substring in nearly every file's text (e.g.
+    # "TAHUN" shows up in "IPKT Tahun 2023" everywhere) and pollute
+    # _build_file_entities' per-file entity sets from size==1 to size>1,
+    # silently EXCLUDING the genuine single-kawasan files (muna.txt,
+    # kerang1.txt, ...) that fix 9 depends on -- this was caught by
+    # re-testing qa_0206/qa_0216 right after landing fix 10 and finding
+    # muna.txt had regressed entirely out of file_entities. "LAMUNTI"/
+    # "KETUNGAU H"/"MUARA TA"/"SALI" are truncated duplicates of a longer
+    # valid name (LAMUNTI DADAHUP, KETUNGAU HULU, MUARA TAKUNG-KAMANG
+    # BARU, SALIM BATU) picked up from a differently line-wrapped
+    # occurrence of the same header elsewhere in the corpus; dropping the
+    # short fragment leaves the full name intact.
     "TAHUN", "PASAL", "DELINIASI", "RPJMN", "PRIORITAS NASIONAL",
     "LAMUNTI", "KETUNGAU H", "MUARA TA", "SALI",
 }
@@ -128,7 +130,7 @@ LIST_HEADER_RE = re.compile(r"\d+\)\s*[A-Z][\w –—-]{2,40}?\s*[–—-]")
 def _build_entity_names(kb: KnowledgeBase) -> set:
     names = set()
     for c in kb.chunks:
-        for m in HEADER_RE.finditer(c.get("text", "")):  # fix 10: all matches, not just first
+        for m in HEADER_RE.finditer(c.get("text", "")):  # fix 10: every match, not only the first
             name = m.group(1).strip().upper()
             if name in _JUNK_NAMES or len(name) < 4:
                 continue
@@ -137,53 +139,53 @@ def _build_entity_names(kb: KnowledgeBase) -> set:
 
 
 def _build_file_entities(kb: KnowledgeBase, entity_names: set) -> dict:
-    """Map filename -> the single entity (kawasan) name that file is about,
-    for files that are genuinely about exactly one kawasan (fix 5, found
-    2026-08-19 while re-judging the 35 queries de-ambiguated in
-    data/qa_dataset.json).
+    """Maps filename -> the one entity (kawasan) name that a file concerns,
+    for files genuinely about exactly one kawasan (fix 5, found 2026-08-19
+    while re-judging the 35 queries de-ambiguated in data/qa_dataset.json).
 
-    Why "exactly one": a single-kawasan source file's "KAWASAN TRANSMIGRASI
-    X" header -- the only text fix 3's entity boost can match on -- appears
-    in chunk 0 ONLY, so continuation chunks (chunk 1, 2, ...) holding the
-    actual numeric facts a query asks about don't repeat the name and lose
-    the top-5 slot to wrong-kawasan chunks, even when chunk 0 of the RIGHT
-    file already ranked #1 (qa_0206/0209/0212 all showed this: right doc
-    found, right chunk missing, DDA fell back to a hallucinated "direct"
-    draft or an honest-but-wrong refusal).
+    Why "exactly one": the "KAWASAN TRANSMIGRASI X" header of a
+    single-kawasan source file -- the only text fix 3's entity boost can
+    match on -- shows up in chunk 0 ONLY, so continuation chunks (chunk 1,
+    2, ...) that hold the actual numeric facts a query asks about never
+    repeat the name and surrender the top-5 slot to wrong-kawasan chunks,
+    even when chunk 0 of the RIGHT file already ranked #1
+    (qa_0206/0209/0212 all displayed this: right doc found, right chunk
+    missing, DDA fell back to a hallucinated "direct" draft or an
+    honest-but-wrong refusal).
 
-    A first version of this fix collected ALL entity names found anywhere
+    An initial version of this fix gathered ALL entity names found anywhere
     in a file's chunks with no cap. That over-fired on multi-kawasan
     reference/compendium files that name many kawasan in passing as
     examples (EBOOK_SIPUKAT_Profil_Kawasan.pdf mentions 24 kawasan across
     its ~200 chunks, Selaut.docx mentions 2) -- every one of THEIR chunks
-    then got boosted for ANY query naming ANY of those kawasan, flooding
-    top-5 with irrelevant general-reference chunks and pushing the actual
+    was then boosted for ANY query naming ANY of those kawasan, flooding
+    top-5 with irrelevant general-reference chunks and shoving the actual
     per-kawasan profile file out entirely (regression observed on qa_0209:
     mas perkasa.docx dropped out of top-5 completely, replaced by 5x
     EBOOK_SIPUKAT_Profil_Kawasan.pdf chunks). Capping to files whose
-    aggregate entity set has size == 1 fixes this: every genuine
+    aggregate entity set has size == 1 remedies this: every genuine
     single-kawasan profile file (muna.txt, mambi.txt, daduhub.txt, ... --
     verified 12/12 of the files behind the 35 de-ambiguated queries) maps
-    to exactly one name, while compendium/reference files (size 2-38) are
-    excluded from the file-wide boost and only get it via fix 3's original
-    per-chunk-text check.
+    to exactly one name, whereas compendium/reference files (size 2-38) are
+    excluded from the file-wide boost and receive it only through fix 3's
+    original per-chunk-text check.
 
-    Fix 10 addendum: this used to detect a mention via bare substring
-    (`n in text.upper()`) against the full entity_names list. That was safe
-    while every entity name came from the ALL-CAPS-only header pattern
-    (multi-word names like "MUTIARA", "GERBANG MAS PERKASA" essentially
-    never collide with ordinary prose). Once fix 10 widened entity
-    extraction to also catch Title-Case headers, short single-word names
-    that are also ordinary Indonesian words entered the set -- "KERANG"
-    (kawasan name) is also the word for "shellfish" -- and the bare
-    substring check started matching it inside unrelated PDFs (a cacao
-    cultivation guide, a regional-cooperation regulation, ...) that happen
-    to use the word "kerang" once, wrongly making those files claim
+    Fix 10 addendum: this previously detected a mention through bare
+    substring (`n in text.upper()`) against the full entity_names list.
+    That was safe while every entity name originated from the ALL-CAPS-only
+    header pattern (multi-word names such as "MUTIARA", "GERBANG MAS
+    PERKASA" essentially never collide with ordinary prose). Once fix 10
+    widened entity extraction to catch Title-Case headers as well, short
+    single-word names that are also ordinary Indonesian words entered the
+    set -- "KERANG" (kawasan name) doubles as the word for "shellfish" --
+    and the bare substring check began matching it inside unrelated PDFs (a
+    cacao cultivation guide, a regional-cooperation regulation, ...) that
+    happen to use the word "kerang" once, wrongly making those files claim
     KERANG as their entity and breaking the single-file guarantee (fix 9)
-    for the real kerang1.txt. Fix: require the SAME "Kawasan Transmigrasi
-    X" context HEADER_RE already demands for extraction in the first
-    place, rather than a bare word-anywhere check -- a mention only counts
-    if it actually reads as a kawasan reference, not just contains the
+    for the real kerang1.txt. Fix: demand the SAME "Kawasan Transmigrasi
+    X" context HEADER_RE already requires for extraction in the first
+    place, instead of a bare word-anywhere check -- a mention counts only
+    if it genuinely reads as a kawasan reference, not merely contains the
     word."""
     file_entity_sets: dict = {}
     for c in kb.chunks:
@@ -213,10 +215,10 @@ def _build_3docx_label_map(kb: KnowledgeBase) -> dict:
 
 
 class FinalRetriever(HybridRetriever):
-    """HybridRetriever with fixes 2-5 applied: no year hard-filter,
-    named-entity boost (all entities mentioned, not just the longest),
-    3.docx chunk relabeling, and whole-file entity association so every
-    chunk of the correct kawasan's file gets boosted, not just its header
+    """HybridRetriever carrying fixes 2-5: no hard year filter, a
+    named-entity boost (every entity mentioned, not merely the longest),
+    3.docx chunk relabeling, and whole-file entity association so all
+    chunks of the correct kawasan's file get boosted, not only its header
     chunk."""
 
     def __init__(self, kb: KnowledgeBase):
@@ -238,28 +240,28 @@ class FinalRetriever(HybridRetriever):
 
     def retrieve(self, query: str, k: int = 5, metadata_filter=None):
         chunks = self.kb.chunks
-        entities = self._query_entities(query)  # fix 3 (moved earlier for fix 11, see below)
+        entities = self._query_entities(query)  # fix 3 (hoisted earlier for fix 11, see below)
         candidate_ids = list(range(len(chunks)))
         if metadata_filter:
             candidate_ids = [i for i, c in enumerate(chunks) if self._matches(c, metadata_filter)] or candidate_ids
             # Fix 11: metadata_filter (e.g. {"commodities": "kelapa sawit"},
-            # extracted from the query's own wording) hard-EXCLUDES any
-            # chunk whose stored commodities list doesn't contain that
-            # word -- found 2026-08-19 chasing why qa_0216 (Kerang palm-oil
-            # production) still failed even after fix 9/10 fixed retrieval
-            # for every other Kerang query: kerang1.txt chunk 2 literally
-            # contains "sawit 11 ton/ha (2.039.959 ton/tahun)" -- the exact
-            # reference answer -- but that chunk's commodities tag is only
-            # ["jagung", "sapi"] (an incomplete/wrong tag from however the
-            # KB was built), so the hard filter dropped all of kerang1.txt
-            # from candidate_ids before entity boost or fix 9's guarantee
-            # ever got a chance to run. Same root shape as fix 2 (which
+            # pulled from the query's own wording) hard-EXCLUDES any chunk
+            # whose stored commodities list lacks that word -- found
+            # 2026-08-19 while chasing why qa_0216 (Kerang palm-oil
+            # production) still failed even after fix 9/10 had fixed
+            # retrieval for every other Kerang query: kerang1.txt chunk 2
+            # literally holds "sawit 11 ton/ha (2.039.959 ton/tahun)" -- the
+            # exact reference answer -- yet that chunk's commodities tag is
+            # only ["jagung", "sapi"] (an incomplete/wrong tag from however
+            # the KB was built), so the hard filter removed all of
+            # kerang1.txt from candidate_ids before entity boost or fix 9's
+            # guarantee could ever run. Same root shape as fix 2 (which
             # already had to remove an unreliable year hard-filter) -- a
             # chunk-level metadata tag that doesn't reliably reflect the
             # chunk's actual content shouldn't be allowed to silently veto
-            # a chunk before ranking. Rather than drop the commodity filter
-            # entirely (it likely still helps in the common case with no
-            # confident entity match), only override it when there IS a
+            # a chunk before ranking. Instead of dropping the commodity
+            # filter entirely (it likely still helps in the common case with
+            # no confident entity match), override it only when there IS a
             # single confidently-matched kawasan file: re-admit that file's
             # own chunk ids even if the metadata filter had excluded them,
             # since a confirmed single-kawasan match is strictly more
@@ -300,25 +302,25 @@ class FinalRetriever(HybridRetriever):
 
         scored.sort(key=lambda x: -x[1])
 
-        # Fix 9: a flat per-chunk boost still makes each chunk of the
-        # matched file compete individually against the whole corpus for a
-        # k=5 slot -- found 2026-08-19 re-auditing why qa_0206 (Kawasan
-        # Mutiara klinik count) still failed post-fix-5: chunk 0 (header)
-        # scored 1.21 and took the #1 slot, but chunk 2 (the one actually
-        # containing "31 klinik") only reached 0.556 after the +0.5 boost,
-        # missing the #5 cutoff of 0.594 by a mere 0.038 -- its BASE score
-        # was low because that chunk's text is a dense mid-paragraph list
-        # of health-facility figures that doesn't itself repeat "Mutiara"
-        # or read as a clear semantic match for a "how many klinik"
-        # question. Rather than keep raising ENTITY_BOOST as a blunt lever
-        # (which risks flooding results the way the uncapped fix-5 version
-        # did), when the query resolves to EXACTLY ONE confidently-matched
-        # single-kawasan file, guarantee that file's own chunks fill as
-        # many of the k slots as it has (small files: 3-10 chunks per the
-        # corpus, so this rarely crowds out everything else) -- since a
-        # single unambiguous file match means every one of its chunks is
-        # relevant by construction, there's no reason to let organic score
-        # gate which of ITS OWN chunks the caller gets to see.
+        # Fix 9: a flat per-chunk boost still leaves each chunk of the
+        # matched file competing individually against the whole corpus for
+        # one k=5 slot -- found 2026-08-19 while re-auditing why qa_0206
+        # (Kawasan Mutiara klinik count) still failed post-fix-5: chunk 0
+        # (header) scored 1.21 and took the #1 slot, yet chunk 2 (the one
+        # actually containing "31 klinik") only reached 0.556 after the
+        # +0.5 boost, missing the #5 cutoff of 0.594 by a mere 0.038 -- its
+        # BASE score was low because that chunk's text is a dense
+        # mid-paragraph list of health-facility figures that neither repeats
+        # "Mutiara" nor reads as a clear semantic match for a "how many
+        # klinik" question. Instead of continuing to raise ENTITY_BOOST as a
+        # blunt lever (which risks flooding results the way the uncapped
+        # fix-5 version did), when the query resolves to EXACTLY ONE
+        # confidently-matched single-kawasan file, guarantee that file's own
+        # chunks fill as many of the k slots as it has (small files: 3-10
+        # chunks per the corpus, so this seldom crowds out everything else)
+        # -- since a single unambiguous file match means every one of its
+        # chunks is relevant by construction, there's no reason to let
+        # organic score gate which of ITS OWN chunks the caller gets to see.
         matched_files = {f for f, e in self.file_entities.items() if e in entities} if entities else set()
         if len(matched_files) == 1:
             target_file = next(iter(matched_files))
@@ -339,40 +341,41 @@ class FinalRetriever(HybridRetriever):
         return results
 
 
-# ── Fix 6: DDA prompt hardening (retrieval-extraction miss + parametric
-#    over-confidence) ────────────────────────────────────────────────────
-# Found 2026-08-19 investigating qa_0245 (Sumalata -> ibu kota kecamatan
-# distance) and qa_0243 (village "Salubanua" sub-district). Root cause is
-# NOT retrieval in either case -- in qa_0245 the correct chunk (sumlatala.txt
-# chunk 1, containing "...ke ibu kota kecamatan 4,6 kilometer") was already
-# in the top-5 evidence, but the retrieval-grounded draft still answered
-# "informasi tidak mencukupi" (failed to extract the right one of three
-# co-located distance figures in the same passage -- kecamatan/kabupaten/
-# provinsi all listed together). DDA's arbitrator then had to choose between
-# an honest-but-empty retrieval draft and a confident parametric draft that
-# guessed a specific wrong number ("1 kilometer") -- and picked the
-# confident wrong guess (score_dir 0.35 > score_ret 0.25, margin 0.05).
-# qa_0243 is the same failure shape one step further: retrieval found
-# nothing relevant at all (query never named a kawasan), so the parametric
-# draft filled in with a real Indonesian village that happens to share a
-# name, stated as fact.
+# ── Fix 6: hardening the DDA prompts (retrieval-extraction miss plus
+#    parametric over-confidence) ────────────────────────────────────────
+# Found 2026-08-19 while investigating qa_0245 (Sumalata -> ibu kota
+# kecamatan distance) and qa_0243 (village "Salubanua" sub-district). The
+# root cause is NOT retrieval in either case -- in qa_0245 the correct
+# chunk (sumlatala.txt chunk 1, containing "...ke ibu kota kecamatan 4,6
+# kilometer") was already among the top-5 evidence, yet the
+# retrieval-grounded draft still answered "informasi tidak mencukupi"
+# (it failed to extract the right one of three co-located distance figures
+# in the same passage -- kecamatan/kabupaten/provinsi all listed
+# together). DDA's arbitrator then had to pick between an honest-but-empty
+# retrieval draft and a confident parametric draft that guessed a specific
+# wrong number ("1 kilometer") -- and it chose the confident wrong guess
+# (score_dir 0.35 > score_ret 0.25, margin 0.05). qa_0243 is the same
+# failure shape one step further: retrieval surfaced nothing relevant at
+# all (the query never named a kawasan), so the parametric draft filled in
+# with a real Indonesian village that happens to share a name, asserted as
+# fact.
 #
-# This is a generation-quality problem, not a lookup problem, so the fix is
-# to change what the two drafts are ASKED to do, not to add keyword/regex
+# This is a generation-quality problem rather than a lookup problem, so the
+# fix changes what the two drafts are ASKED to do, not keyword/regex
 # patching on their output:
-#   - RETRIEVAL_PROMPT: explicitly instruct the model to scan every
-#     evidence passage for ALL numbers/labels before concluding a fact is
-#     absent -- co-located figures for a different attribute (e.g. distance
-#     to kabupaten sitting next to distance to kecamatan) are the single
-#     most common extraction miss observed, so call that pattern out by
-#     name as something to check for, not just "read carefully."
-#   - DIRECT_PROMPT: explicitly instruct the model that any SPECIFIC,
-#     checkable claim about this domain (a distance, a headcount, which
-#     sub-district a named village sits in, ...) that it is not certain of
-#     from training data must be flagged as uncertain rather than stated as
-#     fact -- closing the exact gap that let a real-but-unrelated
-#     "Salubanua" surface as a confident answer.
-# Both changes operate on the model's own reasoning about what it knows and
+#   - RETRIEVAL_PROMPT: explicitly tell the model to scan every evidence
+#     passage for ALL numbers/labels before concluding a fact is absent --
+#     co-located figures for a different attribute (e.g. distance to
+#     kabupaten sitting beside distance to kecamatan) are the single most
+#     common extraction miss observed, so that pattern is called out by
+#     name as something to check, not merely "read carefully."
+#   - DIRECT_PROMPT: explicitly tell the model that any SPECIFIC, checkable
+#     claim about this domain (a distance, a headcount, which sub-district
+#     a named village sits in, ...) it is not certain of from training data
+#     must be flagged as uncertain rather than stated as fact -- closing
+#     the exact gap that let a real-but-unrelated "Salubanua" surface as a
+#     confident answer.
+# Both changes act on the model's own reasoning about what it knows and
 # doesn't -- no string-matching over the output is added.
 HARDENED_DIRECT_PROMPT = """\
 You are a knowledgeable assistant for the Indonesian transmigration domain.
@@ -440,28 +443,28 @@ Answer:"""
 
 class HardenedDDA(DDA):
     """DDA with fix 6 applied: hardened DIRECT/RETRIEVAL prompts (see
-    module docstring fix 6) plus an evidence-truncation fix, to reduce
+    module docstring fix 6) plus an evidence-truncation fix, meant to curb
     parametric over-confidence and retrieval-extraction misses. Scoring
     (_score_utility/_weighted_utility) and the arbitration rule are
     untouched -- the fix targets what each draft is asked to do (and what
-    text it's actually shown), not how they're judged or picked.
+    text it is actually shown), not how the drafts are judged or picked.
 
-    The truncation fix matters more than it looks: tracing WHY qa_0209's
-    retrieval draft said "not mentioned" despite mas perkasa.docx chunk 2
-    being in evidence found that DDA._format_evidence() cuts every evidence
-    chunk to `text[:600]` -- and chunk 2 is 820 chars, with its "F.
-    Fasilitas Kesehatan / Di kawasan terdapat 4 unit puskesmas" line sitting
+    The truncation fix matters more than it appears: tracing WHY qa_0209's
+    retrieval draft said "not mentioned" even though mas perkasa.docx chunk
+    2 was in evidence revealed that DDA._format_evidence() trims every
+    evidence chunk to `text[:600]` -- and chunk 2 is 820 chars, with its "F.
+    Fasilitas Kesehatan / Di kawasan terdapat 4 unit puskesmas" line lying
     right after the 600-char cutoff, so the model was never shown the
-    answer at all. Checked corpus-wide: 1092 of 1175 chunks (93%) exceed
-    600 chars, so this wasn't a one-off -- it was silently truncating the
-    answer out of evidence on the majority of retrievals. 5 evidence items
-    at up to ~820 chars each is ~4-5K chars total, trivial for the model's
-    context window, so there is no real reason to truncate this
-    aggressively; the fix raises the per-chunk cap to 2000 (comfortably
-    above the corpus's observed max of 820, leaving headroom if a longer
-    chunk ever appears in a rebuilt KB) rather than removing the cap
-    outright, keeping a safety bound against a single pathological chunk
-    blowing up the prompt."""
+    answer at all. Checked across the corpus: 1092 of 1175 chunks (93%)
+    exceed 600 chars, so this was no one-off -- it silently truncated the
+    answer out of evidence on most retrievals. 5 evidence items at up to
+    ~820 chars each is ~4-5K chars total, trivial for the model's context
+    window, so truncating this aggressively has no real justification; the
+    fix raises the per-chunk cap to 2000 (comfortably above the corpus's
+    observed max of 820, leaving headroom should a longer chunk ever appear
+    in a rebuilt KB) rather than removing the cap outright, keeping a
+    safety bound against a single pathological chunk blowing up the
+    prompt."""
 
     EVIDENCE_CHAR_CAP = 2000
 

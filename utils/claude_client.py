@@ -1,21 +1,21 @@
 """
-Claude API wrapper (official `anthropic` SDK) for QA generation.
+Wrapper for the Claude API (official `anthropic` SDK) that handles QA generation.
 
-Used for QA dataset generation, per Section 2.4.1 ("The QAs were generated
-using claude-haiku-4-5"). All other components (ARDA-SR generation, judging,
-baselines) remain on Gemini per config.py — this client is deliberately
-scoped to QA generation only.
+It serves QA dataset generation, per Section 2.4.1 ("The QAs were generated
+using claude-haiku-4-5"). Every other piece (ARDA-SR generation, judging, and
+the baselines) still runs on Gemini via config.py — this client covers QA
+generation alone by design.
 
-Non-streaming: QA generation is short, structured JSON output (batches of
-~15 QA pairs, well under the ~16000-token non-streaming safety threshold), so
-there is no need for the streaming/get_final_message() pattern used for long
-generations.
+Non-streaming: since QA generation emits brief, structured JSON (batches of
+~15 QA pairs, comfortably below the ~16000-token non-streaming safety ceiling),
+the streaming/get_final_message() pattern reserved for long generations is not
+needed here.
 
-JSON output: via prompting (the existing DK_PROMPT/FR_PROMPT/etc. templates
-already instruct "Return ONLY a JSON array"), not output_config.format
-structured outputs — this keeps parity with GeminiClient.generate_json()'s
-regex-fallback parsing so QAGenerator (02_generate_qa.py) works unmodified
-against either client.
+JSON output: obtained through prompting (the current DK_PROMPT/FR_PROMPT/etc.
+templates already say to "Return ONLY a JSON array"), rather than
+output_config.format structured outputs — this keeps it aligned with
+GeminiClient.generate_json()'s regex-fallback parsing, so QAGenerator
+(02_generate_qa.py) runs untouched against either backend.
 """
 
 import time
@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 
 class ClaudeClient:
     """
-    Thin wrapper around anthropic.Anthropic with the same generate()/
-    generate_json() surface as utils.llm_client.GeminiClient, so it's a
-    drop-in replacement for QA generation call sites.
+    A slim wrapper over anthropic.Anthropic exposing the same generate()/
+    generate_json() interface as utils.llm_client.GeminiClient, letting it
+    stand in for QA-generation call sites without changes.
     """
 
     def __init__(self, model: str = CLAUDE_QA_MODEL):
@@ -52,7 +52,7 @@ class ClaudeClient:
         self._last_call = time.time()
 
     def generate(self, prompt: str, max_tokens: int = 2048) -> str:
-        """Generate text from a prompt (non-streaming). Returns raw text string."""
+        """Produce text for a prompt without streaming. Gives back the raw string."""
         self._throttle()
         for attempt in range(MAX_RETRIES):
             try:
@@ -103,7 +103,7 @@ class ClaudeClient:
                     raise
 
     def generate_json(self, prompt: str, max_tokens: int = 2048) -> dict | list:
-        """Generate and parse JSON response. Strips markdown fences if present."""
+        """Produce a response and parse it as JSON, dropping markdown fences when found."""
         raw = self.generate(prompt, max_tokens)
         raw = re.sub(r"```(?:json)?\s*", "", raw).replace("```", "").strip()
         try:

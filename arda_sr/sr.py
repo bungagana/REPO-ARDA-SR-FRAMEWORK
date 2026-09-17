@@ -1,7 +1,7 @@
 """
 SR: Scenario Reasoning
-For policy-scenario queries (mode m4), generates structured scenarios and
-selects the optimal one via Expected Utility maximization.
+Policy-scenario queries (mode m4) get a set of structured scenarios, and the
+best one is chosen by maximizing Expected Utility.
 
 EU(s) = p_success(s) · Utility(s) − λ_SR · Risk(s) · Loss(s)
 s* = argmax_{s ∈ S(q)} EU(s)
@@ -75,7 +75,7 @@ Policy Recommendation:"""
 class SR:
     """
     Scenario Reasoning module.
-    Activated only for policy-scenario queries (mode m4).
+    Only policy-scenario queries (mode m4) trigger it.
     """
 
     def __init__(
@@ -90,33 +90,34 @@ class SR:
 
     def reason(self, query: str, evidence: List[Dict]) -> Dict:
         """
-        Generate scenarios, compute EU, select optimal, produce policy answer.
+        Build the scenarios, score each by EU, pick the best, and write the
+        policy answer.
 
         Returns:
           answer, scenarios, optimal_scenario, eu_scores, sr_compliant
         """
         evidence_text = self._format_evidence(evidence)
 
-        # ── 1. Generate scenario set S(q) ──────────────────────────────────
+        # ── 1. Build the scenario set S(q) ─────────────────────────────────
         scenarios = self._generate_scenarios(query, evidence_text)
         if not scenarios:
             return self._fallback(query)
 
-        # ── 2. Compute EU for each scenario ───────────────────────────────
+        # ── 2. Score each scenario by EU ───────────────────────────────────
         eu_scores = {}
         for s in scenarios:
             eu = self._expected_utility(s)
             eu_scores[s["name"]] = round(eu, 4)
             s["eu"] = round(eu, 4)
 
-        # ── 3. Select optimal scenario ────────────────────────────────────
+        # ── 3. Pick the best scenario ──────────────────────────────────────
         optimal = max(scenarios, key=lambda s: s["eu"])
 
-        # ── 4. Generate policy-structured answer ──────────────────────────
+        # ── 4. Write the policy-structured answer ──────────────────────────
         scenarios_text = self._format_scenarios(scenarios)
         answer = self._generate_answer(query, optimal, scenarios_text, evidence_text)
 
-        # SR compliance: answer must contain structured elements
+        # SR compliance: the answer has to include structured elements
         compliant = self._check_compliance(answer)
 
         return {

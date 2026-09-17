@@ -1,8 +1,8 @@
 """
 Baseline: IRCoT — Interleaving Retrieval with Chain-of-Thought Reasoning.
 
-Interleaves CoT reasoning steps with retrieval to solve multi-hop questions.
-Each reasoning step may trigger a targeted retrieval.
+CoT reasoning steps and retrieval alternate so that multi-hop questions can
+be solved. Any given reasoning step can fire off a focused retrieval.
 Reference: Trivedi et al. 2023, ACL (Scopus indexed).
 """
 
@@ -20,15 +20,16 @@ logger = logging.getLogger(__name__)
 
 class IRCoTPipeline(BasePipeline):
     """
-    IRCoT: Interleaving Retrieval + CoT for multi-hop question answering.
-    At each CoT step, retrieves documents relevant to the current reasoning state.
+    IRCoT: retrieval and CoT interleave for multi-hop question answering.
+    Each CoT step pulls documents tied to the reasoning state at that point.
 
-    Fidelity note: the original IRCoT (Trivedi et al. 2023) retrieves after
-    every generated CoT sentence, deterministically. This implementation
-    instead lets the LLM itself decide per step whether to emit
-    "RETRIEVE: <query>" or "ANSWER: <final answer>" — a minor mechanism
-    difference (LLM-decided vs. always-on retrieval cadence) worth noting
-    when comparing against the original paper's reported behavior.
+    Fidelity note: IRCoT as originally described (Trivedi et al. 2023)
+    fetches documents after each generated CoT sentence, in a deterministic
+    manner. Here the LLM is instead allowed to choose at every step between
+    emitting "RETRIEVE: <query>" and "ANSWER: <final answer>" — a small
+    mechanism delta (LLM-selected versus always-on retrieval cadence) that
+    merits a mention whenever comparisons are drawn with the original
+    paper's reported behavior.
     """
 
     name = "ircot"
@@ -59,7 +60,7 @@ Next reasoning step:"""
         evidence_all: List[Dict]   = []
 
         try:
-            # Initial retrieval for the original question
+            # First retrieval, using the original question
             initial_evidence = self.retriever.retrieve(query, k=3)
             evidence_all.extend(initial_evidence)
 
@@ -79,23 +80,23 @@ Next reasoning step:"""
 
                 reasoning_steps.append(step_out.strip())
 
-                # Check for ANSWER: signal
+                # Look for the ANSWER: marker
                 answer_match = re.search(r"ANSWER:\s*(.+)", step_out, re.DOTALL | re.IGNORECASE)
                 if answer_match:
                     final_answer = answer_match.group(1).strip()
                     break
 
-                # Check for RETRIEVE: signal
+                # Look for the RETRIEVE: marker
                 retrieve_match = re.search(r"RETRIEVE:\s*(.+?)(?:\n|$)", step_out, re.IGNORECASE)
                 if retrieve_match:
                     sub_query = retrieve_match.group(1).strip()
                     new_evidence = self.retriever.retrieve(sub_query, k=2)
                     evidence_all.extend(new_evidence)
 
-            # If no explicit ANSWER found, extract from last reasoning step
+            # When no explicit ANSWER appears, fall back to the last reasoning step
             if not final_answer and reasoning_steps:
                 last = reasoning_steps[-1]
-                # Remove RETRIEVE lines
+                # Strip out RETRIEVE lines
                 clean = re.sub(r"RETRIEVE:.*?\n?", "", last).strip()
                 final_answer = clean or last
 

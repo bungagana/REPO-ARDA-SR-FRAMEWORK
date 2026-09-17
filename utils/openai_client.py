@@ -1,22 +1,23 @@
 """
-OpenAI API wrapper (official `openai` SDK) for LLM-as-judge evaluation.
+Wrapper for the OpenAI API (official `openai` SDK) that serves LLM-as-judge evaluation.
 
-Used ONLY as an alternative judge model (drop-in for evaluation.llm_judge.LLMJudge),
-so that judging is not done by the same model family (Gemini) that also generates
-the answers being judged — this addresses the "judge is not independent of the
-generator" critique. Generation/retrieval/DDA/SR/AQR all stay on Gemini; QA
-dataset generation stays on Claude Haiku (utils/claude_client.py). This client
-is deliberately scoped to judging only.
+It is used ONLY as an alternative judge model (a drop-in for evaluation.llm_judge.LLMJudge),
+so judging is not carried out by the very model family (Gemini) that also
+generates the answers under judgment — this answers the "judge is not
+independent of the generator" critique. Generation/retrieval/DDA/SR/AQR all
+remain on Gemini; QA dataset generation remains on Claude Haiku
+(utils/claude_client.py). This client is limited to judging by design.
 
-Uses the Responses API (`client.responses.create`), the current recommended
-endpoint for GPT-5.x models, with `reasoning: {"effort": ...}` — judging is a
-short structured-JSON scoring task, so a low reasoning effort is used by
-default (see config.GPT_JUDGE_REASONING_EFFORT).
+Uses the Responses API (`client.responses.create`), the endpoint currently
+recommended for GPT-5.x models, together with `reasoning: {"effort": ...}` —
+judging is a short structured-JSON scoring task, so the default reasoning
+effort is low (see config.GPT_JUDGE_REASONING_EFFORT).
 
-JSON output: via prompting (same convention as GeminiClient.generate_json() /
-ClaudeClient.generate_json()) so LLMJudge and QAValidator work unmodified
-against this client too — no SDK-specific structured-output schema is used,
-to keep behavior identical (and therefore comparable) across judge backends.
+JSON output: produced through prompting (the same convention as
+GeminiClient.generate_json() / ClaudeClient.generate_json()) so that LLMJudge
+and QAValidator run untouched against this client too — no SDK-specific
+structured-output schema is employed, keeping behavior identical (and thus
+comparable) across judge backends.
 """
 
 import time
@@ -34,9 +35,10 @@ logger = logging.getLogger(__name__)
 
 class GPTJudgeClient:
     """
-    Thin wrapper around openai.OpenAI with the same generate()/generate_json()
-    surface as utils.llm_client.GeminiClient and utils.claude_client.ClaudeClient,
-    so it's a drop-in replacement for evaluation.llm_judge.LLMJudge(client=...).
+    A slim wrapper around openai.OpenAI exposing the same generate()/
+    generate_json() interface as utils.llm_client.GeminiClient and
+    utils.claude_client.ClaudeClient, letting it stand in for
+    evaluation.llm_judge.LLMJudge(client=...).
     """
 
     def __init__(self, model: str = GPT_JUDGE_MODEL, reasoning_effort: str = GPT_JUDGE_REASONING_EFFORT):
@@ -54,7 +56,7 @@ class GPTJudgeClient:
         self._last_call = time.time()
 
     def generate(self, prompt: str, max_tokens: int = 2048) -> str:
-        """Generate text from a prompt (non-streaming). Returns raw text string."""
+        """Produce text for a prompt without streaming. Gives back the raw string."""
         self._throttle()
         for attempt in range(MAX_RETRIES):
             try:
@@ -66,7 +68,7 @@ class GPTJudgeClient:
                 )
                 text = getattr(response, "output_text", None)
                 if text is None:
-                    # Fallback: walk the output items for the first text part.
+                    # Fallback: scan the output items until the first text part turns up.
                     text = ""
                     for item in getattr(response, "output", []) or []:
                         for part in getattr(item, "content", []) or []:
@@ -109,7 +111,7 @@ class GPTJudgeClient:
                     raise
 
     def generate_json(self, prompt: str, max_tokens: int = 2048) -> dict | list:
-        """Generate and parse JSON response. Strips markdown fences if present."""
+        """Produce a response and parse it as JSON, dropping markdown fences when found."""
         raw = self.generate(prompt, max_tokens)
         raw = re.sub(r"```(?:json)?\s*", "", raw).replace("```", "").strip()
         try:

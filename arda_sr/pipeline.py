@@ -1,10 +1,10 @@
 """
 ARDA-SR end-to-end inference pipeline.
-Implements Algorithm 1 from the paper.
+This is the implementation of Algorithm 1 from the paper.
 
 (q, D) → a*  via:
   1. AQR  — mode routing
-  2. Retrieval — evidence construction (when required)
+  2. Retrieval — building evidence (only when needed)
   3. DDA  — dual-draft arbitration (non-policy queries)
   4. SR   — policy-scenario reasoning (m4 queries)
 """
@@ -25,12 +25,12 @@ logger = logging.getLogger(__name__)
 
 RETRIEVAL_MODES = {"m2", "m3", "m4"}
 
-# Same phrase list as DDA._is_refusal() (arda_sr/dda.py) — reused here because
-# the no-DDA ablation fallback path (_simple_generate) used to hardcode
-# is_refusal=False unconditionally, which silently forced FRR to 0.0 for any
-# ablation variant with use_dda=False (V0/V1/V2). Kept as a free function
-# (not imported from DDA) so this module has no import-time dependency on a
-# DDA instance existing.
+# Mirrors the phrase list in DDA._is_refusal() (arda_sr/dda.py). It lives here
+# because the no-DDA ablation fallback path (_simple_generate) once hardcoded
+# is_refusal=False with no conditions, which quietly pinned FRR at 0.0 for every
+# ablation variant using use_dda=False (V0/V1/V2). A free function, rather than
+# an import from DDA, means this module needs no DDA instance to exist at
+# import time.
 _REFUSAL_PHRASES = [
     "i don't have", "i do not have", "tidak memiliki informasi",
     "tidak dapat menjawab", "saya tidak tahu", "tidak ada informasi",
@@ -51,7 +51,7 @@ def _looks_like_refusal(text: str) -> bool:
 
 class ARDASRPipeline:
     """
-    Full ARDA-SR inference pipeline.
+    Complete ARDA-SR inference pipeline.
 
     Usage:
         pipeline = ARDASRPipeline(kb)
@@ -79,8 +79,8 @@ class ARDASRPipeline:
 
     def run(self, query: str, reference_answer: str = "", k: int = TOP_K) -> Dict:
         """
-        Run the full ARDA-SR pipeline.
-        Returns a result dict ready for evaluation.
+        Execute the whole ARDA-SR pipeline.
+        Gives back a result dict ready for evaluation.
         """
         t_start = time.time()
         result = {
@@ -97,11 +97,11 @@ class ARDASRPipeline:
             "latency_s":  0.0,
         }
 
-        # ── Step 1: AQR routing ──────────────────────────────────────────
+        # ── Step 1: route with AQR ───────────────────────────────────────
         if self.aqr is not None:
             routing = self.aqr.classify(query)
         else:
-            # Ablation: no AQR → default to m2 (always retrieve)
+            # Ablation: AQR off → fall back to m2 (always retrieve)
             routing = {"mode": "m2", "mode_probs": {}, "entropy": 0.0,
                        "features": {}, "hybrid_path": False, "reasoning": "AQR disabled"}
 
@@ -109,7 +109,7 @@ class ARDASRPipeline:
         result["mode"]    = mode
         result["routing"] = routing
 
-        # ── Step 2: Retrieval (when required) ────────────────────────────
+        # ── Step 2: retrieval (only when required) ───────────────────────
         evidence: List[Dict] = []
         if mode in RETRIEVAL_MODES or routing.get("hybrid_path"):
             meta_filter = HybridRetriever.extract_metadata_from_query(query)
@@ -118,14 +118,14 @@ class ARDASRPipeline:
 
         result["hit_at_k"] = len(evidence) > 0
 
-        # ── Step 3a: SR for policy-scenario queries ──────────────────────
+        # ── Step 3a: run SR on policy-scenario queries ───────────────────
         if mode == "m4" and self.sr is not None:
             sr_out = self.sr.reason(query, evidence)
             result["answer"]     = sr_out["answer"]
             result["sr_info"]   = sr_out
             result["is_refusal"] = not bool(sr_out["answer"].strip())
 
-        # ── Step 3b: DDA for all other queries ───────────────────────────
+        # ── Step 3b: run DDA on everything else ──────────────────────────
         else:
             if self.dda is not None:
                 dda_out = self.dda.arbitrate(query, evidence, reference_answer)
@@ -133,7 +133,7 @@ class ARDASRPipeline:
                 result["dda_info"]  = dda_out
                 result["is_refusal"] = dda_out["is_refusal"]
             else:
-                # Ablation: no DDA → simple retrieval-grounded generation
+                # Ablation: DDA off → plain retrieval-grounded generation
                 result["answer"]     = self._simple_generate(query, evidence)
                 result["is_refusal"] = _looks_like_refusal(result["answer"])
 
@@ -141,16 +141,16 @@ class ARDASRPipeline:
         return result
 
     def _simple_generate(self, query: str, evidence: List[Dict]) -> str:
-        """Fallback when DDA is disabled (ablation V0/V1/V2).
+        """Fallback used when DDA is disabled (ablation V0/V1/V2).
 
-        Deliberately does NOT catch generate()'s exceptions (API errors,
-        spending-cap 429s, etc.) — letting them propagate up means the
-        query is never appended to results/checkpointed as "done" (see
-        generate_resumable() in run_ablation_full.py), so a resumed run
-        correctly retries it instead of silently recording an empty answer
-        as a completed, judged query. See chat discussion 2026-08-15: the
-        old swallow-and-return-"" behavior let 320/1000 V2 queries get
-        marked complete during a spending-cap outage.
+        generate()'s exceptions (API errors, spending-cap 429s, and so on) are
+        deliberately left uncaught. Letting them propagate upward means the
+        query is never appended to results or checkpointed as "done" (see
+        generate_resumable() in run_ablation_full.py); a resumed run therefore
+        retries it properly instead of recording an empty answer as a finished,
+        judged query. From the 2026-08-15 chat discussion: the old
+        swallow-and-return-"" behavior left 320/1000 V2 queries marked complete
+        during a spending-cap outage.
         """
         if evidence:
             ev_text = "\n\n".join(

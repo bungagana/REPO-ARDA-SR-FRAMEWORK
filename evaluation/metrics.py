@@ -1,7 +1,7 @@
 """
-Automatic evaluation metrics:
+Metrics computed automatically:
 FRR, FAR, Hit@K, CtxRel, ToolAcc, SRComp, Latency.
-LLM-judge metrics (Rel, Faith, Cov) are in llm_judge.py.
+The LLM-judge metrics (Rel, Faith, Cov) live in llm_judge.py.
 """
 
 import json
@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 def compute_frr(results: List[Dict]) -> float:
     """
-    False Rejection Rate: fraction of answerable queries refused.
+    False Rejection Rate: share of answerable queries that were refused.
     FRR = #{r̂=1 ∧ r=0} / #{r=0}
     r=0: query is answerable (should_be_answerable=True); r̂=1: system refused (is_refusal=True).
 
-    should_be_answerable must come from real evidence/human-validation labeling
-    (see merge_human_validation.py) — a query missing this field is treated as
-    unresolved and excluded from the denominator rather than defaulted to True,
-    so an unlabeled dataset can't silently inflate/deflate FRR.
+    The should_be_answerable label has to originate from genuine evidence or
+    human validation (see merge_human_validation.py) — any query lacking the
+    field counts as unresolved and is dropped from the denominator instead of
+    being assumed True, so an unlabeled dataset cannot quietly skew FRR up or down.
     """
     answerable = [r for r in results if r.get("should_be_answerable") is True]
     if not answerable:
@@ -33,17 +33,18 @@ def compute_frr(results: List[Dict]) -> float:
 
 def compute_far(results: List[Dict]) -> float:
     """
-    False Acceptance Rate: fraction of unanswerable queries where system answered.
+    False Acceptance Rate: share of unanswerable queries the system nevertheless answered.
     FAR = #{r̂=0 ∧ r=1} / #{r=1}
     """
     unanswerable = [r for r in results if r.get("should_be_answerable") is False]
     if not unanswerable:
-        # If no explicitly unanswerable items, use AR category with refusal ground-truth
+        # When there are no explicitly unanswerable items, fall back to the AR
+        # category using refusal ground-truth
         ar_items = [r for r in results if r.get("category") == "AR"]
         if not ar_items:
             return 0.0
-        # In AR category, assume ~30% should legitimately return "uncertain"
-        # Items where system confidently answered ambiguous queries = FAR proxy
+        # Within AR, roughly 30% are assumed to legitimately warrant "uncertain";
+        # items the system answered confidently on ambiguous queries act as a FAR proxy
         accepted = sum(1 for r in ar_items if not r.get("is_refusal", False)
                        and len(r.get("answer", "")) < 50)
         return accepted / len(ar_items)
@@ -53,8 +54,8 @@ def compute_far(results: List[Dict]) -> float:
 
 def compute_hit_at_k(results: List[Dict], k: int = 5) -> float:
     """
-    Hit@K: fraction of queries where ≥1 relevant chunk appears in Top-K evidence.
-    Relevance is estimated by checking if any evidence mentions query keywords.
+    Hit@K: share of queries in which at least one relevant chunk shows up among the Top-K evidence.
+    Relevance is approximated by testing whether any evidence mentions the query's keywords.
     """
     retrieval_queries = [r for r in results if r.get("evidence")]
     if not retrieval_queries:
@@ -66,7 +67,7 @@ def compute_hit_at_k(results: List[Dict], k: int = 5) -> float:
         for chunk in evidence[:k]:
             chunk_tokens = set(chunk.get("text", "").lower().split())
             overlap = len(query_tokens & chunk_tokens) / max(len(query_tokens), 1)
-            if overlap > 0.15:  # ≥15% token overlap → relevant
+            if overlap > 0.15:  # at least 15% token overlap counts as relevant
                 hits += 1
                 break
     return hits / len(retrieval_queries)
@@ -74,18 +75,18 @@ def compute_hit_at_k(results: List[Dict], k: int = 5) -> float:
 
 def compute_ctx_rel(results: List[Dict], llm_judge=None) -> float:
     """
-    Context Relevance: average LLM-judged relevance of retrieved evidence to
-    the query, normalised to [0, 1] (raw 1-5 / 5). Per paper Section 2.4.2:
+    Context Relevance: the mean LLM-judged relevance of retrieved evidence to
+    the query, rescaled to [0, 1] (raw 1-5 / 5). Per paper Section 2.4.2:
     "CtxRel is assessed by an LLM evaluator on a scale of 1-5 based on the
     adequacy of information supporting the answer."
 
-    Preferred path: each result dict already carries a per-query "ctx_rel"
-    score (1-5) populated by LLMJudge.judge_ctx_rel_batch() in the runner —
-    this function just averages those. Only if results have NO "ctx_rel"
-    field at all (e.g. judge scoring was skipped for cost) does it fall back
-    to the cheap lexical token-overlap heuristic in _ctx_rel_heuristic(),
-    which does NOT match the paper's stated LLM-judged methodology and should
-    be treated as an approximation only.
+    Preferred route: every result dict already holds a per-query "ctx_rel"
+    score (1-5) filled in by LLMJudge.judge_ctx_rel_batch() in the runner —
+    this function merely averages them. Only when results carry NO "ctx_rel"
+    field whatsoever (e.g. judge scoring was skipped to save cost) does it
+    drop back to the cheap lexical token-overlap heuristic in
+    _ctx_rel_heuristic(), which does NOT follow the paper's stated LLM-judged
+    methodology and is meant as a rough approximation only.
     """
     retrieval_queries = [r for r in results if r.get("evidence")]
     if not retrieval_queries:
@@ -105,7 +106,7 @@ def compute_ctx_rel(results: List[Dict], llm_judge=None) -> float:
 
 
 def _ctx_rel_heuristic(retrieval_queries: List[Dict]) -> float:
-    """Cheap fallback only — NOT the paper's methodology. See compute_ctx_rel()."""
+    """Low-cost fallback only — NOT the paper's methodology. See compute_ctx_rel()."""
     scores = []
     for r in retrieval_queries:
         query_tokens = set(r["query"].lower().split())
@@ -121,8 +122,8 @@ def _ctx_rel_heuristic(retrieval_queries: List[Dict]) -> float:
 
 def compute_tool_acc(results: List[Dict]) -> float:
     """
-    Tool Accuracy: fraction of queries where predicted routing mode matches reference.
-    Reference mode is inferred from query category.
+    Tool Accuracy: share of queries whose predicted routing mode agrees with the reference.
+    The reference mode is derived from the query's category.
     """
     category_to_mode = {
         "DK": "m1",
@@ -154,8 +155,8 @@ def _sr_schema_score(answer: str) -> float:
       c_3: risk mitigation
       c_4: implementation steps
       c_5: stated assumptions
-    Deterministic checklist rather than LLM-judged, same as the reference
-    implementation this metric approximates.
+    Uses a deterministic checklist rather than an LLM judge, mirroring the
+    reference implementation this metric approximates.
     """
     text = (answer or "").lower()
     checks = [
@@ -188,11 +189,11 @@ def _sr_schema_score(answer: str) -> float:
 
 def compute_sr_compliance(results: List[Dict]) -> float:
     """
-    SRComp: average schema-compliance score over policy-scenario queries.
+    SRComp: the mean schema-compliance score across policy-scenario queries.
 
-    For each PS answer, SRComp(a_i) is computed by the deterministic checklist
-    in _sr_schema_score(). If the pipeline provides structured sr_info with an
-    explicit sr_compliant flag, that flag is used as a full-score shortcut.
+    For every PS answer, SRComp(a_i) comes from the deterministic checklist in
+    _sr_schema_score(). When the pipeline supplies structured sr_info carrying
+    an explicit sr_compliant flag, that flag serves as a full-score shortcut.
     """
     ps_results = [r for r in results if r.get("category") == "PS"]
     if not ps_results:
@@ -208,20 +209,20 @@ def compute_sr_compliance(results: List[Dict]) -> float:
 
 
 def compute_pmr_compliance(results: List[Dict]) -> float:
-    """Backward-compatible alias for older result scripts."""
+    """Alias kept for compatibility with older result scripts."""
     return compute_sr_compliance(results)
 
 
 def compute_latency(results: List[Dict]) -> float:
-    """Average response latency in seconds."""
+    """Mean response latency, in seconds."""
     latencies = [r.get("latency_s", 0.0) for r in results if "latency_s" in r]
     return float(np.mean(latencies)) if latencies else 0.0
 
 
 def compute_all_metrics(results: List[Dict], llm_scores: Dict | None = None) -> Dict:
     """
-    Compute all automatic metrics for a list of results.
-    llm_scores: dict of {query_id: {rel, faith, cov}} from LLMJudge.
+    Calculate every automatic metric for a list of results.
+    llm_scores: dict of {query_id: {rel, faith, cov}} produced by LLMJudge.
     """
     metrics = {
         "hit_at_5":     round(compute_hit_at_k(results, k=5), 4),
@@ -251,7 +252,7 @@ def compute_all_metrics(results: List[Dict], llm_scores: Dict | None = None) -> 
 
 
 def per_category_metrics(results: List[Dict], llm_scores: Dict | None = None) -> Dict:
-    """Compute metrics broken down by query category."""
+    """Calculate metrics split out per query category."""
     categories = list(set(r.get("category", "unknown") for r in results))
     out = {}
     for cat in categories:

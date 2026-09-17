@@ -1,10 +1,10 @@
 # Cross-domain datasets
 
-Each dataset used in the cross-domain generalization experiments (Table 9 of the
-manuscript) is publicly available and downloadable from its official source. Below is
-the per-dataset link, the corresponding build script, and a short schema note.
+Every dataset used for the cross-domain generalization experiments (Table 9 of the
+manuscript) can be downloaded from its official source and is publicly available. The
+per-dataset link, its build script, and a brief schema note appear below.
 
-The build scripts live in the framework at
+The framework stores the build scripts at
 [`supplementary/cross_domain/<dataset>/01_build_<dataset>_kb.py`](../supplementary/cross_domain/).
 
 ---
@@ -20,11 +20,11 @@ The build scripts live in the framework at
 | **ID-GovQA** (pakdwi) | Indonesian government policy | 111 queries | Collected from **public Indonesian open-data portals**; bundled in [`data/id_govqa_pakdwi_test_sample.json`](../data/id_govqa_pakdwi_test_sample.json) | Authors' own (described in the manuscript) | `supplementary/cross_domain/pakdwi/01_build_pakdwi_kb.py` |
 
 > **Citation note.** CUAD, ConditionalQA, FinanceBench and PubMedQA are **public
-> benchmark datasets** and are cited in the manuscript. **ID-GovQA** is a dataset of
-> real-world Indonesian government queries assembled by the authors from **public
-> open-data portals**; it is not a third-party benchmark but is shared with this
-> repository (`data/id_govqa_pakdwi_test_sample.json`, 111 queries, 12 unanswerable) so
-> the cross-domain result can be reproduced.
+> benchmark datasets**, cited in the manuscript. **ID-GovQA** was assembled by the
+> authors from **public open-data portals** and consists of real-world Indonesian
+> government queries; rather than a third-party benchmark, it is shared with this
+> repository (`data/id_govqa_pakdwi_test_sample.json`, 111 queries, 12 unanswerable), so
+> that the cross-domain result can be reproduced.
 
 ### Download links (direct)
 
@@ -39,8 +39,8 @@ The build scripts live in the framework at
 
 ## How to reproduce the cross-domain comparison (Table 9)
 
-Each dataset folder contains the two-step reproduction pipeline. Build the KB, then run
-the comparison on the same method set as the paper (Standard RAG, Self-RAG, ARDA-SR):
+A two-step reproduction pipeline sits inside each dataset folder. First build the KB,
+then run the comparison over the paper's method set (Standard RAG, Self-RAG, ARDA-SR):
 
 ```bash
 # e.g. PubMedQA
@@ -49,10 +49,10 @@ python 01_build_pubmedqa_kb.py                 # download + build KB (one-time)
 python 02_run_pubmedqa_test.py                # run Standard RAG / Self-RAG / ARDA-SR
 ```
 
-The same holds for `cuad/`, `conditionalqa/`, and `financebench/`. Each run writes a
-per-method results file under `<dataset>/results/`, and `summary.json` /
+This applies equally to `cuad/`, `conditionalqa/`, and `financebench/`. Every run writes
+a per-method results file under `<dataset>/results/`, while `summary.json` /
 `summary_refusal_fixed.json` aggregate the metrics (Rel / Faith / Cov / FRR / latency)
-used in Table 9.
+reported in Table 9.
 
 ### Quick look per dataset
 
@@ -64,27 +64,27 @@ used in Table 9.
 | PubMedQA | abstracts | 180 | 180 | 0 |
 | ID-GovQA (pakdwi) | gov. policy | 111 | 99 | 12/111 |
 
-> The models used to generate the Table 9 numbers are recorded in the manuscript; the
-> evaluation protocol (judge, metrics, refusal handling) is the same as the main-domain
-> experiment (see `evaluation/`).
+> The manuscript records the models that produced the Table 9 numbers; the evaluation
+> protocol (judge, metrics, refusal handling) matches the main-domain experiment
+> (see `evaluation/`).
 
 ---
 
 ## Reproducibility of the reported numbers
 
-The aggregate metrics in Table 9 can be recomputed from the released per-method result
-files in this repository:
+From the released per-method result files in this repository, the aggregate metrics in
+Table 9 can be recomputed:
 
 ```
 results/data/summary_<domain>.json      → Rel / Faith / Cov / latency
 results/data/summary_<domain>_raw.json  → FRR / retrieval / tool / SRCompl
 ```
 
-and the cross-backbone numbers in Table 8 from:
+The cross-backbone numbers in Table 8 come from:
 
 ```
 results/data/arda_sr_*_pakdwi_summary.json
 ```
 
-Run `results/scripts/reproduce_tables.py` to regenerate `results/tables/table6.csv`,
-`table8.csv`, and `table9.csv` from these files.
+To regenerate `results/tables/table6.csv`, `table8.csv`, and `table9.csv` from these
+files, run `results/scripts/reproduce_tables.py`.

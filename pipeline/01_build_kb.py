@@ -3,7 +3,8 @@ Step 1: Build the Knowledge Base
 Run with: python 01_build_kb.py
 (On Windows, set PYTHONUTF8=1 or use: python -X utf8 01_build_kb.py)
 =================================
-Extracts text from documents.zip, chunks, embeds, and indexes into FAISS + BM25.
+Pulls text out of documents.zip, splits it into chunks, embeds them, and indexes
+the result into FAISS + BM25.
 
 Run: python 01_build_kb.py
 Output: kb/faiss_index/, kb/bm25_index.pkl, kb/chunks.json
@@ -37,23 +38,23 @@ def main():
         logger.error(f"documents.zip not found at: {DOCS_ZIP}")
         sys.exit(1)
 
-    # ── Extract documents ──────────────────────────────────────────────────
+    # ── Document extraction ────────────────────────────────────────────────
     logger.info(f"Processing: {DOCS_ZIP}")
     processor = DocumentProcessor(DOCS_ZIP)
     documents = list(processor.iter_documents())
     logger.info(f"Extracted {len(documents)} documents")
 
-    # Print distribution
+    # Show the distribution
     from collections import Counter
     dist = Counter(d["category"] for d in documents)
     for cat, count in sorted(dist.items()):
         logger.info(f"  {cat}: {count} docs")
 
-    # ── Build KB ───────────────────────────────────────────────────────────
+    # ── Build the KB ───────────────────────────────────────────────────────
     builder = KnowledgeBaseBuilder(KB_DIR)
     builder.build(documents)
 
-    # ── Verify ────────────────────────────────────────────────────────────
+    # ── Verification ──────────────────────────────────────────────────────
     import json
     with open(KB_DIR / "chunks.json", encoding="utf-8") as f:
         chunks = json.load(f)

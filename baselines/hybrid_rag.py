@@ -1,4 +1,4 @@
-"""Baseline: Hybrid RAG (dense + BM25 sparse retrieval, no adaptive routing)."""
+"""Baseline: Hybrid RAG (BM25 sparse plus dense retrieval, without adaptive routing)."""
 
 import time
 import logging
@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 class HybridRAGPipeline(BasePipeline):
     """
-    Hybrid RAG: combines dense cosine similarity and BM25 lexical matching.
-    No adaptive routing or false-refusal mitigation.
+    Hybrid RAG: merges BM25 lexical matching with dense cosine similarity.
+    There is neither adaptive routing nor any false-refusal mitigation.
     Reference: IEEE 10707868.
     """
 

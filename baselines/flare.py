@@ -1,8 +1,8 @@
 """
 Baseline: FLARE — Forward-Looking Active REtrieval Augmented Generation.
 
-Iteratively generates text, detects low-confidence spans,
-retrieves to fill knowledge gaps, and continues generation.
+Text is produced step by step; spans with low confidence are spotted,
+retrieval is triggered to close the knowledge gaps, and generation resumes.
 Reference: Jiang et al. 2023, EMNLP (Scopus indexed).
 """
 
@@ -22,19 +22,20 @@ MAX_FLARE_ITERS = 3
 
 class FLAREPipeline(BasePipeline):
     """
-    FLARE: proactively decides when to retrieve by predicting future tokens
-    and checking confidence. Low-confidence → retrieve → regenerate.
+    FLARE: chooses on its own when retrieval is warranted by anticipating
+    upcoming tokens and gauging confidence. Low confidence → retrieve →
+    regenerate.
 
-    Fidelity note: the original FLARE (Jiang et al. 2023) detects low
-    confidence using the generating LM's own token-level output
-    probabilities (a white-box signal) on the forward-looking sentence.
-    The Gemini API used here does not expose per-token log-probabilities
-    for this call pattern, so this implementation substitutes a separate
-    LLM self-judgment (CONFIDENCE_PROMPT) asking whether the predicted
-    sentence "contains uncertainty" — a black-box approximation of FLARE's
-    core triggering mechanism, not a reproduction of it. This is a material
-    mechanism difference and should be disclosed as such when comparing
-    against FLARE's original reported behavior.
+    Fidelity note: in the original FLARE (Jiang et al. 2023), low confidence
+    is spotted from the generating LM's own per-token output probabilities
+    (a white-box signal) over the forward-looking sentence. The Gemini API
+    available here does not surface per-token log-probabilities for this
+    call pattern, so this port falls back on a separate LLM self-judgment
+    (CONFIDENCE_PROMPT) that asks whether the predicted sentence "contains
+    uncertainty" — a black-box stand-in for FLARE's central triggering
+    mechanism, not an exact copy. That mechanism gap is significant and
+    ought to be stated plainly whenever results are compared with FLARE's
+    originally reported behavior.
     """
 
     name = "flare"
@@ -85,7 +86,7 @@ Predicted Next Sentence: {prediction}"""
         evidence_all: List[Dict] = []
 
         try:
-            # Initial partial generation
+            # Produce the opening partial answer
             partial = self.client.generate(
                 self.INITIAL_PROMPT.format(query=query), max_tokens=384
             )
@@ -107,12 +108,12 @@ Predicted Next Sentence: {prediction}"""
                     break
                 topic = conf.get("query") or prediction or query
 
-                # Retrieve using the forward-looking predicted content.
+                # Fetch evidence from the forward-looking predicted text.
                 evidence = self.retriever.retrieve(topic or query, k=3)
                 evidence_all.extend(evidence)
                 ev_text = self._format_evidence(evidence)
 
-                # Continue generation with retrieved evidence
+                # Resume generation using the evidence just retrieved
                 continuation = self.client.generate(
                     self.CONTINUE_PROMPT.format(
                         query=query, partial=partial[:400], evidence=ev_text[:1000]
@@ -121,7 +122,7 @@ Predicted Next Sentence: {prediction}"""
                 )
                 partial = f"{partial.strip()} {continuation.strip()}".strip()
 
-            # Final cleanup
+            # Wrap up and tidy the output
             answer = re.sub(r"\[UNCERTAIN:.*?\]", "", partial).strip()
             result["answer"]       = answer
             result["evidence"]     = evidence_all[:k]

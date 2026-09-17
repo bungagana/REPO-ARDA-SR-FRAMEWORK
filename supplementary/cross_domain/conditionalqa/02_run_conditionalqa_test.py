@@ -24,8 +24,8 @@ CROSS_DOMAIN_DIR = THIS_DIR.parent
 sys.path.insert(0, str(ROOT_DIR))
 sys.path.insert(0, str(CROSS_DOMAIN_DIR))
 
-# Import order: KB stack before google.genai (Windows segfault fix, same as
-# every other AFTER-REVIEW script this session).
+# Import ordering: the KB stack must load ahead of google.genai (the
+# Windows segfault workaround used by every other AFTER-REVIEW script here).
 from utils.kb_builder import KnowledgeBase  # noqa: E402
 from utils.llm_client import GeminiClient  # noqa: E402
 from utils.openai_client import GPTJudgeClient  # noqa: E402
@@ -39,9 +39,10 @@ KB_DIR = THIS_DIR / "kb_conditionalqa"
 RESULTS_DIR = THIS_DIR / "results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
-# standard_rag = weakest baseline in the main experiment, selfrag =
-# strongest (Table 5) — same two-baseline bracketing as the FinanceBench
-# check, both verified domain-clean (AFTER-REVIEW/cross-domain/AUDIT.md).
+# standard_rag = the main experiment's weakest baseline, selfrag = its
+# strongest (Table 5) — the same two-baseline bracket the FinanceBench
+# check uses; both confirmed domain-clean
+# (AFTER-REVIEW/cross-domain/AUDIT.md).
 DEFAULT_METHODS = ["standard_rag", "selfrag", "arda_sr"]
 DOMAIN_CONTEXT = ("UK public-sector policy guidance (ConditionalQA: citizen questions, each tied "
                    "to a personal scenario, over real gov.uk policy pages such as benefits, visas, "
@@ -72,7 +73,7 @@ def main():
         print(f"\n{'-'*40}\nRunning: {method}")
         out_path = RESULTS_DIR / f"{method}_conditionalqa_results.json"
 
-        # Resume-friendly: reuse existing answers instead of regenerating.
+        # Resumable: rather than regenerate, reuse whatever answers exist.
         if out_path.exists() and not args.smoke:
             with open(out_path, encoding="utf-8") as f:
                 results = json.load(f)

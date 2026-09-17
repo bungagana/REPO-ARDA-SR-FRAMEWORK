@@ -2,21 +2,21 @@ import re
 from typing import Dict, List, Optional
 
 
-# ── CUAD: exact contract-identity filter ────────────────────────────────────
+# ── CUAD: filter on exact contract identity ────────────────────────────────
 
-# Matches the "{contract_title}: " prefix that 01_build_cuad_kb.py prepends
-# to every question (contract_title never itself contains ": ", verified —
-# it's built from CUAD's own title field, an underscore/hyphen-delimited
-# SEC-filing identifier such as "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR
-# AGREEMENT").
+# Matches the "{contract_title}: " prefix that 01_build_cuad_kb.py adds in
+# front of every question (contract_title itself never contains ": ", which
+# was verified — it comes from CUAD's own title field, an
+# underscore/hyphen-delimited SEC-filing identifier like
+# "LIMEENERGYCO_09_09_1999-EX-10-DISTRIBUTOR AGREEMENT").
 _CUAD_TITLE_PREFIX_RE = re.compile(r"^(.*?): ")
 
 
 def extract_cuad_metadata(query: str) -> Dict:
     """
-    Returns {"filename": <contract_title>} if the query carries the
-    "{title}: ..." prefix, else {} (safe no-op, same fallback behavior as
-    the original arda_sr/retrieval.py function when nothing matches).
+    Yields {"filename": <contract_title>} when the query carries the
+    "{title}: ..." prefix, otherwise {} (a safe no-op that falls back the
+    way the original arda_sr/retrieval.py function does when nothing matches).
     """
     m = _CUAD_TITLE_PREFIX_RE.match(query)
     if not m:
@@ -24,13 +24,13 @@ def extract_cuad_metadata(query: str) -> Dict:
     return {"filename": m.group(1)}
 
 
-# ── ConditionalQA: coarse topic-keyword bucket ──────────────────────────────
+# ── ConditionalQA: coarse keyword-based topic bucket ───────────────────────
 
-# Built by skimming kb_conditionalqa's 652 gov.uk page titles (see chat
-# discussion / exploration). Deliberately small and approximate — same
-# spirit as the original's 7-item Indonesian commodity list, not an
-# exhaustive taxonomy. Order matters: first matching bucket wins, so more
-# specific buckets are listed before broader ones.
+# Compiled by skimming the 652 gov.uk page titles in kb_conditionalqa (see
+# chat discussion / exploration). Intentionally small and approximate — the
+# same spirit as the original's 7-item Indonesian commodity list rather than
+# an exhaustive taxonomy. Order matters: the first bucket to match wins, so
+# the more specific buckets appear ahead of the broader ones.
 TOPIC_KEYWORD_MAP: Dict[str, List[str]] = {
     "immigration_visa": [
         "visa", "immigration", "asylum", "settle", "settlement", "indefinite leave",
@@ -74,12 +74,13 @@ TOPIC_KEYWORD_MAP: Dict[str, List[str]] = {
 
 def bucket_topic(text: str, keyword_map: Dict[str, List[str]] = TOPIC_KEYWORD_MAP) -> Optional[str]:
     """
-    Shared helper used on BOTH sides (query-time extraction and one-time KB
-    chunk enrichment) so the vocabulary can never drift out of sync between
-    them. Returns the first matching bucket name, or None if nothing matches
-    (safe no-op — HybridRetriever._matches() treats a missing/absent filter
-    key as an automatic pass-through, so an unmatched query just falls back
-    to plain unfiltered hybrid scoring, same as the original design).
+    Shared helper invoked on BOTH sides (query-time extraction and one-off KB
+    chunk enrichment), which keeps the vocabulary from ever drifting out of
+    sync between them. Gives back the first bucket name that matches, or None
+    when nothing does (safe no-op — HybridRetriever._matches() treats an
+    absent/missing filter key as an automatic pass-through, so an unmatched
+    query simply reverts to plain unfiltered hybrid scoring, as originally
+    designed).
     """
     t = text.lower()
     for bucket, keywords in keyword_map.items():
@@ -90,8 +91,8 @@ def bucket_topic(text: str, keyword_map: Dict[str, List[str]] = TOPIC_KEYWORD_MA
 
 def extract_conditionalqa_metadata(query: str) -> Dict:
     """
-    Returns {"topic": <bucket>} if any keyword matches the query text
-    (the "Scenario: ...\n\nQuestion: ..." string), else {}.
+    Yields {"topic": <bucket>} when some keyword matches the query text
+    (the "Scenario: ...\n\nQuestion: ..." string), otherwise {}.
     """
     topic = bucket_topic(query)
     return {"topic": topic} if topic else {}

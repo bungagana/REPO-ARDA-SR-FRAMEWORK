@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Reproduce the paper's comparison tables (6, 8, 9) from the raw experiment data.
+"""Regenerate the paper's comparison tables (6, 8, 9) from the raw experiment data.
 
-Data expectations (paths relative to this script or an override via --data):
-  data/*.json                   main-domain per-method results (Table 6)
+Expected data (paths are relative to this script, or overridden with --data):
+  data/*.json                   per-method results for the main domain (Table 6)
     each item: {method, rel, faith, cov, is_refusal, latency_s, hit_at_k, ...}
-  data/arda_sr_*_pakdwi_summary.json   cross-backbone per-method summaries (Table 8)
-  data/summary_<domain>_*       per-domain per-method summaries (Table 9)
+  data/arda_sr_*_pakdwi_summary.json   per-method cross-backbone summaries (Table 8)
+  data/summary_<domain>_*       per-method per-domain summaries (Table 9)
 
 Outputs (--out):
   results/tables/table6.csv, table8.csv, table9.csv   (+ .md copies)
@@ -26,10 +26,11 @@ OUT = os.path.join(HERE, "..", "tables")
 
 
 def plot_figure6(t6, fig_path=None, fig_path_pdf=None):
-    """Reproduce Figure 6 (Relevance vs computational cost / latency).
+    """Regenerate Figure 6 (relevance against computational cost / latency).
 
-    Emphasises ARDA-SR and draws the Pareto-optimal frontier (higher relevance at
-    lower latency is better), matching the manuscript trade-off figure.
+    ARDA-SR is highlighted and the Pareto-optimal frontier is drawn (more
+    relevance at less latency is preferable), mirroring the manuscript's
+    trade-off figure.
     """
     try:
         import matplotlib
@@ -47,9 +48,9 @@ def plot_figure6(t6, fig_path=None, fig_path_pdf=None):
 
     fig, ax = plt.subplots(figsize=(6.4, 4.6))
 
-    # scatter all methods
+    # plot every method as a scatter point
     ax.scatter(lat, rel, s=70, c="#4c72b0", alpha=0.9, edgecolors="k", linewidths=0.6, label="Method")
-    # ARDA-SR highlighted
+    # bring ARDA-SR to the foreground
     arda = np.array([m for m in methods if m in ("arda_pmr", "arda_sr", "ARDA-SR")])
     for m, x, y in zip(methods, lat, rel):
         is_arda = m in ("arda_pmr", "arda_sr", "ARDA-SR")
@@ -59,7 +60,7 @@ def plot_figure6(t6, fig_path=None, fig_path_pdf=None):
         ax.annotate(m.replace("_", " ").title(), (x, y), textcoords="offset points",
                     xytext=(5, 5), fontsize=7.5, weight="bold" if is_arda else "normal")
 
-    # Pareto frontier: keep points that are not dominated in (latency low, rel high)
+    # Pareto frontier: retain points not dominated in (low latency, high relevance)
     pts = [(x, y) for x, y in zip(lat, rel)]
     pac = []
     for i, (xi, yi) in enumerate(pts):
@@ -115,7 +116,7 @@ def full_metrics(results):
 
 
 def build_table6(data_dir):
-    """Table 6: per-method answer/behaviour metrics on the 1,000 main queries."""
+    """Table 6: answer and behaviour metrics per method over the 1,000 main queries."""
     rows = {}
     for path in sorted(glob.glob(os.path.join(data_dir, "*_results.json"))):
         base = os.path.basename(path)
@@ -131,10 +132,10 @@ def build_table6(data_dir):
 
 
 def build_table9(data_dir):
-    """Table 9: cross-domain per-method summaries.
-    Primary source = summary_<domain>_fixed.json (rel/faith/cov/frr/latency, matches
-    the manuscript). Falls back to summary_<domain>.json + summary_<domain>_raw.json
-    if the _fixed file is absent.
+    """Table 9: per-method summaries broken down across domains.
+    The main source is summary_<domain>_fixed.json (rel/faith/cov/frr/latency, in
+    line with the manuscript). When the _fixed file is missing it falls back to
+    summary_<domain>.json plus summary_<domain>_raw.json.
     """
     doms = {}
     # prefer _fixed files
@@ -149,7 +150,7 @@ def build_table9(data_dir):
 
 
 def table9_to_csv(doms, name="table9.csv"):
-    """Rows = (domain, method); cols = Rel, Faith, Cov, FRR, Lat."""
+    """Rows are (domain, method); columns are Rel, Faith, Cov, FRR, Lat."""
     import csv
     rows = []
     for ds, store in sorted(doms.items()):
@@ -177,7 +178,7 @@ def table9_to_csv(doms, name="table9.csv"):
 
 
 def table8_to_csv(data_dir, name="table8.csv"):
-    """Table 8: cross-backbone summary (arda_sr_*_pakdwi_summary.json)."""
+    """Table 8: summary across backbones (arda_sr_*_pakdwi_summary.json)."""
     import csv
     rows = []
     for path in sorted(glob.glob(os.path.join(data_dir, "arda_sr_*_pakdwi_summary.json"))):
@@ -187,7 +188,7 @@ def table8_to_csv(data_dir, name="table8.csv"):
     path_out = os.path.join(OUT, name)
     with open(path_out, "w", newline="") as f:
         w = csv.writer(f)
-        # single header (no duplicated 'file')
+        # one header row only (no repeated 'file')
         keys = ["backbone_file", "model", "n_answerable", "n_unanswerable", "frr",
                 "n_correctly_refused", "arr_unanswerable", "far_unanswerable",
                 "hit_at_5", "latency_mean_s"]
@@ -227,7 +228,7 @@ def main():
     t8 = table8_to_csv(args.data, "table8.csv")
     t9 = table9_to_csv(build_table9(args.data), "table9.csv")
 
-    # print Table 6
+    # display Table 6
     print("\n=== Table 6 (reproduced) ===")
     print(f"{'method':16s} {'Rel':>6s} {'Faith':>7s} {'Cov':>7s} {'FRR':>7s} {'Lat':>6s}")
     for m, r in sorted(t6.items()):
@@ -238,7 +239,7 @@ def main():
     for r in t9:
         print(f"{r['domain']:16s} {r['method']:14s} {str(r['Rel'])[:6]:>6s} {str(r['Faith'])[:7]:>7s} {str(r['Cov'])[:7]:>7s} {str(r['FRR'])[:7]:>7s} {str(r['Lat'])[:6]:>6s}")
 
-    # Repro Figure 6 (Relevance vs latency)
+    # Regenerate Figure 6 (relevance vs latency)
     if t6:
         plot_figure6(t6, fig_path_pdf=os.path.join(HERE, "..", "figures", "Figure6_relevance_vs_cost.pdf"))
 

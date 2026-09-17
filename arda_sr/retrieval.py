@@ -1,5 +1,6 @@
 """
 Hybrid retrieval: FAISS dense search + BM25 sparse search + metadata filtering.
+Retrieval blends all three.
 s(e|q) = α · cos(z_e, z_q) + (1-α) · BM25(e, q)
 """
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class HybridRetriever:
-    """Retrieve Top-K evidence chunks using hybrid dense+sparse scoring with metadata filtering."""
+    """Pull the Top-K evidence chunks by hybrid dense+sparse scoring, filtered by metadata."""
 
     def __init__(self, kb: KnowledgeBase):
         self.kb = kb
@@ -28,12 +29,12 @@ class HybridRetriever:
         metadata_filter: Optional[Dict] = None,
     ) -> List[Dict]:
         """
-        Returns top-k chunk dicts with added 'hybrid_score' field.
-        metadata_filter: dict of {field: value} that chunks must match (subset).
+        Returns top-k chunk dicts, each carrying an extra 'hybrid_score' field.
+        metadata_filter: dict of {field: value} that chunks have to match (subset).
         """
         chunks = self.kb.chunks
 
-        # ── 1. Metadata filtering ──────────────────────────────────────────
+        # ── 1. Filter by metadata ──────────────────────────────────────────
         if metadata_filter:
             candidate_ids = [
                 i for i, c in enumerate(chunks)
@@ -43,28 +44,28 @@ class HybridRetriever:
             candidate_ids = list(range(len(chunks)))
 
         if not candidate_ids:
-            candidate_ids = list(range(len(chunks)))   # fallback: no filter
+            candidate_ids = list(range(len(chunks)))   # fallback: drop the filter
 
-        # ── 2. Dense scores (cosine via FAISS inner product on unit vectors) ─
+        # ── 2. Dense scores (cosine, from FAISS inner product on unit vectors) ─
         query_vec = self.kb.embed_query(query)
-        # Use FAISS for dense retrieval over the full index
+        # Dense retrieval runs over the full index through FAISS
         q_vec_full = self.kb.embed_query(query)
-        # Retrieve top-K*5 candidates from FAISS, then re-score with BM25
+        # Pull top-K*5 candidates from FAISS, then re-score them with BM25
         n_faiss = min(len(chunks), max(k * 5, 50))
         faiss_scores_arr, top_indices = self.kb._faiss.search(q_vec_full, n_faiss)
         faiss_scores = {}
         for rank, idx in enumerate(top_indices[0]):
             if idx < 0:
                 continue
-            # faiss_scores_arr contains inner products (cosine when vectors are normalised)
+            # faiss_scores_arr holds inner products (cosine once vectors are normalised)
             faiss_scores[idx] = float(faiss_scores_arr[0][rank])
 
-        # ── 3. BM25 scores ─────────────────────────────────────────────────
+        # ── 3. Score with BM25 ─────────────────────────────────────────────
         bm25_scores_all = self.kb.bm25_scores(query)
         max_bm25 = bm25_scores_all.max() or 1.0
         bm25_norm = bm25_scores_all / max_bm25
 
-        # ── 4. Hybrid score (only for candidates) ─────────────────────────
+        # ── 4. Combined hybrid score (candidates only) ────────────────────
         scored = []
         for i in candidate_ids:
             dense = faiss_scores.get(i, 0.0)
@@ -97,7 +98,7 @@ class HybridRetriever:
 
     @staticmethod
     def extract_metadata_from_query(query: str) -> Dict:
-        """Heuristically extract filter metadata from query text."""
+        """Pull filter metadata out of the query text using heuristics."""
         filt = {}
         provinces = [
             "Sulawesi Tenggara", "Sulawesi Tengah", "Sulawesi Barat",
