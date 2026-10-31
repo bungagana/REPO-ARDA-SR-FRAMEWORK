@@ -2,7 +2,7 @@
 
 ARDA-SR has been deployed in a real-world setting to screen inpatient claims for
 BPJS Kesehatan / INA-CBG automatically. The system operates on the Senopati AI
-platform ([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)).
+platform ([https://senopati.lab-alpro.com/klaim-bpjs/](https://senopati.lab-alpro.com/klaim-bpjs/)).
 
 ## Data
 

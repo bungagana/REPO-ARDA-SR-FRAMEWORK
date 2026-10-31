@@ -47,7 +47,7 @@ checked by others.
 | [`supplementary/`](supplementary) | Zero-shot cross-domain transfer + a diagnostic for unanswerable queries |
 | [`results/`](results) | Comparison tables that reproduce (Table 6, 8, 9), Figure 6, raw per-query experiment outputs, and the `reproduce_tables.py` script |
 | [`cross-datasets/`](cross-datasets) | Public cross-domain datasets (CUAD / ConditionalQA / FinanceBench / PubMedQA) — download links, schema, and per-dataset reproduction steps |
-| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening in government question answering (Senopati AI platform: <https://senopati.its.ac.id/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
+| [`Real-World Deployment/`](Real-World%20Deployment) | A real-world deployment of ARDA-SR for automated BPJS/INA-CBG inpatient-claim screening in government question answering (Senopati AI platform: <https://senopati.lab-alpro.com/klaim-bpjs/>) — deployment notes, main-result table, figure, and a **password-protected** dataset archive (password on request from the authors) |
 | `config.py` | Every method parameter gathered in one place |
 
 **Not included:** the source document corpus, the model weights, and API keys.
@@ -341,7 +341,7 @@ for future work are planned, aimed at cutting it while preserving the quality ga
 
 A production deployment of ARDA-SR that automates **BPJS Kesehatan / INA-CBG
 inpatient-claim screening in government question answering**, running on the Senopati AI
-platform ([https://senopati.its.ac.id/klaim-bpjs/](https://senopati.its.ac.id/klaim-bpjs/)) —
+platform ([https://senopati.lab-alpro.com/klaim-bpjs/](https://senopati.lab-alpro.com/klaim-bpjs/)) —
 positioned after the experimental results, following the manuscript.
 
 See **[`Real-World Deployment/`](Real-World%20Deployment)** for:
